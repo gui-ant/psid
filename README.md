@@ -1,2 +1,2 @@
 ## Grupo 7
-[Relatório](https://docs.google.com/document/d/1BC_oYrLBjSYHR2bOH1fjkIKHvq2a1zJvAzkpaANKZPg/edit?usp=sharing)
+[Relatório](https://drive.google.com/file/d/1IDQfu4Isl7JmDOA8e8Rpzmsb-WAFK9nV/view?usp=sharing)
