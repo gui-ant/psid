@@ -1,5 +1,5 @@
 ## Grupo 7
-[Relatório](https://docs.google.com/document/d/1IDQfu4Isl7JmDOA8e8Rpzmsb-WAFK9nV/edit)<br/>
+[Relatório](https://drive.google.com/file/d/1F14r7k54XJ3Kmzq6IZxJsG_Xur3vkzZY/edit?usp=sharing)<br/>
 [Diário](https://docs.google.com/spreadsheets/d/1HMAvvbRs9QXDj8qZwiOb9Uf7KmsjCt36/edit)
 
 Link ZOOM: https://videoconf-colibri.zoom.us/j/87585381703
