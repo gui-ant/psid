@@ -1,7 +1,5 @@
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.MongoWriteException;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
@@ -40,53 +38,18 @@ public class ConnectToDBSID extends Thread {
         targetCollection = targetMongoDb.getCollection(targetCollectionName);
     }
 
-    public void test1() {
-        long colSize = sourceCollection.count();
-        System.out.println("Collection size = " + colSize);
-
-        Document a = sourceCollection.find().first();
-        String js = a.toJson();
-        String[] b = js.split(",");
-        System.out.println(a);
-        System.out.println(b[0]);
-        System.out.println(b[1]);
-        System.out.println(b[2]);
+    private Document getLastObject(MongoCollection<Document> collection) {
+        return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
-    public void test2() {
-        Document cl = sourceCollection.find().first();
-        System.out.println(cl.getClass());
-//        List<Document> docTest = collection.find().into(new ArrayList<Document>());
-//        collection_test.insertMany(collection.find().into(docTest);
-
-//        collection.find().batchSize(1000).forEach((Block<? super Document>) document -> collection_test.insertOne(document));
-    }
-
-    private Document getLastObject() {
-        return sourceCollection.find().sort(new Document("_id", -1)).limit(1).first();
-    }
-
-    private void fetchData2() {
-        for (Document z : sourceCollection.find()) {
-            try {
-                System.out.println(z);
-                targetCollection.insertOne(z);
-            } catch (MongoWriteException e) {
-                System.err.println("Já existe, oh estupido!");
-            }
-        }
-    }
-
-    private MongoCursor<Document> getUpdatedCursor() {
-        FindIterable<Document> data = sourceCollection.find();
-        data.skip((int) sourceCollection.count());
-        return data.iterator();
+    private MongoCursor<Document> getInitialCursor() {
+        Document doc = getLastObject(sourceCollection);
+        return sourceCollection.find(Filters.gt("_id", doc.get("_id"))).iterator();
     }
 
     private void fetchData() {
         Document doc = null;
-        MongoCursor<Document> cursor = getUpdatedCursor();
-        ;
+        MongoCursor<Document> cursor = getInitialCursor();
         while (true) {
             try {
                 while (cursor.hasNext()) {
@@ -105,11 +68,6 @@ public class ConnectToDBSID extends Thread {
     public void run() {
         connect();
         fetchData();
-
-
-//        NAO APAGAR!!!
-//        collection.find( new BasicDBObject("_id", new ObjectId("603fbc3f9d4da9b7e728d4b0")));
-
     }
 
 }
