@@ -4,7 +4,11 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.InsertManyOptions;
 import org.bson.Document;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConnectToDBSID extends Thread {
     private final MongoClientURI uri = new MongoClientURI("mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1");
@@ -44,23 +48,45 @@ public class ConnectToDBSID extends Thread {
 
     private MongoCursor<Document> getInitialCursor() {
         Document doc = getLastObject(sourceCollection);
-        return sourceCollection.find(Filters.gt("_id", doc.get("_id"))).iterator();
+        return sourceCollection.find(Filters.gte("_id", doc.get("_id"))).iterator();
+    }
+
+//    APENAS PARA TESTES!!!
+//    private MongoCursor<Document> getUpdatedCursor() {
+//        FindIterable<Document> iterable = sourceCollection.find();
+//        iterable.skip((int) sourceCollection.count());
+//        return iterable.iterator();
+//    }
+
+    private void insertBulk(List<Document> documents, boolean ordered) {
+        InsertManyOptions options = new InsertManyOptions();
+        if (!ordered) {
+            options.ordered(false);
+        }
+        targetCollection.insertMany(documents, options);
     }
 
     private void fetchData() {
         Document doc = null;
         MongoCursor<Document> cursor = getInitialCursor();
+        List<Document> documents = new ArrayList<>();
         while (true) {
             try {
                 while (cursor.hasNext()) {
                     doc = cursor.next();
                     System.out.println("Source: " + doc); // lê da cloud
-                    targetCollection.insertOne(doc); // regista na g07
+                    documents.add(doc);
                 }
                 cursor = sourceCollection.find(Filters.gt("_id", doc.get("_id"))).iterator();
+                if(!documents.isEmpty()) {
+                    insertBulk(documents, true);
+                    System.out.println("ESCREVER!!!!");
+                    documents.clear();
+                }
                 Thread.sleep(2000);
             } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
+//                interruptedException.printStackTrace();
+                System.err.println("DEU ERRO!");
             }
         }
     }
