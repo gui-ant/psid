@@ -5,27 +5,26 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
 
 public class ConnectToDBSID extends Thread {
-    private String db1Name = "";
-    private String db2Name = "";
-    private String coll1Name = "";
-    private String coll2Name = "";
-
     private final MongoClientURI uri = new MongoClientURI("mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1");
+    private String sourceDB;
+    private String targetDB;
+    private String sourceCollectionName;
+    private String targetCollectionName;
     private MongoClient mongo;
+    private MongoDatabase sourceMongoDb;
+    private MongoDatabase targetMongoDb;
+    private MongoCollection<Document> sourceCollection;
+    private MongoCollection<Document> targetCollection;
 
-    private MongoDatabase database;
-    private MongoDatabase database_test;
-    private MongoCollection<Document> collection;
-    private MongoCollection<Document> collection_test;
-
-    public ConnectToDBSID(String db1, String db2, String coll1, String coll2) {
-        this.db1Name = db1;
-        this.db2Name = db2;
-        this.coll1Name = coll1;
-        this.coll2Name = coll2;
+    public ConnectToDBSID(String sourceDb, String targetDb, String sourceCollection, String targetCollection) {
+        this.sourceDB = sourceDb;
+        this.targetDB = targetDb;
+        this.sourceCollectionName = sourceCollection;
+        this.targetCollectionName = targetCollection;
     }
 
     private void connect() {
@@ -34,22 +33,18 @@ public class ConnectToDBSID extends Thread {
         System.out.println("Connected to the database successfully");
 
         // Accessing the database
-        database = mongo.getDatabase(db1Name);
-        database_test = mongo.getDatabase(db2Name);
+        sourceMongoDb = mongo.getDatabase(sourceDB);
+        targetMongoDb = mongo.getDatabase(targetDB);
 
-        // Creating a collection
-        System.out.println("Collection created successfully");
-        // Retrieving a collection
-        collection = database.getCollection(coll1Name);
-        collection_test = database_test.getCollection(coll2Name);
-        System.out.println("Collection myCollection selected successfully");
+        sourceCollection = sourceMongoDb.getCollection(sourceCollectionName);
+        targetCollection = targetMongoDb.getCollection(targetCollectionName);
     }
 
     public void test1() {
-        long colSize = collection.count();
+        long colSize = sourceCollection.count();
         System.out.println("Collection size = " + colSize);
 
-        Document a = collection.find().first();
+        Document a = sourceCollection.find().first();
         String js = a.toJson();
         String[] b = js.split(",");
         System.out.println(a);
@@ -59,7 +54,7 @@ public class ConnectToDBSID extends Thread {
     }
 
     public void test2() {
-        Document cl = collection.find().first();
+        Document cl = sourceCollection.find().first();
         System.out.println(cl.getClass());
 //        List<Document> docTest = collection.find().into(new ArrayList<Document>());
 //        collection_test.insertMany(collection.find().into(docTest);
@@ -68,14 +63,14 @@ public class ConnectToDBSID extends Thread {
     }
 
     private Document getLastObject() {
-        return collection.find().sort(new Document("_id", -1)).limit(1).first();
+        return sourceCollection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
     private void fetchData2() {
-        for (Document z : collection.find()) {
+        for (Document z : sourceCollection.find()) {
             try {
                 System.out.println(z);
-                collection_test.insertOne(z);
+                targetCollection.insertOne(z);
             } catch (MongoWriteException e) {
                 System.err.println("Já existe, oh estupido!");
             }
@@ -83,24 +78,26 @@ public class ConnectToDBSID extends Thread {
     }
 
     private MongoCursor<Document> getUpdatedCursor() {
-        FindIterable<Document> iterable = collection.find();
-        iterable.skip((int) collection.count());
-        return iterable.iterator();
+        FindIterable<Document> data = sourceCollection.find();
+        data.skip((int) sourceCollection.count());
+        return data.iterator();
     }
 
     private void fetchData() {
+        Document doc = null;
         MongoCursor<Document> cursor = getUpdatedCursor();
+        ;
         while (true) {
             try {
-                System.out.println(cursor.next());
-                collection_test.insertOne(cursor.next());
-            } catch (Exception e) {
-                try {
-                    cursor = getUpdatedCursor();
-                    Thread.sleep(2000);
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
+                while (cursor.hasNext()) {
+                    doc = cursor.next();
+                    System.out.println("Source: " + doc); // lê da cloud
+                    targetCollection.insertOne(doc); // regista na g07
                 }
+                cursor = sourceCollection.find(Filters.gt("_id", doc.get("_id"))).iterator();
+                Thread.sleep(2000);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
             }
         }
     }
@@ -108,8 +105,6 @@ public class ConnectToDBSID extends Thread {
     public void run() {
         connect();
         fetchData();
-
-
 
 
 //        NAO APAGAR!!!
