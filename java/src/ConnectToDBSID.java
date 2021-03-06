@@ -16,11 +16,13 @@ import java.util.List;
 
 public class ConnectToDBSID extends Thread {
     private final MongoClientURI uri = new MongoClientURI("mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1");
+    private final MongoClientURI uriAtlas = new MongoClientURI("mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority");
     private String sourceDB;
     private String targetDB;
     private String sourceCollectionName;
     private String targetCollectionName;
     private MongoClient mongo;
+    private MongoClient mongoAtlas;
     private MongoDatabase sourceMongoDb;
     private MongoDatabase targetMongoDb;
     private MongoCollection<Document> sourceCollection;
@@ -35,12 +37,14 @@ public class ConnectToDBSID extends Thread {
 
     private void connect() {
         mongo = new MongoClient(uri);
+        mongoAtlas = new MongoClient(uriAtlas);
 
         System.out.println("Connected to the database successfully");
 
         // Accessing the database
         sourceMongoDb = mongo.getDatabase(sourceDB);
-        targetMongoDb = mongo.getDatabase(targetDB);
+        //targetMongoDb = mongo.getDatabase(targetDB);
+        targetMongoDb = mongoAtlas.getDatabase(targetDB);
 
         sourceCollection = sourceMongoDb.getCollection(sourceCollectionName);
         targetCollection = targetMongoDb.getCollection(targetCollectionName);
