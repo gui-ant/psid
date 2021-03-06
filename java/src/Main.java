@@ -1,5 +1,7 @@
 public class Main {
     public static void main (String[] args) {
+//        retirar comentario quando sensores disponiveis
+
 //        ConnectToDBSID h1 = new ConnectToDBSID("sid2021", "g07", "sensorh1", "sensorh1");
 //        h1.start();
 //        ConnectToDBSID h2 = new ConnectToDBSID("sid2021", "g07", "sensorh2", "sensorh2");
