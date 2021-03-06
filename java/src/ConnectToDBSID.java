@@ -46,10 +46,10 @@ public class ConnectToDBSID extends Thread {
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
-    private MongoCursor<Document> getInitialCursor() {
+    /*private MongoCursor<Document> getInitialCursor() {
         Document doc = getLastObject(sourceCollection);
         return sourceCollection.find(Filters.eq("_id", doc.get("_id"))).iterator();
-    }
+    }*/
 
 //    APENAS PARA TESTES!!!
 //    private MongoCursor<Document> getUpdatedCursor() {
@@ -68,21 +68,32 @@ public class ConnectToDBSID extends Thread {
 
     private void fetchData() {
         Document doc = null;
-        MongoCursor<Document> cursor = getInitialCursor();
+        MongoCursor<Document> cursor;
         List<Document> documents = new ArrayList<>();
         while (true) {
             try {
+                // Obtem o ultimo registo da targetCollection
+                doc = getLastObject(targetCollection);
+
+                // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
+                Object lastId = doc != null ? doc.get("_id") : getLastObject(sourceCollection).get("_id");
+
+                // Obtem os novos dados da sourceCollection (i.e. _id > ultimo registo da targetCollection)
+                cursor = sourceCollection.find(Filters.gt("_id", lastId)).iterator();
+
+                // Le os novos dados e adiciona-os a ArrayList
                 while (cursor.hasNext()) {
                     doc = cursor.next();
                     System.out.println("Source: " + doc); // lê da cloud
                     documents.add(doc);
                 }
-                cursor = sourceCollection.find(Filters.gt("_id", doc.get("_id"))).iterator();
+
                 if(!documents.isEmpty()) {
                     insertBulk(documents, true);
                     System.out.println("ESCREVER!!!!");
                     documents.clear();
                 }
+
                 Thread.sleep(2000);
             } catch (InterruptedException interruptedException) {
 //                interruptedException.printStackTrace();
