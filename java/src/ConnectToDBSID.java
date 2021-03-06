@@ -10,6 +10,10 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 
+
+//  CASO A DB NAO ESTEJA ACESSIVEL!!!!!!!
+
+
 public class ConnectToDBSID extends Thread {
     private final MongoClientURI uri = new MongoClientURI("mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1");
     private String sourceDB;
