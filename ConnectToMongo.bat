@@ -1,0 +1,1 @@
+mongo -u aluno -p aluno -authenticationDatabase admin 194.210.86.10
