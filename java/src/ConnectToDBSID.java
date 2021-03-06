@@ -72,8 +72,11 @@ public class ConnectToDBSID extends Thread {
                 // Obtem o ultimo registo da targetCollection
                 Document doc = getLastObject(targetCollection);
 
+                // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
+                Object lastId = doc != null ? doc.get("_id") : getLastObject(sourceCollection).get("_id");
+
                 // Obtem os novos dados da sourceCollection (i.e. _id > ultimo registo da targetCollection)
-                cursor = sourceCollection.find(Filters.gt("_id", doc.get("_id"))).iterator();
+                cursor = sourceCollection.find(Filters.gt("_id", lastId)).iterator();
 
                 // Le os novos dados e adiciona-os a ArrayList
                 while (cursor.hasNext()) {
@@ -95,7 +98,7 @@ public class ConnectToDBSID extends Thread {
 
         }
     }
-    
+
     public void run() {
         connect();
         fetchData();
