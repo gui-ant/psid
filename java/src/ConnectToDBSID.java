@@ -11,45 +11,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectToDBSID extends Thread {
-    private final MongoClientURI URI = new MongoClientURI("mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1");
-
-    private final String sourceDb;
-    private final String targetDb;
-    private final String srcCollectionName;
-    private final String trgCollectionName;
-
+    private final MongoClientURI uri = new MongoClientURI("mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1");
+    private String sourceDB;
+    private String targetDB;
+    private String sourceCollectionName;
+    private String targetCollectionName;
     private MongoClient mongo;
+    private MongoDatabase sourceMongoDb;
+    private MongoDatabase targetMongoDb;
     private MongoCollection<Document> sourceCollection;
     private MongoCollection<Document> targetCollection;
 
     public ConnectToDBSID(String sourceDb, String targetDb, String sourceCollection, String targetCollection) {
-        this.sourceDb = sourceDb;
-        this.targetDb = targetDb;
-        this.srcCollectionName = sourceCollection;
-        this.trgCollectionName = targetCollection;
+        this.sourceDB = sourceDb;
+        this.targetDB = targetDb;
+        this.sourceCollectionName = sourceCollection;
+        this.targetCollectionName = targetCollection;
     }
 
     private void connect() {
-        mongo = new MongoClient(URI);
+        mongo = new MongoClient(uri);
 
         System.out.println("Connected to the database successfully");
 
-        sourceCollection = getDatabase(sourceDb).getCollection(srcCollectionName);
-        targetCollection = getDatabase(targetDb).getCollection(trgCollectionName);
-    }
+        // Accessing the database
+        sourceMongoDb = mongo.getDatabase(sourceDB);
+        targetMongoDb = mongo.getDatabase(targetDB);
 
-    private MongoDatabase getDatabase(String databaseName) {
-        return mongo.getDatabase(databaseName);
+        sourceCollection = sourceMongoDb.getCollection(sourceCollectionName);
+        targetCollection = targetMongoDb.getCollection(targetCollectionName);
     }
 
     private Document getLastObject(MongoCollection<Document> collection) {
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
-    /*private MongoCursor<Document> getInitialCursor() {
+    private MongoCursor<Document> getInitialCursor() {
         Document doc = getLastObject(sourceCollection);
-        return sourceCollection.find(Filters.gte("_id", doc.get("_id"))).iterator();
-    }*/
+        return sourceCollection.find(Filters.eq("_id", doc.get("_id"))).iterator();
+    }
 
 //    APENAS PARA TESTES!!!
 //    private MongoCursor<Document> getUpdatedCursor() {
@@ -59,45 +59,41 @@ public class ConnectToDBSID extends Thread {
 //    }
 
     private void insertBulk(List<Document> documents, boolean ordered) {
-        if (!documents.isEmpty())
-            targetCollection.insertMany(documents, new InsertManyOptions().ordered(ordered));
+        InsertManyOptions options = new InsertManyOptions();
+        if (!ordered) {
+            options.ordered(false);
+        }
+        targetCollection.insertMany(documents, options);
     }
 
     private void fetchData() {
+        Document doc = null;
+        MongoCursor<Document> cursor = getInitialCursor();
         List<Document> documents = new ArrayList<>();
-        MongoCursor<Document> cursor;
-
         while (true) {
             try {
-                // Obtem o ultimo registo da targetCollection
-                Document doc = getLastObject(targetCollection);
-
-                // Obtem os novos dados da sourceCollection (i.e. _id > ultimo registo da targetCollection)
-                cursor = sourceCollection.find(Filters.gt("_id", doc.get("_id"))).iterator();
-
-                // Le os novos dados e adiciona-os a ArrayList
                 while (cursor.hasNext()) {
                     doc = cursor.next();
-                    System.out.println("Source: " + doc);
+                    System.out.println("Source: " + doc); // lê da cloud
                     documents.add(doc);
                 }
-
-                // Insere na targetDb, os dados da ArrayList
-                insertBulk(documents, true);
-                System.out.println("ESCREVER!!!!");
-                documents.clear();
-
+                cursor = sourceCollection.find(Filters.gt("_id", doc.get("_id"))).iterator();
+                if(!documents.isEmpty()) {
+                    insertBulk(documents, true);
+                    System.out.println("ESCREVER!!!!");
+                    documents.clear();
+                }
                 Thread.sleep(2000);
             } catch (InterruptedException interruptedException) {
-                //interruptedException.printStackTrace();
+//                interruptedException.printStackTrace();
                 System.err.println("DEU ERRO!");
             }
-
         }
     }
-    
+
     public void run() {
         connect();
         fetchData();
     }
+
 }
