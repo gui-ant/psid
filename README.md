@@ -14,10 +14,9 @@ Link ZOOM: https://videoconf-colibri.zoom.us/j/87585381703
 **Mongo Atlas**: https://cloud.mongodb.com/ <br/> 
  - Sign in with google account (user: sid2021g07, pass: sid2021!)
 
-**MySQL**:<br/>
- [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
-
-**PHP**:<br/>
+**PHP/MySQL**:<br/>
 1. Iniciar XAMPP
 2. Iniciar servidor Apache
 3. Aceder a [localhost/psid/php](localhost/psid/php) (considerando que o projeto se encontra na pasta c:\xampp\htdocs)
+
+[phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
