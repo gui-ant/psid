@@ -22,11 +22,13 @@ public class ConnectToDBSID {
     private MongoClient mongoAtlas;
     private MongoDatabase sourceMongoDb;
     private MongoDatabase targetMongoDb;
-    private LinkedList<Document> buffer = new LinkedList<>();
+    private LinkedList<Document> buffer;
+    private Document lastDoc;
 
     public ConnectToDBSID(String sourceDb, String targetDb) {
         this.sourceDB = sourceDb;
         this.targetDB = targetDb;
+        this.buffer = new LinkedList<>();
     }
 
     private void connect() {
@@ -67,22 +69,20 @@ public class ConnectToDBSID {
 
     private void fetchData(MongoCollection<Document> sourceCollection) {
         String srcCollectionName = sourceCollection.getNamespace().getCollectionName();
-
-        // Obtem o ultimo registo da targetCollection
         MongoCollection<Document> targetCollection = targetMongoDb.getCollection(srcCollectionName);
-        Document doc = getLastObject(targetCollection);
 
-        // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
-        Object lastId = doc != null ? doc.get("_id") : getLastObject(sourceCollection).get("_id");
+        //lastDoc é o ponto de partida para o Cursor iterar
+        if (lastDoc == null) lastDoc = getLastObject(targetCollection);
 
         // Obtem os novos dados da sourceCollection (i.e. _id > ultimo registo da targetCollection)
-        MongoCursor<Document> cursor = sourceCollection.find(Filters.gt("_id", lastId)).iterator();
+        MongoCursor<Document> cursor = sourceCollection.find(Filters.gt("_id", lastDoc.get("_id"))).iterator();
+        System.out.println("CURSOR!!!");
 
         // Le os novos dados e adiciona-os a ArrayList
         while (cursor.hasNext()) {
-            doc = cursor.next();
-            System.out.println("Source: " + doc); // lê da cloud
-            buffer.add(doc);
+            lastDoc = cursor.next();
+            System.out.println("Source: " + lastDoc); // lê da cloud
+            buffer.add(lastDoc);
         }
 
         insertBulk(targetCollection, true);
