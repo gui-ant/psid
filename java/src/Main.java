@@ -11,6 +11,6 @@ public class Main {
                 "sensorl2",
         };
         ConnectToDBSID conn = new ConnectToDBSID("sid2021", "g07");
-        conn.fetch(collectionNames);
+        conn.startFetching(collectionNames);
     }
 }

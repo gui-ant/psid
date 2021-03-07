@@ -15,8 +15,8 @@ import java.util.LinkedList;
 
 public class ConnectToDBSID {
     private static final String SOURCE_URI = "mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1";
-    private static final String TARGET_URI = "mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1";
-    
+    private static final String TARGET_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
+
     private final MongoDatabase sourceMongoDb;
     private final MongoDatabase targetMongoDb;
 
@@ -72,7 +72,7 @@ public class ConnectToDBSID {
         insertBulk(targetCollection, true);
     }
 
-    public void fetch(String[] collections) {
+    public void startFetching(String[] collections) {
         // Para cada collection lança uma thread
         for (String collName : collections) {
             new Thread(() -> {
