@@ -7,32 +7,26 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.InsertManyOptions;
 import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 
 //  CASO A DB NAO ESTEJA ACESSIVEL!!!!!!!
 
 
-public class ConnectToDBSID extends Thread {
+public class ConnectToDBSID {
     private final MongoClientURI uri = new MongoClientURI("mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1");
     private final MongoClientURI uriAtlas = new MongoClientURI("mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority");
     private String sourceDB;
     private String targetDB;
-    private String sourceCollectionName;
-    private String targetCollectionName;
     private MongoClient mongo;
     private MongoClient mongoAtlas;
     private MongoDatabase sourceMongoDb;
     private MongoDatabase targetMongoDb;
-    private MongoCollection<Document> sourceCollection;
-    private MongoCollection<Document> targetCollection;
+    private LinkedList<Document> buffer = new LinkedList<>();
 
-    public ConnectToDBSID(String sourceDb, String targetDb, String sourceCollection, String targetCollection) {
+    public ConnectToDBSID(String sourceDb, String targetDb) {
         this.sourceDB = sourceDb;
         this.targetDB = targetDb;
-        this.sourceCollectionName = sourceCollection;
-        this.targetCollectionName = targetCollection;
     }
 
     private void connect() {
@@ -45,9 +39,6 @@ public class ConnectToDBSID extends Thread {
         sourceMongoDb = mongo.getDatabase(sourceDB);
         //targetMongoDb = mongo.getDatabase(targetDB);
         targetMongoDb = mongoAtlas.getDatabase(targetDB);
-
-        sourceCollection = sourceMongoDb.getCollection(sourceCollectionName);
-        targetCollection = targetMongoDb.getCollection(targetCollectionName);
     }
 
     private Document getLastObject(MongoCollection<Document> collection) {
@@ -66,53 +57,53 @@ public class ConnectToDBSID extends Thread {
 //        return iterable.iterator();
 //    }
 
-    private void insertBulk(List<Document> documents, boolean ordered) {
+    private synchronized void insertBulk(MongoCollection targetCollection, boolean ordered) {
+        System.out.println("Inserting on " + targetCollection.getNamespace().getCollectionName() + "...");
         InsertManyOptions options = new InsertManyOptions();
-        if (!ordered) {
-            options.ordered(false);
-        }
-        targetCollection.insertMany(documents, options);
+        if (!buffer.isEmpty())
+            targetCollection.insertMany(buffer, options.ordered(ordered));
+        buffer.clear();
     }
 
-    private void fetchData() {
-        Document doc = null;
-        MongoCursor<Document> cursor;
-        List<Document> documents = new ArrayList<>();
-        while (true) {
-            try {
-                // Obtem o ultimo registo da targetCollection
-                doc = getLastObject(targetCollection);
+    private void fetchData(MongoCollection<Document> sourceCollection) {
+        String srcCollectionName = sourceCollection.getNamespace().getCollectionName();
 
-                // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
-                Object lastId = doc != null ? doc.get("_id") : getLastObject(sourceCollection).get("_id");
+        // Obtem o ultimo registo da targetCollection
+        MongoCollection<Document> targetCollection = targetMongoDb.getCollection(srcCollectionName);
+        Document doc = getLastObject(targetCollection);
 
-                // Obtem os novos dados da sourceCollection (i.e. _id > ultimo registo da targetCollection)
-                cursor = sourceCollection.find(Filters.gt("_id", lastId)).iterator();
+        // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
+        Object lastId = doc != null ? doc.get("_id") : getLastObject(sourceCollection).get("_id");
 
-                // Le os novos dados e adiciona-os a ArrayList
-                while (cursor.hasNext()) {
-                    doc = cursor.next();
-                    System.out.println("Source: " + doc); // lê da cloud
-                    documents.add(doc);
-                }
+        // Obtem os novos dados da sourceCollection (i.e. _id > ultimo registo da targetCollection)
+        MongoCursor<Document> cursor = sourceCollection.find(Filters.gt("_id", lastId)).iterator();
 
-                if(!documents.isEmpty()) {
-                    insertBulk(documents, true);
-                    System.out.println("ESCREVER!!!!");
-                    documents.clear();
-                }
-
-                Thread.sleep(2000);
-            } catch (InterruptedException interruptedException) {
-//                interruptedException.printStackTrace();
-                System.err.println("DEU ERRO!");
-            }
+        // Le os novos dados e adiciona-os a ArrayList
+        while (cursor.hasNext()) {
+            doc = cursor.next();
+            // System.out.println("Source: " + doc); // lê da cloud
+            buffer.add(doc);
         }
+
+        insertBulk(targetCollection, true);
     }
 
-    public void run() {
+    public void init() {
         connect();
-        fetchData();
-    }
 
+        // Para cada collection lança uma thread
+        for (String collName : sourceMongoDb.listCollectionNames()) {
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        System.out.println("Fetching " + collName + "...");
+                        fetchData(sourceMongoDb.getCollection(collName));
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    }
 }
