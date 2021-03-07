@@ -45,18 +45,6 @@ public class ConnectToDBSID {
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
-    /*private MongoCursor<Document> getInitialCursor() {
-        Document doc = getLastObject(sourceCollection);
-        return sourceCollection.find(Filters.eq("_id", doc.get("_id"))).iterator();
-    }*/
-
-//    APENAS PARA TESTES!!!
-//    private MongoCursor<Document> getUpdatedCursor() {
-//        FindIterable<Document> iterable = sourceCollection.find();
-//        iterable.skip((int) sourceCollection.count());
-//        return iterable.iterator();
-//    }
-
     private synchronized void insertBulk(MongoCollection targetCollection, boolean ordered) {
         System.out.println("Inserting on " + targetCollection.getNamespace().getCollectionName() + "...");
         InsertManyOptions options = new InsertManyOptions();
