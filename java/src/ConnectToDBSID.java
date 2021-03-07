@@ -81,18 +81,18 @@ public class ConnectToDBSID {
         // Le os novos dados e adiciona-os a ArrayList
         while (cursor.hasNext()) {
             doc = cursor.next();
-            // System.out.println("Source: " + doc); // lê da cloud
+            System.out.println("Source: " + doc); // lê da cloud
             buffer.add(doc);
         }
 
         insertBulk(targetCollection, true);
     }
 
-    public void init() {
+    public void fetch(String[] collections) {
         connect();
 
         // Para cada collection lança uma thread
-        for (String collName : sourceMongoDb.listCollectionNames()) {
+        for (String collName : collections) {
             new Thread(() -> {
                 while (true) {
                     try {
