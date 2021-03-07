@@ -26,15 +26,12 @@ public class ConnectToDBSID {
         MongoClientURI sourceURI = new MongoClientURI(SOURCE_URI);
         MongoClientURI targetURI = new MongoClientURI(TARGET_URI);
 
-        MongoClient mongo = new MongoClient(sourceURI);
-        MongoClient mongoAtlas = new MongoClient(targetURI);
-
         System.out.println("Connected to the database successfully");
 
         // Accessing the database
-        sourceMongoDb = mongo.getDatabase(sourceDb);
+        this.sourceMongoDb = new MongoClient(sourceURI).getDatabase(sourceDb);
         //targetMongoDb = mongo.getDatabase(targetDB);
-        targetMongoDb = mongoAtlas.getDatabase(targetDb);
+        this.targetMongoDb = new MongoClient(targetURI).getDatabase(targetDb);
     }
 
     private Document getLastObject(MongoCollection<Document> collection) {
