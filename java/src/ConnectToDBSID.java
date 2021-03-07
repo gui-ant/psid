@@ -14,38 +14,34 @@ import java.util.LinkedList;
 
 
 public class ConnectToDBSID {
-    private final MongoClientURI uri = new MongoClientURI("mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1");
-    private final MongoClientURI uriAtlas = new MongoClientURI("mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority");
-    private String sourceDB;
-    private String targetDB;
-    private MongoClient mongo;
-    private MongoClient mongoAtlas;
-    private MongoDatabase sourceMongoDb;
-    private MongoDatabase targetMongoDb;
-    private LinkedList<Document> buffer = new LinkedList<>();
+    private static final String SOURCE_URI = "mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1";
+    private static final String TARGET_URI = "mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1";
+    
+    private final MongoDatabase sourceMongoDb;
+    private final MongoDatabase targetMongoDb;
+
+    private final LinkedList<Document> buffer = new LinkedList<>();
 
     public ConnectToDBSID(String sourceDb, String targetDb) {
-        this.sourceDB = sourceDb;
-        this.targetDB = targetDb;
-    }
+        MongoClientURI sourceURI = new MongoClientURI(SOURCE_URI);
+        MongoClientURI targetURI = new MongoClientURI(TARGET_URI);
 
-    private void connect() {
-        mongo = new MongoClient(uri);
-        mongoAtlas = new MongoClient(uriAtlas);
+        MongoClient mongo = new MongoClient(sourceURI);
+        MongoClient mongoAtlas = new MongoClient(targetURI);
 
         System.out.println("Connected to the database successfully");
 
         // Accessing the database
-        sourceMongoDb = mongo.getDatabase(sourceDB);
+        sourceMongoDb = mongo.getDatabase(sourceDb);
         //targetMongoDb = mongo.getDatabase(targetDB);
-        targetMongoDb = mongoAtlas.getDatabase(targetDB);
+        targetMongoDb = mongoAtlas.getDatabase(targetDb);
     }
 
     private Document getLastObject(MongoCollection<Document> collection) {
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
-    private synchronized void insertBulk(MongoCollection targetCollection, boolean ordered) {
+    private synchronized void insertBulk(MongoCollection<Document> targetCollection, boolean ordered) {
         System.out.println("Inserting on " + targetCollection.getNamespace().getCollectionName() + "...");
         InsertManyOptions options = new InsertManyOptions();
         if (!buffer.isEmpty())
@@ -77,8 +73,6 @@ public class ConnectToDBSID {
     }
 
     public void fetch(String[] collections) {
-        connect();
-
         // Para cada collection lança uma thread
         for (String collName : collections) {
             new Thread(() -> {

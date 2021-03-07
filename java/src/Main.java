@@ -10,7 +10,7 @@ public class Main {
                 "sensorl1",
                 "sensorl2",
         };
-        ConnectToDBSID t1 = new ConnectToDBSID("sid2021", "g07");
-        t1.fetch(collectionNames);
+        ConnectToDBSID conn = new ConnectToDBSID("sid2021", "g07");
+        conn.fetch(collectionNames);
     }
 }
