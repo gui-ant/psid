@@ -60,11 +60,10 @@ public class ConnectToDBSID {
         MongoCollection<Document> targetCollection = targetMongoDb.getCollection(srcCollectionName);
 
         //lastDoc é o ponto de partida para o Cursor iterar
-        if (lastDoc == null) lastDoc = getLastObject(targetCollection);
+        if (lastDoc == null) lastDoc = getLastObject(sourceCollection);
 
         // Obtem os novos dados da sourceCollection (i.e. _id > ultimo registo da targetCollection)
         MongoCursor<Document> cursor = sourceCollection.find(Filters.gt("_id", lastDoc.get("_id"))).iterator();
-        System.out.println("CURSOR!!!");
 
         // Le os novos dados e adiciona-os a ArrayList
         while (cursor.hasNext()) {
