@@ -1,34 +1,41 @@
 <?php
 header("Content-Type:application/json");
-if (!empty($_GET['where'])) {
-	$whereclause = $_GET['where'];
-} else {
-	$whereclause = '';
-}
-if (!empty($_GET['json'])) {
+
+if (!empty($_GET['sp']))
+	$procedure = $_GET['sp'];
+else
+	$procedure = '';
+
+if (!empty($_GET['p']))
+	$param = $_GET['p'];
+else
+	$param = '';
+
+if (!empty($_GET['json']))
 	$json = $_GET['json'];
-} else {
+else
 	$json = 'false';
-}
-$data = get_data($whereclause, $json);
+
+$data = get_data($procedure, $param, $json);
+
 if (empty($data)) {
 	echo 'Data Not Found';
 } else {
 	echo $data;
 }
 
-
-function get_data($whereclause, $json)
+function get_data($procedure, $param, $json)
 {
-	$url = "127.0.0.1";
-	$database = "hotel";
-	$username = "root";
-	$password = "";
+	$url = "194.210.86.10";
+	$database = "aluno_g07";
+	$username = "aluno";
+	$password = "aluno";
 	$conn = mysqli_connect($url, $username, $password, $database);
 	if (!$conn) {
 		die("Connection Failled: " . $conn->connect_error);
 	}
-	$sql = "call sp_GetCliente(" . "'%" . $whereclause . "%'" . ")";
+	$sql = "call ". $procedure . "(" . $param . ")";
+	
 	$result = mysqli_query($conn, $sql);
 	$rows = array();
 	if ($result) {
