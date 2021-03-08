@@ -1,6 +1,7 @@
 <?php include('server.php') ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>PSID</title>
     <link rel="stylesheet" type="text/css" href="../style.css">
@@ -21,11 +22,11 @@
         <?php endif ?>
         <div class="input-group">
             <label>Email</label>
-            <input type="text" name="email">
+            <input type="email" name="email" value="<?= isset($_SESSION['email']) ? $_SESSION['email'] : "" ?>" autocomplete="off">
         </div>
         <div class="input-group">
             <label>Password</label>
-            <input type="password" name="pass">
+            <input type="password" name="pass" value="">
         </div>
         <div class="input-group">
             <button type="submit" class="btn" name="login_user">Login</button>

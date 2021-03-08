@@ -50,18 +50,26 @@ if (isset($_POST['reg_user'])) {
 
         $query = "INSERT INTO users (name, email, pass, role_id) 
   			  VALUES('$username', '$email', '$password',null)";
-        mysqli_query($db, $query);
-        $_SESSION['username'] = $username;
-        $_SESSION['success'] = "Sessão iniciada";
-        header('location: index.php');
+        $result = mysqli_query($db, $query);
+
+        if ($result) 
+            login($email, $password_1);
+            
+        header('location: ../index.php');
     }
 }
 
 // LOGIN USER
 if (isset($_POST['login_user'])) {
-    $username = mysqli_real_escape_string($db, $_POST['name']);
-    $email = mysqli_real_escape_string($db, $_POST['email']);
-    $password = mysqli_real_escape_string($db, $_POST['pass']);
+    echo "login";
+    login($_POST['email'], $_POST['pass']);
+}
+
+function login($user,$pass){
+    $db = $GLOBALS['db'];
+    $errors = $GLOBALS['errors'];
+    $email = mysqli_real_escape_string($db, $user);
+    $password = mysqli_real_escape_string($db, $pass);
 
     if (empty($email)) array_push($errors, "Email é obrigatório");
     if (empty($password)) array_push($errors, "Password é obrigatória");
@@ -70,12 +78,12 @@ if (isset($_POST['login_user'])) {
         $password = md5($password);
         $query = "SELECT * FROM users WHERE email='$email' AND pass='$password'";
         $results = mysqli_query($db, $query);
+
         if (mysqli_num_rows($results) == 1) {
             $row = mysqli_fetch_array($results);
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['username'] = $row['name'];
             $_SESSION['success'] = "Sessão iniciada";
-            header('location: ../index.php');
         } else {
             array_push($errors, "Email ou password incorretos");
         }
