@@ -29,7 +29,7 @@ public class JavaMysql {
             ResultSet result = statement.executeQuery(sql);
 
             while (result.next()){
-                String name = result.getString("user");
+                String name = result.getString("name");
                 String pass = result.getString("pass");
                 System.out.println("User: " + name + "\n" + "Password: " + pass  );
             }
