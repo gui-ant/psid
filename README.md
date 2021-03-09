@@ -17,7 +17,7 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 **PHP/MySQL**:<br/>
 1. Iniciar XAMPP
 2. Iniciar servidor Apache
-3. Aceder a [localhost/psid/php](http://localhost/psid/php) no browser (considerando que o projeto se encontra na pasta c:\xampp\htdocs)
+3. Aceder a [localhost/psid/php](http://localhost/psid/php) no browser (considerando que o projeto se encontra na pasta c:\xampp\htdocs. Podem também fazer um clone do rep para essa pasta)
 4. Login:
     * **Admin** -> **user**: sid2021g07\@gmail<span>.</span>com **pass**: sid2021!
     * **Investigador** -> **user**: gfaas1@iscte.pt (ou o vosso) **pass**: asd
