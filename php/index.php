@@ -1,4 +1,5 @@
 <?php
+include('db/config.php');
 session_start();
 
 if (!isset($_SESSION['username'])) {
@@ -37,19 +38,33 @@ if (isset($_GET['logout'])) {
             </div>
         <?php endif ?>
 
-        <!-- logged in user information -->
         <?php if (isset($_SESSION['username'])) : ?>
             <p>
                 Bem-vindo <strong><?php echo $_SESSION['username']; ?></strong>&nbsp;<a href="index.php?logout='1'">Sair</a>
             </p>
-            <p>
-                <?php include('selectCulture.php') ?>
-            </p>
-            <p>
-                <?php if (isset($_POST['culture_id']))
-                    include('showCulture.php')
-                ?>
-            </p>
+
+
+            <?php if ($_SESSION['user_role'] == 2) : ?>
+                <!-- Researcher View -->
+                <p>
+                    <?php include('selectCulture.php') ?>
+                </p>
+                <p>
+                    <?php if (isset($_POST['culture_id']))
+                        if ($_POST['culture_id'] != null)
+                            include('cultures.php')
+                    ?>
+                </p>
+
+            <?php elseif ($_SESSION['user_role'] == 1) : ?>
+                <!-- Admin View -->
+                <p>Painel de Admnistração</p>
+            <?php elseif ($_SESSION['user_role'] == NULL) : ?>
+                <!-- User with no roles View -->
+                <p>
+                    Ainda não tem perfil atribuído. Contacte um administrador.
+                </p>
+            <?php endif ?>
         <?php endif ?>
     </div>
 

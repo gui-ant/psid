@@ -1,4 +1,5 @@
 <?php
+include('../db/config.php');
 session_start();
 
 // initializing variables
@@ -7,8 +8,7 @@ $email    = "";
 $errors = array();
 
 // connect to the database
-$db = mysqli_connect('194.210.86.10', 'aluno', 'aluno', 'aluno_g07');
-
+$db = db_connect();
 // REGISTER USER
 if (isset($_POST['reg_user'])) {
     // receive all input values from the form
@@ -52,20 +52,22 @@ if (isset($_POST['reg_user'])) {
   			  VALUES('$username', '$email', '$password',null)";
         $result = mysqli_query($db, $query);
 
-        if ($result) 
+        if ($result)
             login($email, $password_1);
-            
         header('location: ../index.php');
     }
 }
 
 // LOGIN USER
 if (isset($_POST['login_user'])) {
-    echo "login";
-    login($_POST['email'], $_POST['pass']);
+    if (!login($_POST['email'], $_POST['pass']))
+        array_push($errors, "Email ou password incorretos");
+    else
+        header('location: ../index.php');
 }
 
-function login($user,$pass){
+function login($user, $pass)
+{
     $db = $GLOBALS['db'];
     $errors = $GLOBALS['errors'];
     $email = mysqli_real_escape_string($db, $user);
@@ -83,9 +85,11 @@ function login($user,$pass){
             $row = mysqli_fetch_array($results);
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['username'] = $row['name'];
+            $_SESSION['user_role'] = $row['role_id'];
             $_SESSION['success'] = "Sessão iniciada";
+            return true;
         } else {
-            array_push($errors, "Email ou password incorretos");
+            return false;
         }
     }
 }

@@ -6,11 +6,18 @@
 
 body {
     font-size: 120%;
-    background:white;
+    background: white;
 }
+
 a {
+    margin: 20px 0;
     color: #0D28C2;
 }
+
+p {
+    margin: 20px 0;
+}
+
 .header {
     width: 30%;
     margin: 50px auto 0px;
@@ -28,14 +35,8 @@ form, .content {
     background: white;
 }
 
-.input-group {
+input {
     margin: 10px 0px 10px 0px;
-}
-
-.input-group label {
-    display: block;
-    text-align: left;
-    margin: 3px;
 }
 
 .input-group input {
@@ -47,6 +48,12 @@ form, .content {
     border: 1px solid gray;
 }
 
+.input-group label {
+    display: block;
+    text-align: left;
+    margin: 3px;
+}
+
 .btn {
     font-size: 15px;
     color: white;
@@ -54,11 +61,13 @@ form, .content {
     padding: 10px 20px;
     border: 2px solid #0D28C2;
 }
+
 .btn:hover {
     color: #0D28C2;
     background-color: white;
     cursor: pointer;
 }
+
 .error {
     width: 92%;
     margin: 0px auto;

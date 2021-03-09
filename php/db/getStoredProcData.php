@@ -1,4 +1,5 @@
 <?php
+include('config.php');
 header("Content-Type:application/json");
 
 if (!empty($_GET['sp']))
@@ -16,7 +17,7 @@ if (!empty($_GET['json']))
 else
 	$json = 'false';
 
-$data = get_data($procedure, $param, $json);
+$data = get_data_from_sp($procedure, $param, $json);
 
 if (empty($data)) {
 	echo 'Data Not Found';
@@ -24,18 +25,14 @@ if (empty($data)) {
 	echo $data;
 }
 
-function get_data($procedure, $param, $json)
+function get_data_from_sp($procedure, $param, $json)
 {
-	$url = "194.210.86.10";
-	$database = "aluno_g07";
-	$username = "aluno";
-	$password = "aluno";
-	$conn = mysqli_connect($url, $username, $password, $database);
+	$conn = db_connect();
 	if (!$conn) {
-		die("Connection Failled: " . $conn->connect_error);
+		die("Connection Failed: " . mysqli_connect_error());
 	}
-	$sql = "call ". $procedure . "(" . $param . ")";
-	
+
+	$sql = "call " . $procedure . "(" . $param . ")";
 	$result = mysqli_query($conn, $sql);
 	$rows = array();
 	if ($result) {

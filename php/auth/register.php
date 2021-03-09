@@ -1,4 +1,4 @@
-<?php include('server.php') ?>
+<?php include('auth.php') ?>
 <!DOCTYPE html>
 <html>
 
