@@ -51,16 +51,34 @@ public class MongoToSql extends Thread {
     private Object getLastObjectSQLid() {
 //        String q = "SELECT MAX(id) FROM measures WHERE sensor_id = " + srcMongoCollectionName;
 //        String q = "SELECT MAX(id) FROM measures WHERE sensor_id = " + '1';
-        String q = "SELECT * FROM users WHERE email = 'pajo@iscte.pt'";
+//-        String q = "SELECT * FROM users WHERE email = 'pajo@iscte.pt'";
 //        String q = "SELECT * FROM users";
+
+        //seleciona a ultima linha da tabela
+        String q = "SELECT max(id) FROM measures";
+
         Statement statement;
         ResultSet result;
         Object obj = null;
+
         try {
             statement = sqlConn.prepareStatement(q);
             System.out.println("TESTE!!!!!!!! " + statement);
             result = statement.executeQuery(q);
 
+            //Se a query vier vazia o result.next() retorna false
+            if(result.next()){
+                System.out.println("[MongoToSql]:Apanhou id sql");
+                obj = result;
+                return obj;
+            }
+            else {
+                System.err.println("Erro[MongoToSql]: Não apanhou id sql");
+                return null;
+            }
+
+            //Como supostamente a query só vai dar um resultado comentei o while
+            /*
             while (result.next()) {
                 System.out.println("NAME: " + result.getString("name"));
                 System.out.println("EMAIL: " + result.getString("email"));
@@ -68,10 +86,14 @@ public class MongoToSql extends Thread {
             }
 
             obj = result;
+             */
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
-        return obj;
+
+        System.err.println("Erro[MongoToSql]: passou o try/catch");
+        return null;
+
     }
 
     private Document getLastObjectMongo() {
