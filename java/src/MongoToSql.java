@@ -33,7 +33,7 @@ public class MongoToSql extends Thread {
 
         // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
         if (lastId == null)
-            lastId = (String)getLastObjectMongo().get("_id");
+            lastId = getLastObjectMongo().get("_id").toString();
 
         // cursor
         MongoCursor<Document> cursor = srcMongoCollection.find(Filters.gt("_id", lastId)).iterator();
