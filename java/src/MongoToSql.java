@@ -61,14 +61,14 @@ public class MongoToSql extends Thread {
             //Se a query vier vazia o result.next() retorna false
             if(result.next()){
 
-                System.out.println("[MongoToSql]:Apanhou entrada sql");
                 //columnIndex 1 é a coluna do ID. Por columnName estava a dar erro ¯\_(ツ)_/¯
                 last_id = result.getString(1);
+                System.out.println("ID da última entrada: " + last_id);
 
                 return last_id;
             }
             else {
-                System.err.println("Erro[MongoToSql]: Tabela measures vazia");
+                System.out.println("[MongoToSql]: Tabela measures vazia");
                 return null;
             }
 
