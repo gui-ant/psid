@@ -29,15 +29,11 @@ public class MongoToSql extends Thread {
 
     private void fetchData() throws SQLException {
         // Obtem o ultimo registo da targetCollection
-        Object lastId = getLastObjectSQLid();
+        String lastId = getLastObjectSQLid();
 
         // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
-        if (lastId == null) {
-            lastId = getLastObjectMongo().get("_id");
-        }
-        else {
-            lastId = (ObjectId)lastId;
-        }
+        if (lastId == null)
+            lastId = (String)getLastObjectMongo().get("_id");
 
         // cursor
         MongoCursor<Document> cursor = srcMongoCollection.find(Filters.gt("_id", lastId)).iterator();
@@ -48,45 +44,34 @@ public class MongoToSql extends Thread {
         }
     }
 
-    private Object getLastObjectSQLid() {
-//        String q = "SELECT MAX(id) FROM measures WHERE sensor_id = " + srcMongoCollectionName;
-//        String q = "SELECT MAX(id) FROM measures WHERE sensor_id = " + '1';
-//-        String q = "SELECT * FROM users WHERE email = 'pajo@iscte.pt'";
-//        String q = "SELECT * FROM users";
+    private String getLastObjectSQLid() {
 
-        //seleciona a ultima linha da tabela
+        //seleciona a última linha da tabela measures
         String q = "SELECT max(id) FROM measures";
 
         Statement statement;
         ResultSet result;
-        Object obj = null;
+        String last_id;
 
         try {
             statement = sqlConn.prepareStatement(q);
-            System.out.println("TESTE!!!!!!!! " + statement);
+            System.out.println(statement);
             result = statement.executeQuery(q);
 
             //Se a query vier vazia o result.next() retorna false
             if(result.next()){
-                System.out.println("[MongoToSql]:Apanhou id sql");
-                obj = result;
-                return obj;
+
+                System.out.println("[MongoToSql]:Apanhou entrada sql");
+                //columnIndex 1 é a coluna do ID. Por columnName estava a dar erro ¯\_(ツ)_/¯
+                last_id = result.getString(1);
+
+                return last_id;
             }
             else {
-                System.err.println("Erro[MongoToSql]: Não apanhou id sql");
+                System.err.println("Erro[MongoToSql]: Tabela measures vazia");
                 return null;
             }
 
-            //Como supostamente a query só vai dar um resultado comentei o while
-            /*
-            while (result.next()) {
-                System.out.println("NAME: " + result.getString("name"));
-                System.out.println("EMAIL: " + result.getString("email"));
-                System.out.println("ID: " + result.getString("id"));
-            }
-
-            obj = result;
-             */
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
