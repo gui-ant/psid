@@ -17,11 +17,10 @@ public class SqlSender {
         this.connection = connection;
     }
 
-
     public synchronized void send (Connection connection, Measurement measurement) {
         // buscar dados e extrair valores
 
-        System.out.println(measurement);
+        System.out.println("To insert: " + measurement);
         try {
 //            String sql = "INSERT INTO measures (id, data, sensor_id, zone_id) VALUES (?, ?, ?, ?)";
 //            PreparedStatement statement = connection.prepareStatement(sql);

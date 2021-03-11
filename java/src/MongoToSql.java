@@ -6,40 +6,37 @@ import java.sql.Connection;
 
 
 public class MongoToSql extends Thread {
-    //    private String srcMongoCollectionName;
+
     private MongoCollection<Document> srcMongoCollection;
     private Connection sqlConn;
     private SqlSender sender;
-    //    private List<Document> buffer;
     private Measurement measurement;
     private Measurement lastSentMea;
 
 
     public MongoToSql (MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn, SqlSender sender) {
-//        this.buffer = new LinkedList<>();
         this.sender = sender;
-//        this.srcMongoCollectionName = srcMongoCollectionName;
         this.srcMongoCollection = srcMongoDB.getCollection(srcMongoCollectionName);
         this.sqlConn = sqlConn;
     }
 
     private void fetchData() {
-        // Obtem o ultimo registo da targetCollection
-//        String lastId = getLastObjectSQLid();
-
-        // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
-//        if (lastId == null)
-//        String lastId = (String)getLastObjectMongo().get("_id");
-
         //vai buscar o ultimo doc ao Mongo e passa de JSON para um objeto Measurement
         measurement = new Gson().fromJson(getLastObjectMongo().toJson(), Measurement.class);
-        System.out.println("AQUI!!!! " + getLastObjectMongo().get("_id"));
+        String original_mongo_id = getLastObjectMongo().get("_id").toString();
+        measurement.set_id(original_mongo_id);
 
-        // cursor
-//        MongoCursor<Document> cursor = srcMongoCollection.find(Filters.gt("_id", lastId)).iterator();
+        //só para testes (APAGAR)
+        System.out.println("---------------------------------------------------------------");
+        if(lastSentMea == null)
+            System.out.println("Last measure ID: " + null);
+        else
+            System.out.println("Last measure ID: " + lastSentMea.get_id());
 
-        // Le os novos dados e adiciona-os a LL
-
+        System.out.println("Mongo original ID: " + getLastObjectMongo().get("_id").toString());
+        System.out.println("ID in Measure to send: " + measurement.get_id());
+        System.out.println("---------------------------------------------------------------");
+        //só para testes (APAGAR)
     }
 
     private Document getLastObjectMongo() {
@@ -47,14 +44,24 @@ public class MongoToSql extends Thread {
     }
 
     private void sendToSql() {
-        if(! measurement.equals(lastSentMea)) {
+        if(canSend()) {
             sender.send(sqlConn, measurement);
+            lastSentMea = measurement;
         }
-        lastSentMea = measurement;
+        else
+            System.out.println("Repeated measure, not sent;");
+    }
+
+    private boolean canSend(){
+        return measurement.measequals(lastSentMea) ? false : true;
     }
 
     public void run() {
-        while (true) {
+//      while (true) {
+
+        //só para testar se não manda a 2ª vez (APAGAR)
+        for(int i = 0; i != 2; i++) {
+
             try {
                 fetchData();
             } catch (Exception e) {
@@ -66,11 +73,12 @@ public class MongoToSql extends Thread {
                 System.err.println("Erro em sendToSql()");
             }
             try {
-                sleep(2000);
+                sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+//        }
     }
 
 }
