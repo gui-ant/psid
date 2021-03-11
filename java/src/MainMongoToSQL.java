@@ -20,8 +20,6 @@ public class MainMongoToSQL {
             MongoDatabase sourceDB = new MongoClient(sourceURI).getDatabase("g07");
 
             SqlSender sender = new SqlSender(sqlConn);
-            //teste ainda sem valores do mongo
-            //sender.send(sqlConn);
 
             MongoToSql st1 = new MongoToSql(sourceDB, "sensort1", sqlConn, sender);
             st1.start();

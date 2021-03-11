@@ -1,31 +1,30 @@
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
 
+import java.lang.reflect.Constructor;
+
 public class Measurement {
-    private ID _id;
-    //@BsonProperty(value = "sensor_id")
+    private MongoID _id;
     private String Zona;
-    //@BsonProperty(value = "zone_id")
     private String Sensor;
     private String Data;
     private String Medicao;
 
-    public Measurement(ID _id, String zona, String sensor, String data, String medicao) {
-        this._id = _id;
+    public Measurement(String id, String zona, String sensor, String data, String medicao) {
+        MongoID origin_id = new MongoID(id);
+        this._id = origin_id;
         Zona = zona;
         Sensor = sensor;
         Data = data;
         Medicao = medicao;
     }
 
-    public Measurement(){}
-
-    public ID get_id() {
-        return _id;
+    public String get_id() {
+        return _id.getOrigin_id();
     }
 
-    public void set_id(ID _id) {
-        this._id = _id;
+    public void set_id(String id) {
+        this._id.setOrigin_id(id);
     }
 
     public String getZona() {
@@ -60,6 +59,13 @@ public class Measurement {
         Medicao = medicao;
     }
 
+    public boolean measequals(Measurement m) {
+        if (m == null) return false;
+        if (this == m) return true;
+
+        return this.get_id().equals(m.get_id());
+    }
+
     @Override
     public String toString() {
         return "Medicao{" +
@@ -73,7 +79,24 @@ public class Measurement {
 }
 
 
-class ID{
-    public String oid;
-        //Getter setter
+class MongoID{
+
+    private String origin_id;
+
+    public MongoID(String id){
+        this.origin_id = id;
+    }
+
+    public String getOrigin_id() {
+        return origin_id;
+    }
+
+    public void setOrigin_id(String origin_id) {
+        this.origin_id = origin_id;
+    }
+
+    @Override
+    public String toString() {
+        return this.origin_id;
+    }
 }
