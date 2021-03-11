@@ -1,7 +1,5 @@
 import org.bson.Document;
-
 import java.sql.Connection;
-import java.util.List;
 
 public class SqlSender {
     private Connection connection;
