@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
@@ -10,7 +11,7 @@ public class MongoToSql extends Thread {
     private Connection sqlConn;
     private SqlSender sender;
     //    private List<Document> buffer;
-    private Document sendable;
+    private Measurement measurement;
 
     public MongoToSql (MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn, SqlSender sender) {
 //        this.buffer = new LinkedList<>();
@@ -27,7 +28,9 @@ public class MongoToSql extends Thread {
         // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
 //        if (lastId == null)
 //        String lastId = (String)getLastObjectMongo().get("_id");
-        sendable = getLastObjectMongo();
+
+        //vai buscar o ultimo doc ao Mongo e passa de JSON para um objeto Measurement
+        measurement = new Gson().fromJson(getLastObjectMongo().toJson(), Measurement.class);
 
         // cursor
 //        MongoCursor<Document> cursor = srcMongoCollection.find(Filters.gt("_id", lastId)).iterator();
@@ -41,11 +44,11 @@ public class MongoToSql extends Thread {
     }
 
     private void sendToSql() {
-        sender.send(sqlConn, sendable);
+        sender.send(sqlConn, measurement);
     }
 
     public void run() {
-        while (true) {
+ //       while (true) {
             try {
                 fetchData();
             } catch (Exception e) {
@@ -61,7 +64,7 @@ public class MongoToSql extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+//        }
     }
 
 }
