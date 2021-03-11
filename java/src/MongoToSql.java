@@ -11,9 +11,7 @@ public class MongoToSql extends Thread {
     private Connection sqlConn;
     private SqlSender sender;
     //    private List<Document> buffer;
-
     private Measurement measurement;
-
     private Measurement lastSentMea;
 
 
@@ -35,6 +33,7 @@ public class MongoToSql extends Thread {
 
         //vai buscar o ultimo doc ao Mongo e passa de JSON para um objeto Measurement
         measurement = new Gson().fromJson(getLastObjectMongo().toJson(), Measurement.class);
+        System.out.println("AQUI!!!! " + getLastObjectMongo().get("_id"));
 
         // cursor
 //        MongoCursor<Document> cursor = srcMongoCollection.find(Filters.gt("_id", lastId)).iterator();
@@ -55,7 +54,7 @@ public class MongoToSql extends Thread {
     }
 
     public void run() {
- //       while (true) {
+        while (true) {
             try {
                 fetchData();
             } catch (Exception e) {
@@ -71,7 +70,7 @@ public class MongoToSql extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-//        }
+        }
     }
 
 }

@@ -24,7 +24,7 @@ public class MainMongoToSQL {
             //sender.send(sqlConn);
 
             MongoToSql st1 = new MongoToSql(sourceDB, "sensort1", sqlConn, sender);
-            st1.run();
+            st1.start();
         }
         catch (Exception e) {
             System.err.println("BRUH!");
