@@ -11,6 +11,7 @@ public class MongoToSql extends Thread {
     private SqlSender sender;
     //    private List<Document> buffer;
     private Document sendable;
+    private Document lastSentDoc;
 
     public MongoToSql (MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn, SqlSender sender) {
 //        this.buffer = new LinkedList<>();
@@ -41,7 +42,10 @@ public class MongoToSql extends Thread {
     }
 
     private void sendToSql() {
-        sender.send(sqlConn, sendable);
+        if(! sendable.equals(lastSentDoc)) {
+            sender.send(sqlConn, sendable);
+        }
+        lastSentDoc = sendable;
     }
 
     public void run() {
