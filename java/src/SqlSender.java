@@ -10,7 +10,8 @@ public class SqlSender {
         this.connection = connection;
     }
 
-    public synchronized void send (Connection connection, List<Document> list) {
+    public synchronized void send (Connection connection, Document sendable) {
         //enviar para SQL
+        System.out.println(sendable.toJson());
     }
 }
