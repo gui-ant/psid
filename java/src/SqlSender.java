@@ -1,5 +1,4 @@
 import org.bson.Document;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -8,8 +7,8 @@ public class SqlSender {
     private Connection connection;
 
     //apenas estou a considerar o registo de measures, mais tarde faz-se o refactor
-    int id          = 3;
-    String data     = "50.325";
+    int id          = 4;
+    String data     = "100";
     int sensor_id   = 1;
     int zone_id     = 1;
 
@@ -17,7 +16,8 @@ public class SqlSender {
         this.connection = connection;
     }
 
-    public synchronized void send (Connection connection, List<Document> list) {
+
+    public synchronized void send (Connection connection, Document doc) {
         // buscar dados e extrair valores
         //enviar para SQL
         try {
@@ -34,6 +34,13 @@ public class SqlSender {
             System.out.println("Connection failed!!!");
             e.printStackTrace();
         }
+    }
+
+    /*
+    public synchronized void send (Connection connection, Document sendable) {
+        //enviar para SQL
+        System.out.println(sendable.toJson());
 
     }
+     */
 }

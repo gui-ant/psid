@@ -1,6 +1,7 @@
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,7 +21,7 @@ public class MainMongoToSQL {
 
             SqlSender sender = new SqlSender(sqlConn);
             //teste ainda sem valores do mongo
-            sender.send(sqlConn,new LinkedList<>());
+            sender.send(sqlConn, new Document() );
 
             //MongoToSql st1 = new MongoToSql(sourceDB, "sensort1", sqlConn, sender);
            // st1.run();
