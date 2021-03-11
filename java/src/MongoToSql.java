@@ -14,7 +14,7 @@ public class MongoToSql extends Thread {
 
     private Measurement measurement;
 
-    private Measurement lastSentDoc;
+    private Measurement lastSentMea;
 
 
     public MongoToSql (MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn, SqlSender sender) {
@@ -48,12 +48,10 @@ public class MongoToSql extends Thread {
     }
 
     private void sendToSql() {
-        sender.send(sqlConn, measurement);
-
-        if(! measurement.equals(lastSentDoc)) {
+        if(! measurement.equals(lastSentMea)) {
             sender.send(sqlConn, measurement);
         }
-
+        lastSentMea = measurement;
     }
 
     public void run() {
