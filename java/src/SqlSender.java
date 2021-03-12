@@ -1,11 +1,15 @@
 import com.google.gson.Gson;
 import org.bson.Document;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+
+import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
 
 public class SqlSender {
     private Connection connection;
+    private HashMap<String, Integer> sensorIDMap = new HashMap<>();
+    private HashMap<String, Integer> zoneIDMap = new HashMap<>();
+
 
     //apenas estou a considerar o registo de measures, mais tarde faz-se o refactor
 //    int id          = 4;
@@ -15,7 +19,45 @@ public class SqlSender {
 
     public SqlSender (Connection connection) {
         this.connection = connection;
+        getSensorIDs();
+        getZoneIDs();
     }
+
+
+    private void getSensorIDs(){
+        try {
+            String sql = "SELECT * FROM sensors";
+            Statement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery(sql);
+
+            while (result.next()){
+                sensorIDMap.put(result.getString("name"), result.getInt("id"));
+            }
+
+            System.out.println(sensorIDMap);
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void getZoneIDs(){
+        try {
+            String sql = "SELECT * FROM zones";
+            Statement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery(sql);
+
+            while (result.next()){
+                zoneIDMap.put(result.getString("name"), result.getInt("id"));
+            }
+
+            System.out.println(zoneIDMap);
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
 
     public synchronized void send (Connection connection, Measurement measurement) {
         // buscar dados e extrair valores
@@ -33,9 +75,13 @@ public class SqlSender {
 //            statement.close();
 
             //obter atributos do objeto measurement
-            int zone_id = Integer.parseInt(measurement.getZona().substring(1));
-            int sensor_id = Integer.parseInt(measurement.getSensor().substring(1));
+            String zone = measurement.getZona();
+            String sensor = measurement.getSensor();
             String data = measurement.getMedicao();
+
+            //obter id da zone e do sensor do mysql
+            int zone_id = zoneIDMap.get(zone);
+            int sensor_id = sensorIDMap.get(sensor);
 
             //enviar para SQL
             String sql = "INSERT INTO measures (data, sensor_id, zone_id) VALUES (?, ?, ?)";
@@ -48,6 +94,9 @@ public class SqlSender {
             if (rows > 0){
                 System.out.println("Inserted value successfully!!!");
             }
+
+            statement.close();
+
         } catch (Exception e) {
             System.out.println("Connection failed!!!");
             e.printStackTrace();
