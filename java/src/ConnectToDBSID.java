@@ -43,7 +43,7 @@ public class ConnectToDBSID {
         targetMongoDb = mongoAtlas.getDatabase(targetDB);
     }
 
-    private Document getLastObject(MongoCollection<Document> collection) {
+    private synchronized Document getLastObject(MongoCollection<Document> collection) {
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
@@ -66,10 +66,12 @@ public class ConnectToDBSID {
         MongoCursor<Document> cursor = sourceCollection.find(Filters.gt("_id", lastDoc.get("_id"))).iterator();
 
         // Le os novos dados e adiciona-os a ArrayList
-        while (cursor.hasNext()) {
-            lastDoc = cursor.next();
-            System.out.println("Source: " + lastDoc); // lê da cloud
-            buffer.add(lastDoc);
+        synchronized (this) {
+            while (cursor.hasNext()) {
+                lastDoc = cursor.next();
+                System.out.println("Source: " + lastDoc); // lê da cloud
+                buffer.add(lastDoc);
+            }
         }
 
         insertBulk(targetCollection, true);
