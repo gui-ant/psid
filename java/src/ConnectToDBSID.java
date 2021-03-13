@@ -34,12 +34,16 @@ public class ConnectToDBSID {
         this.targetMongoDb = new MongoClient(targetURI).getDatabase(targetDb);
     }
 
+    private String getCollectionName(MongoCollection collection) {
+        return collection.getNamespace().getCollectionName();
+    }
+
     private Document getLastObject(MongoCollection<Document> collection) {
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
     private synchronized void insertBulk(MongoCollection<Document> targetCollection, boolean ordered) {
-        System.out.println("Inserting on " + targetCollection.getNamespace().getCollectionName() + "...");
+        System.out.println("Inserting on " + getCollectionName(targetCollection) + "...");
         InsertManyOptions options = new InsertManyOptions();
         if (!buffer.isEmpty())
             targetCollection.insertMany(buffer, options.ordered(ordered));
@@ -47,7 +51,7 @@ public class ConnectToDBSID {
     }
 
     private void fetchData(MongoCollection<Document> sourceCollection) {
-        String srcCollectionName = sourceCollection.getNamespace().getCollectionName();
+        String srcCollectionName = getCollectionName(sourceCollection);
 
         // Obtem o ultimo registo da targetCollection
         MongoCollection<Document> targetCollection = targetMongoDb.getCollection(srcCollectionName);
