@@ -8,6 +8,7 @@ import com.mongodb.client.model.InsertManyOptions;
 import org.bson.Document;
 
 import java.util.LinkedList;
+import java.util.List;
 
 
 //  CASO A DB NAO ESTEJA ACESSIVEL!!!!!!!
@@ -42,19 +43,18 @@ public class ConnectToDBSID {
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
-    private synchronized void insertBulk(MongoCollection<Document> targetCollection, boolean ordered) {
+    private void insertBulk(List data, MongoCollection<Document> targetCollection, boolean ordered) {
         System.out.println("Inserting on " + getCollectionName(targetCollection) + "...");
-        InsertManyOptions options = new InsertManyOptions();
-        if (!buffer.isEmpty())
-            targetCollection.insertMany(buffer, options.ordered(ordered));
-        buffer.clear();
+
+        if (!data.isEmpty())
+            targetCollection.insertMany(data, new InsertManyOptions().ordered(ordered));
     }
 
-    private void fetchData(MongoCollection<Document> sourceCollection) {
-        String srcCollectionName = getCollectionName(sourceCollection);
+    private List fetchData(MongoCollection<Document> sourceCollection) {
+        List buffer = new LinkedList<>();
 
         // Obtem o ultimo registo da targetCollection
-        MongoCollection<Document> targetCollection = targetMongoDb.getCollection(srcCollectionName);
+        MongoCollection<Document> targetCollection = targetMongoDb.getCollection(getCollectionName(sourceCollection));
         Document doc = getLastObject(targetCollection);
 
         // Se a targetCollection estiver vazia, baseia-se no último _id da sourceCollection
@@ -70,7 +70,7 @@ public class ConnectToDBSID {
             buffer.add(doc);
         }
 
-        insertBulk(targetCollection, true);
+        return buffer;
     }
 
     public void startFetching(String[] collections) {
@@ -80,7 +80,13 @@ public class ConnectToDBSID {
                 while (true) {
                     try {
                         System.out.println("Fetching " + collName + "...");
-                        fetchData(sourceMongoDb.getCollection(collName));
+
+                        MongoCollection<Document> sourceCollection = sourceMongoDb.getCollection(collName);
+                        MongoCollection<Document> targetCollection = targetMongoDb.getCollection(getCollectionName(sourceCollection));
+
+                        List data = fetchData(sourceCollection);
+                        insertBulk(data, targetCollection, true);
+
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
