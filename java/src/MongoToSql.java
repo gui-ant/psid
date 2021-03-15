@@ -22,8 +22,10 @@ public class MongoToSql extends Thread {
 
     private void fetchData() {
         //vai buscar o ultimo doc ao Mongo e passa de JSON para um objeto Measurement
-        measurement = new Gson().fromJson(getLastObjectMongo().toJson(), Measurement.class);
-        String original_mongo_id = getLastObjectMongo().get("_id").toString();
+        Document doc = getLastObjectMongo();
+
+        measurement = new Gson().fromJson(doc.toJson(), Measurement.class);
+        String original_mongo_id = doc.get("_id").toString();
         measurement.set_id(original_mongo_id);
 
         //só para testes (APAGAR)
