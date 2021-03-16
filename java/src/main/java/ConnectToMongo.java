@@ -2,6 +2,7 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,10 @@ public class ConnectToMongo {
 
     private Document getLastObject(MongoCollection<Document> collection) {
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
+    }
+
+    private static String getCollectionName(MongoCollection<Document> collection) {
+        return collection.getNamespace().getCollectionName();
     }
 
     public void useCollections(String[] collectionNames) {
@@ -77,6 +82,8 @@ public class ConnectToMongo {
 
         private final MongoCollection<Document> collection;
         private final LinkedBlockingQueue<Document> buffer;
+        private static final int SLEEP_TIME = 2000;
+
 
         public DocumentFetcher(MongoCollection<Document> collection, LinkedBlockingQueue<Document> buffer) {
             this.collection = collection;
@@ -86,16 +93,24 @@ public class ConnectToMongo {
         @Override
         public void run() {
             Document doc = getLastObject(collection);
-            int sleepingTime = 1000;
+
+            // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
+            ObjectId lastId = doc.getObjectId("_id");
             while (true) {
                 try {
+                    System.out.println("Fetching " + getCollectionName(collection) + "...");
+
+                    MongoCursor<Document> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
+
                     // Le os novos dados e adiciona-os ao buffer
-                    for (Document document : collection.find(Filters.gt("_id", doc.get("_id")))) {
-                        doc = document;
+                    while (cursor.hasNext()) {
+                        doc = cursor.next();
+                        lastId = doc.getObjectId("_id");
                         buffer.offer(doc);
                         System.out.println("Fetched: " + doc.get("_id"));
                     }
-                    Thread.sleep(sleepingTime);
+                    Thread.sleep(SLEEP_TIME);
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -117,7 +132,7 @@ public class ConnectToMongo {
             while (true) {
                 try {
                     InsertOneResult res = collection.insertOne(buffer.take());
-                    System.out.println("Inserted: " + res.getInsertedId().toString());
+                    System.out.println("Inserted: " + res.getInsertedId());
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
