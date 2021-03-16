@@ -45,7 +45,7 @@ public class SqlSender {
         }
     }
 
-    public synchronized void send(Connection connection, MeasurementPOJO measurement) {
+    public synchronized void send(Connection connection, Measurement measurement) {
 
         // buscar dados e extrair valores
 
@@ -53,9 +53,9 @@ public class SqlSender {
         try {
 
             //obter atributos do objeto measurement
-            String zone = measurement.getZone();
-            String sensor = measurement.getType();
-            String data = measurement.getValue();
+            String zone = measurement.getZona();
+            String sensor = measurement.getSensor();
+            String data = measurement.getMedicao();
 
             //obter id da zone e do sensor do mysql
             int zone_id = zoneIDMap.get(zone);
