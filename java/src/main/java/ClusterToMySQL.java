@@ -16,7 +16,8 @@ public class ClusterToMySQL {
 
             SqlSender sender = new SqlSender(sqlConn);
 
-            MongoToSql st1 = new MongoToSql(sourceDB, "sensort1", sqlConn, sender);
+            //MongoToSql st1 = new MongoToSql(sourceDB, "sensort1", sqlConn, sender);
+            MongoToSqlPOJO st1 = new MongoToSqlPOJO(sourceDB, "sensort1", sqlConn, sender);
             st1.start();
         } catch (Exception e) {
             System.err.println("BRUH!");
