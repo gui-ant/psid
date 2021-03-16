@@ -1,13 +1,18 @@
-import java.sql.*;
+import org.bson.Document;
 
-public class ConnectToDBSQL {
+import java.sql.*;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class ConnectToMySql {
 
     private Connection conn;
 
     public static void main(String[] args) throws Exception {
-       ConnectToDBSQL test = new ConnectToDBSQL();
-       test.getConnection();
-       test.testSelectQuery();
+        ConnectToMySql test = new ConnectToMySql();
+        test.getConnection();
+        test.testSelectQuery();
     }
 
     public void getConnection() throws Exception {
@@ -25,11 +30,11 @@ public class ConnectToDBSQL {
             Class.forName(driver).newInstance();
 
 
-            this.conn = DriverManager.getConnection(url+"?"+"user=aluno&password=aluno");
+            this.conn = DriverManager.getConnection(url + "?" + "user=aluno&password=aluno");
             System.out.println("Connected");
 
 
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
@@ -45,27 +50,31 @@ public class ConnectToDBSQL {
             while (rs.next()) {
                 System.out.println(rs.getString("limiteinferior"));
             }
-        }catch (SQLException ex){
+        } catch (SQLException ex) {
             // handle any errors
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
-        }finally {
+        } finally {
             if (rs != null) {
                 try {
                     rs.close();
-                } catch (SQLException sqlEx) { } // ignore
+                } catch (SQLException sqlEx) {
+                } // ignore
                 rs = null;
             }
             if (stmt != null) {
                 try {
                     stmt.close();
-                } catch (SQLException sqlEx) { } // ignore
+                } catch (SQLException sqlEx) {
+                } // ignore
                 stmt = null;
             }
         }
 
     }
 
+    public void populate(ConcurrentHashMap<String, LinkedBlockingQueue<Document>> fetchingSource) {
 
+    }
 }
