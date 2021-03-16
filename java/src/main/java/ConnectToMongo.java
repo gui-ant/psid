@@ -29,12 +29,9 @@ public class ConnectToMongo {
         useDatabase(sourceDatabase);
     }
 
-    private Document getLastObject(MongoCollection<Document> collection) {
-        return collection.find().sort(new Document("_id", -1)).limit(1).first();
-    }
-
-    private static String getCollectionName(MongoCollection<Document> collection) {
-        return collection.getNamespace().getCollectionName();
+    public void useDatabase(String db) {
+        this.database = client.getDatabase(db);
+        useAllCollections();
     }
 
     public void useCollections(String[] collectionNames) {
@@ -43,22 +40,26 @@ public class ConnectToMongo {
             collectionsDataBuffer.put(col, new LinkedBlockingQueue<>());
     }
 
-    public void useDatabase(String db) {
-        this.database = client.getDatabase(db);
-        useAllCollections();
+    // Considera todas as coleções da database
+    public void useAllCollections() {
+        List<String> collectionNames = new ArrayList<>();
+        for (String collection : database.listCollectionNames())
+            collectionNames.add(collection);
+
+        String[] arr = new String[collectionNames.size()];
+        useCollections(collectionNames.toArray(arr));
+    }
+
+    private Document getLastObject(MongoCollection<Document> collection) {
+        return collection.find().sort(new Document("_id", -1)).limit(1).first();
+    }
+
+    private static String getCollectionName(MongoCollection<Document> collection) {
+        return collection.getNamespace().getCollectionName();
     }
 
     public ConcurrentHashMap<String, LinkedBlockingQueue<Document>> getFetchingSource() {
         return collectionsDataBuffer;
-    }
-
-    // Considera todas as coleções da database
-    public void useAllCollections() {
-        List<String> collectionNames = new ArrayList<>();
-        database.listCollectionNames().map(collectionNames::add);
-
-        String[] arr = new String[collectionNames.size()];
-        useCollections(collectionNames.toArray(arr));
     }
 
     public void startFetching() {
@@ -105,7 +106,7 @@ public class ConnectToMongo {
                         doc = cursor.next();
                         lastId = doc.getObjectId("_id");
                         buffer.offer(doc);
-                        System.out.println("Fetched: " + doc.get("_id"));
+                        System.out.println("Fetched (" + getCollectionName(collection) + "): " + lastId);
                     }
                     Thread.sleep(SLEEP_TIME);
                 } catch (InterruptedException e) {
