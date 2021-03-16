@@ -60,7 +60,6 @@ public class ConnectToMongo {
         // Para cada collection lança uma thread
         collectionsDataBuffer.forEach((collection, buffer) -> {
             MongoCollection<Document> sourceCollection = database.getCollection(collection);
-            //LinkedBlockingQueue<Document> sourceBuffer = collectionsDataBuffer.get(getCollectionName(sourceCollection));
             new Thread(new DocumentFetcher(sourceCollection, buffer)).start();
         });
     }
@@ -87,9 +86,7 @@ public class ConnectToMongo {
         @Override
         public void run() {
             Document doc = getLastObject(collection);
-            int minSleepingTime = 1000;
-            double force = 0.1;
-            int results = 0;
+            int sleepingTime = 1000;
             while (true) {
                 try {
                     // Le os novos dados e adiciona-os ao buffer
@@ -97,11 +94,8 @@ public class ConnectToMongo {
                         doc = document;
                         buffer.offer(doc);
                         System.out.println("Fetched: " + doc.get("_id"));
-                        results++;
                     }
-                    System.out.println((long) ((double) minSleepingTime * (1 + (double) (results - 1) * force)));
-                    Thread.sleep((long) ((double) minSleepingTime * (1 + (double) (results) * force)));
-                    results = 0;
+                    Thread.sleep(sleepingTime);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -123,7 +117,7 @@ public class ConnectToMongo {
             while (true) {
                 try {
                     InsertOneResult res = collection.insertOne(buffer.take());
-                    System.out.println("Inserted: " + res.getInsertedId());
+                    System.out.println("Inserted: " + res.getInsertedId().toString());
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
