@@ -17,20 +17,20 @@ public class SqlSender {
 //    int sensor_id   = 1;
 //    int zone_id     = 1;
 
-    public SqlSender (Connection connection) {
+    public SqlSender(Connection connection) {
         this.connection = connection;
         getSensorIDs();
         getZoneIDs();
     }
 
 
-    private void getSensorIDs(){
+    private void getSensorIDs() {
         try {
             String sql = "SELECT * FROM sensors";
             Statement statement = connection.prepareStatement(sql);
             ResultSet result = statement.executeQuery(sql);
 
-            while (result.next()){
+            while (result.next()) {
                 sensorIDMap.put(result.getString("name"), result.getInt("id"));
             }
 
@@ -41,13 +41,13 @@ public class SqlSender {
         }
     }
 
-    private void getZoneIDs(){
+    private void getZoneIDs() {
         try {
             String sql = "SELECT * FROM zones";
             Statement statement = connection.prepareStatement(sql);
             ResultSet result = statement.executeQuery(sql);
 
-            while (result.next()){
+            while (result.next()) {
                 zoneIDMap.put(result.getString("name"), result.getInt("id"));
             }
 
@@ -59,7 +59,7 @@ public class SqlSender {
     }
 
 
-    public synchronized void send (Connection connection, Measurement measurement) {
+    public synchronized void send(Connection connection, Measurement measurement) {
         // buscar dados e extrair valores
 
         System.out.println("To insert: " + measurement);
@@ -91,7 +91,7 @@ public class SqlSender {
             statement.setInt(3, zone_id);
 
             int rows = statement.executeUpdate();
-            if (rows > 0){
+            if (rows > 0) {
                 System.out.println("Inserted value successfully!!!");
             }
 

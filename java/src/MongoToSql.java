@@ -2,19 +2,20 @@ import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+
 import java.sql.Connection;
 
 
 public class MongoToSql extends Thread {
 
-    private MongoCollection<Document> srcMongoCollection;
-    private Connection sqlConn;
-    private SqlSender sender;
+    private final MongoCollection<Document> srcMongoCollection;
+    private final Connection sqlConn;
+    private final SqlSender sender;
     private Measurement measurement;
     private Measurement lastSentMea;
 
 
-    public MongoToSql (MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn, SqlSender sender) {
+    public MongoToSql(MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn, SqlSender sender) {
         this.sender = sender;
         this.srcMongoCollection = srcMongoDB.getCollection(srcMongoCollectionName);
         this.sqlConn = sqlConn;
@@ -28,7 +29,7 @@ public class MongoToSql extends Thread {
 
         //só para testes (APAGAR)
         System.out.println("---------------------------------------------------------------");
-        if(lastSentMea == null)
+        if (lastSentMea == null)
             System.out.println("Last measure ID: " + null);
         else
             System.out.println("Last measure ID: " + lastSentMea.get_id());
@@ -44,23 +45,22 @@ public class MongoToSql extends Thread {
     }
 
     private void sendToSql() {
-        if(canSend()) {
+        if (canSend()) {
             sender.send(sqlConn, measurement);
             lastSentMea = measurement;
-        }
-        else
+        } else
             System.out.println("Repeated measure, not sent;");
     }
 
-    private boolean canSend(){
-        return measurement.measequals(lastSentMea) ? false : true;
+    private boolean canSend() {
+        return !measurement.measequals(lastSentMea);
     }
 
     public void run() {
 //      while (true) {
 
         //só para testar se não manda a 2ª vez (APAGAR)
-        for(int i = 0; i != 2; i++) {
+        for (int i = 0; i != 2; i++) {
 
             try {
                 fetchData();

@@ -76,27 +76,29 @@ public class Measurement {
                 ", Medicao='" + Medicao + '\'' +
                 '}';
     }
+
+    class MongoID {
+
+        private String origin_id;
+
+        public MongoID(String id) {
+            this.origin_id = id;
+        }
+
+        public String getOrigin_id() {
+            return origin_id;
+        }
+
+        public void setOrigin_id(String origin_id) {
+            this.origin_id = origin_id;
+        }
+
+        @Override
+        public String toString() {
+            return this.origin_id;
+        }
+    }
+
 }
 
 
-class MongoID{
-
-    private String origin_id;
-
-    public MongoID(String id){
-        this.origin_id = id;
-    }
-
-    public String getOrigin_id() {
-        return origin_id;
-    }
-
-    public void setOrigin_id(String origin_id) {
-        this.origin_id = origin_id;
-    }
-
-    @Override
-    public String toString() {
-        return this.origin_id;
-    }
-}
