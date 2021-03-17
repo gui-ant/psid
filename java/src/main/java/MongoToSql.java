@@ -49,7 +49,7 @@ public class MongoToSql extends Thread {
 
     private void sendToSql() {
         if (canSend()) {
-            sender.send(sqlConn, measurement);
+            //sender.send(sqlConn, measurement);
             lastSentMea = measurement;
         } else
             System.out.println("Repeated measure, not sent;");

@@ -1,10 +1,6 @@
-import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-import org.bson.types.ObjectId;
 
 import java.sql.Connection;
 
@@ -22,33 +18,18 @@ public class MongoToSqlPOJO extends Thread {
     private MeasurementPOJO measurement;
     private MeasurementPOJO lastSentMea;
 
+    public MongoToSqlPOJO(MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn) {
 
-    public MongoToSqlPOJO(MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn, SqlSender sender) {
-        // create codec registry for POJOs
-        CodecRegistry pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-
-        // get handle to "mydb" database
-        MongoDatabase database = srcMongoDB.withCodecRegistry(pojoCodecRegistry);
-
-        this.sender = sender;
-        //this.srcMongoCollection = srcMongoDB.getCollection(srcMongoCollectionName);
-        this.srcMongoCollection = database.getCollection(srcMongoCollectionName, MeasurementPOJO.class);
         this.sqlConn = sqlConn;
-
-
+        this.sender = new SqlSender(sqlConn);
+        //this.srcMongoCollection = srcMongoDB.getCollection(srcMongoCollectionName);
+        this.srcMongoCollection = srcMongoDB.getCollection(srcMongoCollectionName, MeasurementPOJO.class);
     }
 
+
     private void fetchData() {
-        //vai buscar o ultimo doc ao Mongo e passa de JSON para um objeto Measurement
-        MeasurementPOJO doc = getLastObjectMongo();
-
-        //measurement = new Gson().fromJson(doc.toJson(), MeasurementPOJO.class);
-        measurement = doc;
-
-        //String original_mongo_id = doc.get("_id").toString();
-        ObjectId original_mongo_id = doc.getId();
-        measurement.setId(original_mongo_id);
+        //vai buscar o ultimo doc ao Mongo
+        this.measurement = getLastObjectMongo();
 
         //só para testes (APAGAR)
         System.out.println("---------------------------------------------------------------");
@@ -85,16 +66,8 @@ public class MongoToSqlPOJO extends Thread {
         //só para testar se não manda a 2ª vez (APAGAR)
         for (int i = 0; i != 2; i++) {
 
-            try {
-                fetchData();
-            } catch (Exception e) {
-                System.err.println("Erro em fetchData()");
-            }
-            try {
-                sendToSql();
-            } catch (Exception e) {
-                System.err.println("Erro em sendToSql()");
-            }
+            fetchData();
+            sendToSql();
             try {
                 sleep(3000);
             } catch (InterruptedException e) {

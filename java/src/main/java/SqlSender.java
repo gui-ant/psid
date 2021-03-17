@@ -1,10 +1,14 @@
 import java.sql.*;
-import java.util.HashMap;
+import java.util.Hashtable;
 
 public class SqlSender {
     private final Connection connection;
-    private final HashMap<String, Integer> sensorIDMap = new HashMap<>();
-    private final HashMap<String, Integer> zoneIDMap = new HashMap<>();
+
+    //private final HashMap<String, Integer> sensorIDMap = new HashMap<>();
+    //private final HashMap<String, Integer> zoneIDMap = new HashMap<>();
+
+    private final Hashtable<String, Sensor> sensors = new Hashtable<>();
+    private final Hashtable<String, Zone> zones = new Hashtable<>();
 
     //apenas estou a considerar o registo de measures, mais tarde faz-se o refactor
 //    int id          = 4;
@@ -15,21 +19,60 @@ public class SqlSender {
     public SqlSender(Connection connection) {
 
         this.connection = connection;
-        getSensorIDs();
-        getZoneIDs();
+        fetchZones();
+        fetchSensors();
+        //getSensorIDs();
+        //getZoneIDs();
     }
 
+    private void fetchZones() {
+        String query = "SELECT * FROM zones";
+        try (Statement st = connection.createStatement()) {
+            ResultSet res = st.executeQuery(query);
+
+            while (res.next()) {
+                Zone z = new Zone(res.getInt("id"));
+                zones.put(res.getString("name"), z);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void fetchSensors() {
+        String query = "SELECT s.*,z.name FROM sensors as s JOIN zones as z on s.zone_id = z.id";
+        try (Statement st = connection.createStatement()) {
+            ResultSet res = st.executeQuery(query);
+
+            while (res.next()) {
+                Sensor s = new Sensor(res.getInt("id"));
+                Zone z = zones.get(res.getString("z.name"));
+
+                s.setMinLim(res.getInt("minlim"));
+                s.setMaxLim(res.getInt("maxlim"));
+                s.setZone(z);
+
+                sensors.put(res.getString("name"), s);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+/*
     private void getSensorIDs() {
-        geTableRecordIDs("name", "id", sensorIDMap);
+        getTableRecordIDs("name", "id", sensorIDMap);
     }
 
     private void getZoneIDs() {
-        geTableRecordIDs("name", "id", zoneIDMap);
+        getTableRecordIDs("name", "id", zoneIDMap);
     }
+*/
 
-    private void geTableRecordIDs(String columnLabel1, String columnLabel2, HashMap<String, Integer> mapResult) {
+/*
+    private void getTableRecordIDs(String columnLabel1, String columnLabel2, HashMap<String, Integer> mapResult) {
         try {
-            String sql = "SELECT * FROM zones";
+            String sql = "SELECT * FROM sensor as s JOIN zona as z on z.idzona = s.idzona";
             Statement statement = connection.prepareStatement(sql);
             ResultSet result = statement.executeQuery(sql);
 
@@ -44,6 +87,7 @@ public class SqlSender {
             throwables.printStackTrace();
         }
     }
+*/
 
     public synchronized void send(Connection connection, MeasurementPOJO measurement) {
 
@@ -51,22 +95,18 @@ public class SqlSender {
 
         System.out.println("To insert: " + measurement);
         try {
-
-            //obter atributos do objeto measurement
-            String zone = measurement.getZone();
-            String sensor = measurement.getType();
-            String data = measurement.getValue();
-
-            //obter id da zone e do sensor do mysql
-            int zone_id = zoneIDMap.get(zone);
-            int sensor_id = sensorIDMap.get(sensor);
+            Zone zone = zones.get(measurement.getZone());
+            Sensor sensor = sensors.get(measurement.getSensor());
+            String value = measurement.getMeasure();
+            Timestamp date = measurement.getTimestamp();
 
             //enviar para SQL
-            String sql = "INSERT INTO measures (data, sensor_id, zone_id) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO measures (value, sensor_id, zone_id,date) VALUES (?, ?, ?,?)";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, data);
-            statement.setInt(2, sensor_id);
-            statement.setInt(3, zone_id);
+            statement.setString(1, value);
+            statement.setInt(2, zone.getId());
+            statement.setInt(3, sensor.getId());
+            statement.setTimestamp(4, date);
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
@@ -88,4 +128,5 @@ public class SqlSender {
 
     }
      */
+
 }
