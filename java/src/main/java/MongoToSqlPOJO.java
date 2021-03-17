@@ -4,13 +4,9 @@ import org.bson.Document;
 
 import java.sql.Connection;
 
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
-
 
 public class MongoToSqlPOJO extends Thread {
 
-    //private final MongoCollection<Document> srcMongoCollection;
     private final MongoCollection<MeasurementPOJO> srcMongoCollection;
     private final Connection sqlConn;
     private final SqlSender sender;
@@ -22,7 +18,6 @@ public class MongoToSqlPOJO extends Thread {
 
         this.sqlConn = sqlConn;
         this.sender = new SqlSender(sqlConn);
-        //this.srcMongoCollection = srcMongoDB.getCollection(srcMongoCollectionName);
         this.srcMongoCollection = srcMongoDB.getCollection(srcMongoCollectionName, MeasurementPOJO.class);
     }
 

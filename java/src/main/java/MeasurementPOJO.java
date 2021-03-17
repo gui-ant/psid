@@ -13,7 +13,6 @@ public final class MeasurementPOJO {
     private String zone;
     @BsonProperty(value = "Sensor")
     private String sensor;
-
     @BsonProperty(value = "Data")
     private String date;
     @BsonProperty(value = "Medicao")
@@ -47,7 +46,7 @@ public final class MeasurementPOJO {
     }
 
     public String getDate() {
-        return date.replaceAll("(T|Z)", " ").trim();
+        return date.replaceAll("[TZ]", " ").trim();
     }
 
     public Timestamp getTimestamp() {

@@ -4,25 +4,15 @@ import java.util.Hashtable;
 public class SqlSender {
     private final Connection connection;
 
-    //private final HashMap<String, Integer> sensorIDMap = new HashMap<>();
-    //private final HashMap<String, Integer> zoneIDMap = new HashMap<>();
-
     private final Hashtable<String, Sensor> sensors = new Hashtable<>();
     private final Hashtable<String, Zone> zones = new Hashtable<>();
 
-    //apenas estou a considerar o registo de measures, mais tarde faz-se o refactor
-//    int id          = 4;
-//    String data     = "100";
-//    int sensor_id   = 1;
-//    int zone_id     = 1;
 
     public SqlSender(Connection connection) {
 
         this.connection = connection;
         fetchZones();
         fetchSensors();
-        //getSensorIDs();
-        //getZoneIDs();
     }
 
     private void fetchZones() {
@@ -59,36 +49,6 @@ public class SqlSender {
         }
     }
 
-/*
-    private void getSensorIDs() {
-        getTableRecordIDs("name", "id", sensorIDMap);
-    }
-
-    private void getZoneIDs() {
-        getTableRecordIDs("name", "id", zoneIDMap);
-    }
-*/
-
-/*
-    private void getTableRecordIDs(String columnLabel1, String columnLabel2, HashMap<String, Integer> mapResult) {
-        try {
-            String sql = "SELECT * FROM sensor as s JOIN zona as z on z.idzona = s.idzona";
-            Statement statement = connection.prepareStatement(sql);
-            ResultSet result = statement.executeQuery(sql);
-
-
-            while (result.next()) {
-                mapResult.put(result.getString(columnLabel1), result.getInt(columnLabel2));
-            }
-
-            System.out.println(mapResult);
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-    }
-*/
-
     public synchronized void send(Connection connection, MeasurementPOJO measurement) {
 
         // buscar dados e extrair valores
@@ -120,13 +80,4 @@ public class SqlSender {
             e.printStackTrace();
         }
     }
-
-    /*
-    public synchronized void send (Connection connection, Document sendable) {
-        //enviar para SQL
-        System.out.println(sendable.toJson());
-
-    }
-     */
-
 }
