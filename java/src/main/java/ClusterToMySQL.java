@@ -13,7 +13,7 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class ClusterToMySQL {
     private static final String SOURCE_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String TARGET_URL = "jdbc:mysql://194.210.86.10:3306/aluno_g07";
+    private static final String TARGET_URL = "jdbc:mysql://194.210.86.10:3306/aluno_g07_cloud";
 
 
     public static void main(String[] args) {
