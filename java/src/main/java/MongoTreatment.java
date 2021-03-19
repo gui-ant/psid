@@ -38,7 +38,7 @@ public class MongoTreatment extends ConnectToMongo.DocumentPublisher {
         }
     }
 
-    //Extrai os campos do doc e instancia uma measure com os mesmos
+    //Extrai os campos do doc e instancía uma measurement com os mesmos
     private static MeasurementPOJO convertDocToMeasurement(Document document){
         ObjectId id = document.getObjectId("_id");
         String zone = document.getString("Zona");
