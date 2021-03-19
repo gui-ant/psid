@@ -2,22 +2,23 @@ import java.sql.*;
 import java.util.Hashtable;
 
 public class SqlSender {
-    private final Connection connection;
+    private final Connection connCloud;
+    //private final Connection connLocal;
 
     private final Hashtable<String, Sensor> sensors = new Hashtable<>();
     private final Hashtable<String, Zone> zones = new Hashtable<>();
 
 
-    public SqlSender(Connection connection) {
+    public SqlSender(Connection connCloud) {
 
-        this.connection = connection;
+        this.connCloud = connCloud;
         fetchZones();
         fetchSensors();
     }
 
     private void fetchZones() {
         String query = "SELECT * FROM zones";
-        try (Statement st = connection.createStatement()) {
+        try (Statement st = connCloud.createStatement()) {
             ResultSet res = st.executeQuery(query);
 
             while (res.next()) {
@@ -31,7 +32,7 @@ public class SqlSender {
 
     private void fetchSensors() {
         String query = "SELECT s.*,z.name FROM sensors as s JOIN zones as z on s.zone_id = z.id";
-        try (Statement st = connection.createStatement()) {
+        try (Statement st = connCloud.createStatement()) {
             ResultSet res = st.executeQuery(query);
 
             while (res.next()) {
@@ -61,7 +62,7 @@ public class SqlSender {
             Timestamp date = measurement.getTimestamp();
 
             //enviar para SQL
-            String sql = "INSERT INTO measures (value, sensor_id, zone_id,date) VALUES (?, ?, ?,?)";
+            String sql = "INSERT INTO measures (value, sensor_id, zone_id,date) VALUES (?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, value);
             statement.setInt(2, zone.getId());

@@ -8,16 +8,18 @@ import java.sql.Connection;
 public class MongoToSqlPOJO extends Thread {
 
     private final MongoCollection<MeasurementPOJO> srcMongoCollection;
-    private final Connection sqlConn;
+    private final Connection sqlCloudConn;
+    private final Connection sqlLocalConn;
     private final SqlSender sender;
 
     private MeasurementPOJO measurement;
     private MeasurementPOJO lastSentMea;
 
-    public MongoToSqlPOJO(MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlConn) {
+    public MongoToSqlPOJO(MongoDatabase srcMongoDB, String srcMongoCollectionName, Connection sqlCloudConn, Connection sqlLocalConn) {
 
-        this.sqlConn = sqlConn;
-        this.sender = new SqlSender(sqlConn);
+        this.sqlCloudConn = sqlCloudConn;
+        this.sqlLocalConn = sqlLocalConn;
+        this.sender = new SqlSender(sqlCloudConn);
         this.srcMongoCollection = srcMongoDB.getCollection(srcMongoCollectionName, MeasurementPOJO.class);
     }
 
@@ -45,7 +47,7 @@ public class MongoToSqlPOJO extends Thread {
 
     private void sendToSql() {
         if (canSend()) {
-            sender.send(sqlConn, measurement);
+            sender.send(sqlLocalConn, measurement);
             lastSentMea = measurement;
         } else
             System.out.println("Repeated measure, not sent;");

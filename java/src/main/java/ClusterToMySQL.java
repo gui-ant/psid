@@ -13,7 +13,8 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class ClusterToMySQL {
     private static final String SOURCE_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String TARGET_URL = "jdbc:mysql://194.210.86.10:3306/aluno_g07_cloud";
+    private static final String TARGET_URL_CLOUD = "jdbc:mysql://194.210.86.10:3306/aluno_g07_cloud";
+    private static final String TARGET_URL_LOCAL = "jdbc:mysql://194.210.86.10:3306/aluno_g07_local";
 
 
     public static void main(String[] args) {
@@ -29,10 +30,11 @@ public class ClusterToMySQL {
             MongoDatabase database = cluster.getDatabase("g07").withCodecRegistry(pojoCodecRegistry);
 
             //MongoDatabase cluster = MongoClients.create(SOURCE_URI).getDatabase("g07");
-            Connection mysql = DriverManager.getConnection(TARGET_URL, "aluno", "aluno");
+            Connection mysqlCloud = DriverManager.getConnection(TARGET_URL_CLOUD, "aluno", "aluno");
+            Connection mysqlLocal = DriverManager.getConnection(TARGET_URL_LOCAL, "aluno", "aluno");
 
             //MongoToSql st1 = new MongoToSql(sourceDB, "sensort1", sqlConn, sender);
-            MongoToSqlPOJO st1 = new MongoToSqlPOJO(database, "sensort1", mysql);
+            MongoToSqlPOJO st1 = new MongoToSqlPOJO(database, "sensort1", mysqlCloud, mysqlLocal);
             st1.start();
         } catch (Exception e) {
             System.err.println("BRUH!");
