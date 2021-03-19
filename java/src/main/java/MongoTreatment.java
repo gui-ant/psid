@@ -23,10 +23,9 @@ public class MongoTreatment extends ConnectToMongo.DocumentPublisher {
             while (buffer.peek() != null){
 
                 Document doc = buffer.poll();
-                MeasurementPOJO measurement = convertDocToMeasurement(doc);
 
-                //accumula o valor da medida lida
-                acc += Float.parseFloat(measurement.getMeasure());
+                //accumula o valor da medição lida
+                acc += doc.get("Medicao", Float.class);
 
                 //conta a acumulação para depois dividir no fim
                 counter++;
@@ -48,4 +47,5 @@ public class MongoTreatment extends ConnectToMongo.DocumentPublisher {
 
         return new MeasurementPOJO(id, zone, sensor, date, measurement);
     }
+
 }
