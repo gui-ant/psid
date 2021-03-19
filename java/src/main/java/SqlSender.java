@@ -31,7 +31,7 @@ public class SqlSender {
     }
 
     private void fetchSensors() {
-        String query = "SELECT s.*,z.name FROM sensors as s JOIN zones as z on s.zone_id = z.id";
+        String query = "SELECT s.*, z.name FROM sensors as s JOIN zones as z on s.zone_id = z.id";
         try (Statement st = connCloud.createStatement()) {
             ResultSet res = st.executeQuery(query);
 
@@ -61,13 +61,21 @@ public class SqlSender {
             String value = measurement.getMeasure();
             Timestamp date = measurement.getTimestamp();
 
+
             //enviar para SQL
-            String sql = "INSERT INTO measures (value, sensor_id, zone_id,date) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO measures (value, sensor_id, zone_id,date) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, value);
             statement.setInt(2, zone.getId());
             statement.setInt(3, sensor.getId());
             statement.setTimestamp(4, date);
+
+            //verifica se a leitura está dentro dos limites do sensor
+            if (Double.parseDouble(value) <= sensor.getMaxLim() && Double.parseDouble(value) >= sensor.getMaxLim()) {
+                statement.setBoolean(5, true);
+            } else {
+                statement.setBoolean(5, false);
+            }
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
@@ -75,6 +83,7 @@ public class SqlSender {
             }
 
             statement.close();
+
 
         } catch (Exception e) {
             System.out.println("Connection failed!!!");
