@@ -18,18 +18,20 @@ public class MongoTreatment extends ConnectToMongo.DocumentPublisher {
 
         try {
             Thread.sleep(5000);
-            float media = 0;
+            float media, acc = 0;
             int counter = 0;
             while (buffer.peek() != null){
 
                 Document doc = buffer.poll();
                 MeasurementPOJO measurement = convertDocToMeasurement(doc);
 
-                
+                //accumula o valor da medida lida
+                acc += Float.parseFloat(measurement.getMeasure());
 
-
-
+                //conta a acumulação para depois dividir no fim
+                counter++;
             }
+            media = acc/counter;
 
         } catch (InterruptedException e) {
             e.printStackTrace();
