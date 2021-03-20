@@ -82,7 +82,7 @@ public class ConnectToMongo {
 
         private final MongoCollection<Document> collection;
         private final LinkedBlockingQueue<Document> buffer;
-        private static final int SLEEP_TIME = 2000;
+        private static final int SLEEP_TIME = 5000;
 
 
         public DocumentFetcher(MongoCollection<Document> collection, LinkedBlockingQueue<Document> buffer) {
