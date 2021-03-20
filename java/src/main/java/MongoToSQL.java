@@ -59,8 +59,6 @@ public class MongoToSQL {
                         lastValidMeas = measurement;
                     }
 
-
-                    //TODO: tratar o caso da ultima medida ser inválida
                     if (counter != 0) {
                         mean_value = acc / counter;
                         lastValidMeas.setMeasure(Double.toString(mean_value));
