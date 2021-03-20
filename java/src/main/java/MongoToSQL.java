@@ -57,19 +57,19 @@ public class MongoToSQL {
 
                     //TODO: Mandar medida verificada (medição, isValid)
 
-                    //if (isNotValid(measurement))
-                        //publish(measurement);
-                    //else {
+                    if (isNotValid(measurement))
+                        publish(measurement, false);
+                    else {
                         acc += Double.parseDouble(measurement.getMeasure());
                         counter++;
-                    //}
+                    }
 
 
                     //TODO: tratar o caso da ultima medida ser inválida
                     if (counter != 0) {
                         mean_value = acc / counter;
                         measurement.setMeasure(Double.toString(mean_value));
-                        publish(measurement);
+                        publish(measurement, true);
                     }
 
 
@@ -110,8 +110,8 @@ public class MongoToSQL {
             return value < min || value > max;
         }
 
-        private void publish(MeasurementPOJO measurement){
-            sender.send(connection, measurement);
+        private void publish(MeasurementPOJO measurement, boolean isValid){
+            sender.send(connection, measurement, isValid);
         }
     }
 }

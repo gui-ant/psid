@@ -56,7 +56,7 @@ public class SqlSender {
         }
     }
 
-    public synchronized void send(Connection connection, MeasurementPOJO measurement) {
+    public synchronized void send(Connection connection, MeasurementPOJO measurement, boolean isValid) {
 
         // buscar dados e extrair valores
 
@@ -77,13 +77,9 @@ public class SqlSender {
             statement.setInt(3, zone.getId());
             statement.setInt(4, sensor.getId());
             statement.setTimestamp(5, date);
+            statement.setBoolean(6, isValid);
 
-            //verifica se a leitura está dentro dos limites do sensor
-            if (Double.parseDouble(value) <= sensor.getMaxLim() && Double.parseDouble(value) >= sensor.getMinLim()) {
-                statement.setBoolean(6, true);
-            } else {
-                statement.setBoolean(6, false);
-            }
+
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
