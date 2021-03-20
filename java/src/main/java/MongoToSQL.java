@@ -36,6 +36,9 @@ public class MongoToSQL {
 
         @Override
         public void run() {
+
+            Measurement lastValidMeas = null;
+
             while (true) {
                 try {
                     Thread.sleep(sleep_time);
@@ -54,14 +57,15 @@ public class MongoToSQL {
                     else {
                         acc += Double.valueOf(measurement.getMeasure());
                         counter++;
+                        lastValidMeas = measurement;
                     }
 
 
                     //TODO: tratar o caso da ultima medida ser inválida
                     if (counter != 0) {
                         mean_value = acc / counter;
-                        measurement.setMeasure(Double.toString(mean_value));
-                        publish(measurement, true);
+                        lastValidMeas.setMeasure(Double.toString(mean_value));
+                        publish(lastValidMeas, true);
                     }
 
 
