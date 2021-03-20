@@ -22,13 +22,14 @@ public class MongoToSQL {
         );
     }
 
-    static class SqlPublisher extends ConnectToMongo.MeasurePublisher {
+    static class SqlPublisher implements Runnable {
         private final SqlSender sender;
         private final Connection connection;
+        private final LinkedBlockingQueue<Measurement> buffer;
         private int sleep_time;
 
         SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time) {
-            super(null, buffer);
+            this.buffer = buffer;
             this.connection = connection;
             this.sender = sender;
             this.sleep_time = sleep_time;
@@ -45,7 +46,7 @@ public class MongoToSQL {
                     int counter = 0;
                     double mean_value, acc = 0;
 
-                    Measurement measurement = getBuffer().poll();
+                    Measurement measurement = buffer.poll();
 
                     //TODO: Mandar medida verificada (medição, isValid)
 
@@ -75,11 +76,11 @@ public class MongoToSQL {
         // por 1s até um máx de 10s. Quando volta a ter documento, dá reset ao tempo
         // para o valor inserido pelo utilizador.
         private void emptyBufferRoutine() throws InterruptedException {
-            if (getBuffer().isEmpty()) {
+            if (buffer.isEmpty()) {
                 int empty_counter = 0;
                 Thread.sleep(sleep_time);
 
-                while (getBuffer().isEmpty()) {
+                while (buffer.isEmpty()) {
                     System.err.println("Buffer vazio");
                     if (empty_counter <= 10) {
                         empty_counter++;
