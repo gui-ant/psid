@@ -1,3 +1,5 @@
+import org.bson.types.ObjectId;
+
 import java.sql.*;
 import java.util.Hashtable;
 
@@ -14,6 +16,10 @@ public class SqlSender {
         this.connCloud = connCloud;
         fetchZones();
         fetchSensors();
+    }
+
+    public Hashtable<String, Sensor> getSensors() {
+        return sensors;
     }
 
     private void fetchZones() {
@@ -56,6 +62,7 @@ public class SqlSender {
 
         System.out.println("To insert: " + measurement);
         try {
+            String id = measurement.getId().toString();
             Zone zone = zones.get(measurement.getZone());
             Sensor sensor = sensors.get(measurement.getSensor());
             String value = measurement.getMeasure();
@@ -63,18 +70,19 @@ public class SqlSender {
 
 
             //enviar para SQL
-            String sql = "INSERT INTO measures (value, sensor_id, zone_id,date) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO measures (id, value, sensor_id, zone_id, date, isCorrect) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, value);
-            statement.setInt(2, zone.getId());
-            statement.setInt(3, sensor.getId());
-            statement.setTimestamp(4, date);
+            statement.setString(1, id);
+            statement.setString(2, value);
+            statement.setInt(3, zone.getId());
+            statement.setInt(4, sensor.getId());
+            statement.setTimestamp(5, date);
 
             //verifica se a leitura está dentro dos limites do sensor
-            if (Double.parseDouble(value) <= sensor.getMaxLim() && Double.parseDouble(value) >= sensor.getMaxLim()) {
-                statement.setBoolean(5, true);
+            if (Double.parseDouble(value) <= sensor.getMaxLim() && Double.parseDouble(value) >= sensor.getMinLim()) {
+                statement.setBoolean(6, true);
             } else {
-                statement.setBoolean(5, false);
+                statement.setBoolean(6, false);
             }
 
             int rows = statement.executeUpdate();
