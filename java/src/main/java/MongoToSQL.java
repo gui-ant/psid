@@ -1,8 +1,4 @@
-import org.bson.Document;
-
-import javax.sound.midi.Soundbank;
 import java.sql.Connection;
-import java.sql.SQLOutput;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,23 +14,22 @@ public class MongoToSQL {
         this.sleep_time = (sleep_time_seconds * 1000);
     }
 
-    public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Document>> sourceBuffer) {
+    public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
                 (collectionName, buffer) -> {
-                    new SqlPublisher(connection, buffer, sender, sleep_time).start();
+                    new Thread(new SqlPublisher(connection, buffer, sender, sleep_time)).start();
                 }
         );
     }
 
-    static class SqlPublisher extends Thread {
-        private final LinkedBlockingQueue<Document> buffer;
+    static class SqlPublisher extends ConnectToMongo.MeasurePublisher {
         private final SqlSender sender;
         private final Connection connection;
         private int sleep_time;
 
-        SqlPublisher(Connection connection, LinkedBlockingQueue<Document> buffer, SqlSender sender, int sleep_time) {
+        SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time) {
+            super(null, buffer);
             this.connection = connection;
-            this.buffer = buffer;
             this.sender = sender;
             this.sleep_time = sleep_time;
         }
@@ -43,24 +38,21 @@ public class MongoToSQL {
         public void run() {
             while (true) {
                 try {
-                    sleep(sleep_time);
+                    Thread.sleep(sleep_time);
 
                     emptyBufferRoutine();
 
                     int counter = 0;
                     double mean_value, acc = 0;
 
-                    Document doc = buffer.poll();
-
-                    //TODO: Trocar esta conversão por atribuição direta
-                    MeasurementPOJO measurement = MongoTreatment.convertDocToMeasurement(doc);
+                    Measurement measurement = getBuffer().poll();
 
                     //TODO: Mandar medida verificada (medição, isValid)
 
                     if (isNotValid(measurement))
                         publish(measurement, false);
                     else {
-                        acc += Double.parseDouble(measurement.getMeasure());
+                        acc += Double.valueOf(measurement.getMeasure());
                         counter++;
                     }
 
@@ -83,18 +75,18 @@ public class MongoToSQL {
         // por 1s até um máx de 10s. Quando volta a ter documento, dá reset ao tempo
         // para o valor inserido pelo utilizador.
         private void emptyBufferRoutine() throws InterruptedException {
-            if(buffer.isEmpty()){
+            if (getBuffer().isEmpty()) {
                 int empty_counter = 0;
-                sleep(sleep_time);
+                Thread.sleep(sleep_time);
 
-                while(buffer.isEmpty()){
+                while (getBuffer().isEmpty()) {
                     System.err.println("Buffer vazio");
-                    if(empty_counter <= 10) {
+                    if (empty_counter <= 10) {
                         empty_counter++;
                         sleep_time += 1000;
                     }
 
-                    sleep(sleep_time);
+                    Thread.sleep(sleep_time);
                 }
 
                 sleep_time -= empty_counter * 1000;
@@ -102,7 +94,7 @@ public class MongoToSQL {
         }
 
 
-        private boolean isNotValid(MeasurementPOJO measurement) {
+        private boolean isNotValid(Measurement measurement) {
             double min = sender.getSensors().get(measurement.getSensor()).getMinLim();
             double max = sender.getSensors().get(measurement.getSensor()).getMaxLim();
             double value = Double.parseDouble(measurement.getMeasure());
@@ -110,7 +102,7 @@ public class MongoToSQL {
             return value < min || value > max;
         }
 
-        private void publish(MeasurementPOJO measurement, boolean isValid){
+        private void publish(Measurement measurement, boolean isValid) {
             sender.send(connection, measurement, isValid);
         }
     }

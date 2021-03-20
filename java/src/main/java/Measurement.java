@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 /**
  * The Measurement Pojo
  */
-public final class MeasurementPOJO {
+public final class Measurement {
 
     private ObjectId id;
     @BsonProperty(value = "Zona")
@@ -18,17 +18,18 @@ public final class MeasurementPOJO {
     @BsonProperty(value = "Medicao")
     private String measure;
 
-    public MeasurementPOJO() {
+    public Measurement() {
     }
 
-    public MeasurementPOJO(ObjectId id, String zone, String sensor, String date, String measurement){
-        this.id = id;
-        this.zone = zone;
-        this.sensor = sensor;
-        this.date = date;
-        this.measure = measurement;
-    }
-
+    /*
+        public MeasurementPOJO(ObjectId id, String zone, String sensor, String date, String measurement){
+            this.id = id;
+            this.zone = zone;
+            this.sensor = sensor;
+            this.date = date;
+            this.measure = measurement;
+        }
+    */
     public ObjectId getId() {
         return id;
     }
@@ -78,7 +79,7 @@ public final class MeasurementPOJO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MeasurementPOJO m = (MeasurementPOJO) o;
+        Measurement m = (Measurement) o;
 
         return getId() == m.getId();
     }

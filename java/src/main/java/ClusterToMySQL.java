@@ -46,7 +46,7 @@ public class ClusterToMySQL {
             to_sql.serveSQL(from_cluster.getFetchingSource());
 
         } catch (Exception e) {
-            System.err.println("BRUH!");
+            e.printStackTrace();
         }
     }
 }

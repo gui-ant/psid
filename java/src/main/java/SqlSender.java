@@ -1,5 +1,3 @@
-import org.bson.types.ObjectId;
-
 import java.sql.*;
 import java.util.Hashtable;
 
@@ -56,7 +54,7 @@ public class SqlSender {
         }
     }
 
-    public synchronized void send(Connection connection, MeasurementPOJO measurement, boolean isValid) {
+    public synchronized void send(Connection connection, Measurement measurement, boolean isValid) {
 
         // buscar dados e extrair valores
 
@@ -66,7 +64,8 @@ public class SqlSender {
             Zone zone = zones.get(measurement.getZone());
             Sensor sensor = sensors.get(measurement.getSensor());
             String value = measurement.getMeasure();
-            Timestamp date = measurement.getTimestamp();
+            //Timestamp date = measurement.getTimestamp();
+            Timestamp date = new Timestamp(System.currentTimeMillis());
 
 
             //enviar para SQL
@@ -78,7 +77,6 @@ public class SqlSender {
             statement.setInt(4, sensor.getId());
             statement.setTimestamp(5, date);
             statement.setBoolean(6, isValid);
-
 
 
             int rows = statement.executeUpdate();

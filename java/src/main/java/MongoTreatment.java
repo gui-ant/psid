@@ -3,7 +3,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.util.concurrent.LinkedBlockingQueue;
-
+/*
 public class MongoTreatment{
 
     //Extrai os campos do doc e instancía uma measurement com os mesmos
@@ -15,6 +15,8 @@ public class MongoTreatment{
         String measurement = document.getString("Medicao");
 
         return new MeasurementPOJO(id, zone, sensor, date, measurement);
+
     }
 
 }
+*/
