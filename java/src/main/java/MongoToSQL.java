@@ -51,8 +51,6 @@ public class MongoToSQL {
 
                     Measurement measurement = buffer.poll();
 
-                    //TODO: Mandar medida verificada (medição, isValid)
-
                     if (isNotValid(measurement))
                         publish(measurement, false);
                     else {
