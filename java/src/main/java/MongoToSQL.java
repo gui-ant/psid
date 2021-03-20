@@ -1,4 +1,5 @@
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import javax.sound.midi.Soundbank;
 import java.sql.Connection;
@@ -41,6 +42,8 @@ public class MongoToSQL {
 
         @Override
         public void run() {
+            MeasurementPOJO lastValidMeas = null;
+
             while (true) {
                 try {
                     sleep(sleep_time);
@@ -55,23 +58,20 @@ public class MongoToSQL {
                     //TODO: Trocar esta conversão por atribuição direta
                     MeasurementPOJO measurement = MongoTreatment.convertDocToMeasurement(doc);
 
-                    //TODO: Mandar medida verificada (medição, isValid)
-
                     if (isNotValid(measurement))
                         publish(measurement, false);
                     else {
                         acc += Double.parseDouble(measurement.getMeasure());
                         counter++;
+                        lastValidMeas = measurement;
                     }
-
 
                     //TODO: tratar o caso da ultima medida ser inválida
                     if (counter != 0) {
                         mean_value = acc / counter;
-                        measurement.setMeasure(Double.toString(mean_value));
-                        publish(measurement, true);
+                        lastValidMeas.setMeasure(Double.toString(mean_value));
+                        publish(lastValidMeas, true);
                     }
-
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
