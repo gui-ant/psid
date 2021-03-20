@@ -21,15 +21,6 @@ public final class Measurement {
     public Measurement() {
     }
 
-    /*
-        public MeasurementPOJO(ObjectId id, String zone, String sensor, String date, String measurement){
-            this.id = id;
-            this.zone = zone;
-            this.sensor = sensor;
-            this.date = date;
-            this.measure = measurement;
-        }
-    */
     public ObjectId getId() {
         return id;
     }
