@@ -80,8 +80,7 @@ public class ConnectToMongo {
     public void startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
                 (collectionName, buffer) -> {
-                    Runnable publisher = new MeasurePublisher(getMeasureCollection(collectionName), buffer);
-                    new Thread(publisher).start();
+                    new MeasurePublisher(getMeasureCollection(collectionName), buffer).start();
                 }
         );
     }
@@ -90,7 +89,7 @@ public class ConnectToMongo {
         return database.getCollection(collectionName, Measurement.class);
     }
 
-    class MeasureFetcher implements Runnable {
+    class MeasureFetcher extends Thread {
 
         private final MongoCollection<Measurement> collection;
         private final LinkedBlockingQueue<Measurement> buffer;
@@ -121,7 +120,7 @@ public class ConnectToMongo {
                         buffer.offer(doc);
                         System.out.println("Fetched: " + doc.getId());
                     }
-                    Thread.sleep(SLEEP_TIME);
+                    sleep(SLEEP_TIME);
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -130,7 +129,7 @@ public class ConnectToMongo {
         }
     }
 
-    static class MeasurePublisher implements Runnable {
+    static class MeasurePublisher extends Thread {
         private final MongoCollection<Measurement> collection;
         private final LinkedBlockingQueue<Measurement> buffer;
 
@@ -139,24 +138,17 @@ public class ConnectToMongo {
             this.buffer = buffer;
         }
 
-        void insert(Object target, Measurement measure) {
-            InsertOneResult res = ((MongoCollection) target).insertOne(measure);
-            System.out.println("Inserted: " + res.getInsertedId());
-        }
-
         @Override
         public void run() {
             while (true) {
                 try {
-                    insert(this.collection, getBuffer().take());
+                    InsertOneResult res = this.collection.insertOne(buffer.take());
+                    System.out.println("Inserted: " + res.getInsertedId());
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-        }
-
-        protected LinkedBlockingQueue<Measurement> getBuffer() {
-            return buffer;
         }
     }
 }

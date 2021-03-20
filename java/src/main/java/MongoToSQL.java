@@ -17,12 +17,12 @@ public class MongoToSQL {
     public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
                 (collectionName, buffer) -> {
-                    new Thread(new SqlPublisher(connection, buffer, sender, sleep_time)).start();
+                    new SqlPublisher(connection, buffer, sender, sleep_time).start();
                 }
         );
     }
 
-    static class SqlPublisher implements Runnable {
+    static class SqlPublisher extends Thread {
         private final SqlSender sender;
         private final Connection connection;
         private final LinkedBlockingQueue<Measurement> buffer;
@@ -39,7 +39,7 @@ public class MongoToSQL {
         public void run() {
             while (true) {
                 try {
-                    Thread.sleep(sleep_time);
+                    sleep(sleep_time);
 
                     emptyBufferRoutine();
 
@@ -78,7 +78,7 @@ public class MongoToSQL {
         private void emptyBufferRoutine() throws InterruptedException {
             if (buffer.isEmpty()) {
                 int empty_counter = 0;
-                Thread.sleep(sleep_time);
+                sleep(sleep_time);
 
                 while (buffer.isEmpty()) {
                     System.err.println("Buffer vazio");
@@ -87,7 +87,7 @@ public class MongoToSQL {
                         sleep_time += 1000;
                     }
 
-                    Thread.sleep(sleep_time);
+                    sleep(sleep_time);
                 }
 
                 sleep_time -= empty_counter * 1000;
