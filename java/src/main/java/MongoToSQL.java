@@ -56,7 +56,7 @@ public class MongoToSQL {
                     if (isNotValid(measurement))
                         publish(measurement, false);
                     else {
-                        acc += Double.valueOf(measurement.getMeasure());
+                        acc += Double.parseDouble(measurement.getMeasure());
                         counter++;
                         lastValidMeas = measurement;
                     }
