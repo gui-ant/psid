@@ -1,17 +1,19 @@
+package grp07;
+
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
 
 import java.sql.Timestamp;
 
 /**
- * The Measurement Pojo
+ * The grp07.Measurement Pojo
  */
 public final class Measurement {
 
     private ObjectId id;
     @BsonProperty(value = "Zona")
     private String zone;
-    @BsonProperty(value = "Sensor")
+    @BsonProperty(value = "grp07.Sensor")
     private String sensor;
     @BsonProperty(value = "Data")
     private String date;
@@ -90,7 +92,7 @@ public final class Measurement {
         return "Medicao{" +
                 "_id=" + this.id +
                 ", Zona='" + this.zone + "'" +
-                ", Sensor='" + this.sensor + "'" +
+                ", grp07.Sensor='" + this.sensor + "'" +
                 ", Data='" + this.date + "'" +
                 ", Medicao='" + this.measure + "'" +
                 '}';

@@ -1,3 +1,5 @@
+package grp07;
+
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;

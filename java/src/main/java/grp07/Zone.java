@@ -1,3 +1,5 @@
+package grp07;
+
 public class Zone {
     private int id;
     private double temperature;

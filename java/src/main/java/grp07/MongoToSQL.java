@@ -1,4 +1,8 @@
+package grp07;
+
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -12,6 +16,12 @@ public class MongoToSQL {
         this.connection = connection;
         this.sender = sender;
         this.sleep_time = (sleep_time_seconds * 1000);
+    }
+
+    public List<Sensor> getSensorsInfo() {
+        List<Sensor> s = new ArrayList<>();
+        List<Zone> z = new ArrayList<>();
+        return s;
     }
 
     public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {

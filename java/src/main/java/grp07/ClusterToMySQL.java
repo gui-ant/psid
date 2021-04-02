@@ -1,9 +1,6 @@
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
+package grp07;
+
+import grp02.ConnectToMongo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,23 +24,18 @@ public class ClusterToMySQL {
                     "sensort2",
             };
 
-            // create codec registry for POJOs
-            CodecRegistry pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-                    fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-
-
             Connection mysqlCloud = DriverManager.getConnection(TARGET_URL_CLOUD, "aluno", "aluno");
             Connection mysqlLocal = DriverManager.getConnection(TARGET_URL_LOCAL, "aluno", "aluno");
 
 
-            ConnectToMongo from_cluster = new ConnectToMongo(SOURCE_URI, SOURCE_DB);
-            MongoToSQL to_sql = new MongoToSQL(mysqlLocal, new SqlSender(mysqlCloud), CADENCE_SECONDS);
+            ConnectToMongo sourceCluster = new ConnectToMongo(SOURCE_URI, SOURCE_DB);
+            MongoToSQL targetMySql = new MongoToSQL(mysqlLocal, new SqlSender(mysqlCloud), CADENCE_SECONDS);
 
-            from_cluster.useCollections(collectionNames);
+            sourceCluster.useCollections(collectionNames);
 
-            from_cluster.startFetching();
+            sourceCluster.startFetching();
 
-            to_sql.serveSQL(from_cluster.getFetchingSource());
+            targetMySql.serveSQL(sourceCluster.getFetchingSource());
 
         } catch (Exception e) {
             e.printStackTrace();

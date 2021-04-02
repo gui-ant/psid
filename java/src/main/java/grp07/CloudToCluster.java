@@ -1,3 +1,7 @@
+package grp07;
+
+import grp02.ConnectToMongo;
+
 public class CloudToCluster {
     private static final String SOURCE_URI = "mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1";
     private static final String TARGET_URI_ATLAS = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";

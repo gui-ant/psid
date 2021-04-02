@@ -1,3 +1,5 @@
+package grp07;
+
 public class Sensor {
     private final int id;
     private Zone zone;
