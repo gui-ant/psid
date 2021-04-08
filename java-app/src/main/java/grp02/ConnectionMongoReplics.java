@@ -13,6 +13,6 @@ public class ConnectionMongoReplics {
         ConnectToMongo cluster = new ConnectToMongo(TARGET_URI, TARGET_DB);
 
         cloud.startFetching();
-        cluster.startPublishing(cloud.getFetchingSource());
+        //cluster.startPublishing(cloud.getFetchingSource());
     }
 }
