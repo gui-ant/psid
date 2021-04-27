@@ -6,14 +6,14 @@ import org.bson.types.ObjectId;
 import java.sql.Timestamp;
 
 /**
- * The grp07.Measurement Pojo
+ * The Measurement Pojo
  */
 public final class Measurement {
 
     private ObjectId id;
     @BsonProperty(value = "Zona")
     private String zone;
-    @BsonProperty(value = "grp07.Sensor")
+    @BsonProperty(value = "Sensor")
     private String sensor;
     @BsonProperty(value = "Data")
     private String date;
@@ -41,6 +41,10 @@ public final class Measurement {
 
     public String getSensor() {
         return sensor;
+    }
+
+    public String getSensorType() {
+        return sensor.substring(0,1);
     }
 
     public void setSensor(String sensor) {
@@ -92,7 +96,7 @@ public final class Measurement {
         return "Medicao{" +
                 "_id=" + this.id +
                 ", Zona='" + this.zone + "'" +
-                ", grp07.Sensor='" + this.sensor + "'" +
+                ", Sensor='" + this.sensor + "'" +
                 ", Data='" + this.date + "'" +
                 ", Medicao='" + this.measure + "'" +
                 '}';

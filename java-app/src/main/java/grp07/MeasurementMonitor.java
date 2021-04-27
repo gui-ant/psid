@@ -11,6 +11,13 @@ public class MeasurementMonitor extends Thread {
 
     @Override
     public void run() {
-        super.run();
+        while (true){
+            try {
+                wait();
+                System.out.println("");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
