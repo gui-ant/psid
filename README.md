@@ -37,8 +37,8 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'admin';
 GRANT SELECT ON aluno_g07_local.measurements TO 'admin';
 GRANT SELECT ON aluno_g07_local.alerts TO 'admin';
 
-GRANT EXECUTE ON PROCEDURE spCreateDBUser TO 'admin';
-GRANT EXECUTE ON PROCEDURE spCreateDBRole TO 'admin';
+GRANT EXECUTE ON PROCEDURE spCreateUser TO 'admin';
+GRANT EXECUTE ON PROCEDURE spCreateRole TO 'admin';
 GRANT EXECUTE ON PROCEDURE spDeleteUser TO 'admin';
 GRANT EXECUTE ON PROCEDURE spUpdateUser TO 'admin';
 GRANT EXECUTE ON PROCEDURE spGetUserById TO 'admin';
