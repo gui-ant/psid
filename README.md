@@ -30,12 +30,12 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 Criação de Roles no MySQL
 ```mysql
 USE mysql;
-CREATE ROLE 'admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.users TO 'admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.cultures TO 'admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'admin';
-GRANT SELECT ON aluno_g07_local.measurements TO 'admin';
-GRANT SELECT ON aluno_g07_local.alerts TO 'admin';
+CREATE ROLE 'admin'@'%';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.users TO 'admin'@'%';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.cultures TO 'admin'@'%';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'admin'@'%';
+GRANT SELECT ON aluno_g07_local.measurements TO 'admin'@'%';
+GRANT SELECT ON aluno_g07_local.alerts TO 'admin'@'%';
 
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateUser TO 'admin';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateRole TO 'admin';
