@@ -29,6 +29,7 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 
 Criação de Roles no MySQL
 ```mysql
+USE mysql;
 CREATE ROLE 'admin';
 GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.users TO 'admin';
 GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.cultures TO 'admin';
