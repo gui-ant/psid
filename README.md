@@ -37,18 +37,18 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'admin'@'%
 GRANT SELECT ON aluno_g07_local.measurements TO 'admin'@'%';
 GRANT SELECT ON aluno_g07_local.alerts TO 'admin'@'%';
 
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateUser TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateRole TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteUser TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateUser TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserById TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserByRoleId TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spAddUserToCultures TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCulture TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteCulture TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateUser TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateRole TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteUser TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateUser TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserById TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserByRoleId TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spAddUserToCultures TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCulture TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteCulture TO 'admin'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'admin'@'%';
 
 CREATE ROLE 'researcher';
 GRANT SELECT ON aluno_g07_local.* TO 'researcher';
