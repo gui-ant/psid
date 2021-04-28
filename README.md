@@ -67,4 +67,6 @@ GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsResearcher TO 'researcher';
 CREATE ROLE 'technician';
 GRANT SELECT ON aluno_g07_local.users TO 'technician';
 GRANT SELECT ON aluno_g07_local.alerts TO 'technician';
+
+FLUSH PRIVILEGES;
 ```
