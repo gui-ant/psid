@@ -50,23 +50,23 @@ GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCulture TO 'admin'@'%';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteCulture TO 'admin'@'%';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'admin'@'%';
 
-CREATE ROLE 'researcher';
-GRANT SELECT ON aluno_g07_local.* TO 'researcher';
+CREATE ROLE 'researcher'@'%';
+GRANT SELECT ON aluno_g07_local.* TO 'researcher'@'%';
 
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_rel_culture_params_set TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params_set TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteParam TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spExportCultureMeasuresToCSV TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsManager TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsResearcher TO 'researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_rel_culture_params_set TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params_set TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteParam TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spExportCultureMeasuresToCSV TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsManager TO 'researcher'@'%';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsResearcher TO 'researcher'@'%';
 
-CREATE ROLE 'technician';
-GRANT SELECT ON aluno_g07_local.users TO 'technician';
-GRANT SELECT ON aluno_g07_local.alerts TO 'technician';
+CREATE ROLE 'technician'@'%';
+GRANT SELECT ON aluno_g07_local.users TO 'technician'@'%';
+GRANT SELECT ON aluno_g07_local.alerts TO 'technician'@'%';
 
 FLUSH PRIVILEGES;
 ```
