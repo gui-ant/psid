@@ -30,12 +30,40 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 Criação de Roles no MySQL
 ```mysql
 CREATE ROLE 'admin';
-GRANT SELECT, INSERT, UPDATE, DELETE ON aluno_g07_local.users TO 'admin';
-GRANT SELECT, INSERT, UPDATE, DELETE ON aluno_g07_local.cultures TO 'admin';
-GRANT SELECT, INSERT, UPDATE, DELETE ON aluno_g07_local.culture_users TO 'admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.users TO 'admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.cultures TO 'admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'admin';
 GRANT SELECT ON aluno_g07_local.measurements TO 'admin';
 GRANT SELECT ON aluno_g07_local.alerts TO 'admin';
 
+GRANT EXECUTE ON PROCEDURE spCreateDBUser TO 'admin';
+GRANT EXECUTE ON PROCEDURE spCreateDBRole TO 'admin';
+GRANT EXECUTE ON PROCEDURE spDeleteUser TO 'admin';
+GRANT EXECUTE ON PROCEDURE spUpdateUser TO 'admin';
+GRANT EXECUTE ON PROCEDURE spGetUserById TO 'admin';
+GRANT EXECUTE ON PROCEDURE spGetUserByRoleId TO 'admin';
+GRANT EXECUTE ON PROCEDURE spAddUserToCultures TO 'admin';
+GRANT EXECUTE ON PROCEDURE spGetCultureById TO 'admin';
+GRANT EXECUTE ON PROCEDURE spGetCulturesByUserId TO 'admin';
+GRANT EXECUTE ON PROCEDURE spCreateCulture TO 'admin';
+GRANT EXECUTE ON PROCEDURE spDeleteCulture TO 'admin';
+GRANT EXECUTE ON PROCEDURE spUpdateCultureName TO 'admin';
+
 CREATE ROLE 'researcher';
 GRANT SELECT ON aluno_g07_local.* TO 'researcher';
+
+GRANT EXECUTE ON PROCEDURE spGetCultureById TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spGetCulturesByUserId TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spUpdateCultureName TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spCreate_culture_params TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spCreate_rel_culture_params_set TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spCreate_culture_params_set TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spDeleteParam TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spExportCultureMeasuresToCSV TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spIsManager TO 'researcher';
+GRANT EXECUTE ON PROCEDURE spIsResearcher TO 'researcher';
+
+CREATE ROLE 'technician';
+GRANT SELECT ON aluno_g07_local.users TO 'technician';
+GRANT SELECT ON aluno_g07_local.alerts TO 'technician';
 ```
