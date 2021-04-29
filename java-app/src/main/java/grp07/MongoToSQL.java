@@ -45,10 +45,13 @@ public class MongoToSQL {
         private final SqlSender sender;
         private final Connection connection;
         private final LinkedBlockingQueue<Measurement> buffer;
+        private final double ERROR_PERCENTAGE = 0.33;
         private int sleep_time;
         //analyser individual (de cada thread)
         private PreAlertSet preAlertSet;
         private ParamAnalyser analyser;
+
+        private ReadingStats stats;
 
         SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time, PreAlertSet preAlertSet) {
             this.buffer = buffer;
@@ -59,6 +62,10 @@ public class MongoToSQL {
             //this.analyser = new ParamAnalyser(preAlertSet, null, sleep_time);
             this.preAlertSet = preAlertSet;
             this.analyser = createAnalyser(sender, sleep_time);
+
+            stats = new ReadingStats();
+            ErrorSupervisor es = new ErrorSupervisor(stats, ERROR_PERCENTAGE);
+            es.start();
         }
 
         @Override
@@ -79,9 +86,12 @@ public class MongoToSQL {
                     double mean_value, acc = 0;
 
                     Measurement measurement = buffer.poll();
+                    stats.incrementReadings();
 
-                    if (isNotValid(measurement))
+                    if (isNotValid(measurement)) {
                         publish(measurement, false);
+                        stats.incrementErrors();
+                    }
                     else {
                         acc += Double.parseDouble(measurement.getMeasure());
                         counter++;
@@ -107,7 +117,9 @@ public class MongoToSQL {
                     e.printStackTrace();
                 }
             }
+
         }
+
 
         // Por cada vez que vai ao buffer e este está vazio, aumenta o tempo de espera
         // por 1s até um máx de 10s. Quando volta a ter documento, dá reset ao tempo
@@ -162,6 +174,33 @@ public class MongoToSQL {
             }
             ParamAnalyser an = new ParamAnalyser(preAlertSet, list, rate);
             return an;
+        }
+
+
+        private class ErrorSupervisor extends Thread {
+            private ReadingStats stats;
+            private double percentage;
+
+            public ErrorSupervisor (ReadingStats stats, double percentage) {
+                this.stats = stats;
+                this.percentage = percentage;
+            }
+
+            public void run() {
+                while (true) {
+                    try {
+                        sleep(3600 * 1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    int totalReadings = stats.getTotalReadings();
+                    int totalErrors = stats.getTotalErrors();
+                    if (totalErrors/totalReadings >= percentage) {
+                        //ENVIAR ALERTA!!!
+                    }
+                    stats.resetData();
+                }
+            }
         }
     }
 }
