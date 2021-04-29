@@ -184,18 +184,21 @@ public class MongoToSQL {
             public ErrorSupervisor (ReadingStats stats, double percentage) {
                 this.stats = stats;
                 this.percentage = percentage;
+                System.out.println("ErrorSupervisor ligado!!!");
             }
 
             public void run() {
                 while (true) {
                     try {
+                        System.out.println("ErrorSupersivor: antes do sleep");
+                        System.out.println(stats.getTotalReadings());
                         sleep(3600 * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     int totalReadings = stats.getTotalReadings();
                     int totalErrors = stats.getTotalErrors();
-                    if (totalErrors/totalReadings >= percentage) {
+                    if (totalErrors/totalReadings >= percentage && totalReadings != 0) {
                         //ENVIAR ALERTA!!!
                     }
                     stats.resetData();
