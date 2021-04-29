@@ -152,8 +152,8 @@ public class MongoToSQL {
                     }
                 }
             }
-            ParamAnalyser ana = new ParamAnalyser(preAlertSet, list, rate);
-            return ana;
+            ParamAnalyser an = new ParamAnalyser(preAlertSet, list, rate);
+            return an;
         }
     }
 }
