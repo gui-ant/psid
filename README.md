@@ -27,7 +27,7 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 
 [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
 
-Criação de Roles no MySQL
+- Criação de Roles no MySQL
 ```mysql
 
 CREATE ROLE 'group_admin';
@@ -68,5 +68,11 @@ CREATE ROLE 'group_technician';
 GRANT SELECT ON aluno_g07_local.users TO 'group_technician';
 GRANT SELECT ON aluno_g07_local.alerts TO 'group_technician';
 
+FLUSH PRIVILEGES;
+```
+- Criação de user 'reasercher'
+```mysql
+CREATE USER 'inv@foo.bar';
+GRANT 'group_researcher' TO 'inv@foo.bar';
 FLUSH PRIVILEGES;
 ```
