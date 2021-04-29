@@ -47,6 +47,7 @@ public class MongoToSQL {
         private final LinkedBlockingQueue<Measurement> buffer;
         private int sleep_time;
         //analyser individual (de cada thread)
+        private PreAlertSet preAlertSet;
         private ParamAnalyser analyser;
 
         SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time, PreAlertSet preAlertSet) {
@@ -56,7 +57,8 @@ public class MongoToSQL {
             this.sleep_time = sleep_time;
 
             //this.analyser = new ParamAnalyser(preAlertSet, null, sleep_time);
-            this.analyser = createAnalyser(preAlertSet, sender, sleep_time);
+            this.preAlertSet = preAlertSet;
+            this.analyser = createAnalyser(sender, sleep_time);
         }
 
         @Override
@@ -65,6 +67,9 @@ public class MongoToSQL {
             Measurement lastValidMeas = null;
 
             while (true) {
+                if (analyser == null) {
+                    analyser = createAnalyser(sender, sleep_time);
+                }
                 try {
                     sleep(sleep_time);
 
@@ -139,9 +144,12 @@ public class MongoToSQL {
             sender.send(connection, measurement, isValid);
         }
 
-        private ParamAnalyser createAnalyser(PreAlertSet preAlertSet, SqlSender sender, int rate) {
+        private ParamAnalyser createAnalyser(SqlSender sender, int rate) {
             ArrayList<CultureParams> list = new ArrayList<>();
             Measurement mea = buffer.peek();
+            if (mea == null) {
+                return null;
+            }
             Hashtable<Long, List<CultureParams>> cultureParamsSet = sender.getCultureParamsSet();
             Zone zone = sender.getZones().get(mea.getZone());
 
