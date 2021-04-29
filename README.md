@@ -70,7 +70,7 @@ GRANT SELECT ON aluno_g07_local.alerts TO 'group_technician';
 
 FLUSH PRIVILEGES;
 ```
-- Criação de user 'reasercher'
+- Criação de user 'researcher'
 ```mysql
 CREATE USER 'inv@foo.bar';
 GRANT 'group_researcher' TO 'inv@foo.bar';
