@@ -30,7 +30,7 @@
         <div class="input-group">
             <button type="submit" class="btn" name="login_user">Login</button>
         </div>
-        <p> Ainda não tem login? <a href="register.php">Registe-se</a></p>
+
     </form>
 </body>
 
