@@ -3,7 +3,6 @@ $url = "http://localhost/psid/php/db/getStoredProcData.php?sp=spGetCulturesByUse
 //echo $url . "<br>";
 $client = curl_init($url);
 curl_setopt($client, CURLOPT_RETURNTRANSFER, true);
-curl_setopt( $client, CURLOPT_COOKIESESSION, true);
 curl_setopt($client, CURLOPT_POST, true);
 curl_setopt($client, CURLOPT_POSTFIELDS, "username=".$_SESSION['user_email']."&password=".$_SESSION['user_pass']);
 $response = curl_exec($client);

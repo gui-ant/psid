@@ -18,8 +18,13 @@ if ($culture_id != "") {
 	$url = "http://localhost/psid/php/db/getStoredProcData.php?sp=spGetCultureById&p=" . $culture_id . "&json=true";
 	$client = curl_init($url);
 	curl_setopt($client, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($client, CURLOPT_POST, true);
+	curl_setopt($client, CURLOPT_POSTFIELDS, "username=".$_SESSION['user_email']."&password=".$_SESSION['user_pass']);
 	$response = curl_exec($client);
 	$pieces = json_decode($response);
+	
+	// echo var_dump($response);
+	// echo var_dump($pieces);
 }
 
 function edit_culture_data($culture_id, $culture_name)
@@ -68,12 +73,15 @@ function edit_culture_data($culture_id, $culture_name)
 		</div>
 		<div class="input-group">
 			<label>Nome cultura:</label>
-			<input type="text" name="culture_name" value="<?= $pieces[0]->name ?>">
+			<input type="text" name="culture_name" value="<?= $pieces[0]->name ?>" <?= $pieces[0]->manager_id == $_SESSION['user_id'] ? : "readonly" ?>>
+			
 		</div>
-
-		<input class="btn input-group" type="submit" name="submit" value="Gravar">
-		<input type="hidden" name="update_culture">
-		<input type="hidden" name="goback" value="<?php echo $_POST['goback']; ?>">
+		
+		<?php if ($pieces[0]->manager_id == $_SESSION['user_id']) : ?>
+			<input class="btn input-group" type="submit" name="submit" value="Gravar">
+			<input type="hidden" name="update_culture">
+			<input type="hidden" name="goback" value="<?php echo $_POST['goback']; ?>">
+		<?php endif ?>
 
 	</form>
 <?php endif ?>
