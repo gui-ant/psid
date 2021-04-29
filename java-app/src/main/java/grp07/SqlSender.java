@@ -51,6 +51,10 @@ public class SqlSender {
         return sensors;
     }
 
+    public Hashtable<String, Zone> getZones() {
+        return zones;
+    }
+
     private void fetchCultureParams() {
         cultures.forEach((id, culture) -> {
             // Devolve parametrizações por id de cultura

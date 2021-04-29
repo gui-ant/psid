@@ -2,6 +2,7 @@ package grp07;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -11,11 +12,19 @@ public class MongoToSQL {
     private final Connection connection; //local
     private final SqlSender sender;
     private final int sleep_time;
+    // PreAlertSet (comum a threads e supervisor)
+    private PreAlertSet preAlertSet;
+    private ParameterSupervisor supervisor;
 
     public MongoToSQL(Connection connection, SqlSender sender, int sleep_time_seconds) {
         this.connection = connection;
         this.sender = sender;
         this.sleep_time = (sleep_time_seconds * 1000);
+
+        // criar PreAlertSet e Supervisor
+        this.preAlertSet = new PreAlertSet(sender.getCultureParamsSet());
+        this.supervisor = new ParameterSupervisor(preAlertSet);
+        supervisor.start();
     }
 
     public List<Sensor> getSensorsInfo() {
@@ -27,7 +36,7 @@ public class MongoToSQL {
     public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
                 (collectionName, buffer) -> {
-                    new SqlPublisher(connection, buffer, sender, sleep_time).start();
+                    new SqlPublisher(connection, buffer, sender, sleep_time, preAlertSet).start();
                 }
         );
     }
@@ -37,12 +46,17 @@ public class MongoToSQL {
         private final Connection connection;
         private final LinkedBlockingQueue<Measurement> buffer;
         private int sleep_time;
+        //analyser individual (de cada thread)
+        private ParamAnalyser analyser;
 
-        SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time) {
+        SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time, PreAlertSet preAlertSet) {
             this.buffer = buffer;
             this.connection = connection;
             this.sender = sender;
             this.sleep_time = sleep_time;
+
+            //this.analyser = new ParamAnalyser(preAlertSet, null, sleep_time);
+            this.analyser = createAnalyser(preAlertSet, sender, sleep_time);
         }
 
         @Override
@@ -67,6 +81,10 @@ public class MongoToSQL {
                         acc += Double.parseDouble(measurement.getMeasure());
                         counter++;
                         lastValidMeas = measurement;
+
+                       // É AQUI???
+                       analyser.addMeasurement(measurement);
+                       analyser.analyseParameters();
                     }
                     // Confrontar a medição com as parametrizações que existem
                     // para a tipologia de sensor dessa medição (H, T, L)
@@ -119,6 +137,23 @@ public class MongoToSQL {
 
         private void publish(Measurement measurement, boolean isValid) {
             sender.send(connection, measurement, isValid);
+        }
+
+        private ParamAnalyser createAnalyser(PreAlertSet preAlertSet, SqlSender sender, int rate) {
+            ArrayList<CultureParams> list = new ArrayList<>();
+            Measurement mea = buffer.peek();
+            Hashtable<Long, List<CultureParams>> cultureParamsSet = sender.getCultureParamsSet();
+            Zone zone = sender.getZones().get(mea.getZone());
+
+            for(List<CultureParams> params : cultureParamsSet.values()) {
+                for(CultureParams param : params) {
+                    if(param.getSensorType().equals(mea.getSensorType()) && param.getCulture().getZone().equals(zone)) {
+                        list.add(param);
+                    }
+                }
+            }
+            ParamAnalyser ana = new ParamAnalyser(preAlertSet, list, rate);
+            return ana;
         }
     }
 }

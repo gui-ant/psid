@@ -1,7 +1,5 @@
 package grp07;
 
-import grp02.ConnectToMongo;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 
