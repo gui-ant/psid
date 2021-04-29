@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class MongoToSQL {
-    private final Connection connection;
+    private final Connection connection; //local
     private final SqlSender sender;
     private final int sleep_time;
 
@@ -68,6 +68,10 @@ public class MongoToSQL {
                         counter++;
                         lastValidMeas = measurement;
                     }
+                    // Confrontar a medição com as parametrizações que existem
+                    // para a tipologia de sensor dessa medição (H, T, L)
+                    //
+                    // tipologia de sensor: measurement.getSensorType();
 
                     if (counter != 0) {
                         mean_value = acc / counter;

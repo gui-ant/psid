@@ -29,7 +29,7 @@ public class ClusterToMySQL {
 
 
             ConnectToMongo sourceCluster = new ConnectToMongo(SOURCE_URI, SOURCE_DB);
-            MongoToSQL targetMySql = new MongoToSQL(mysqlLocal, new SqlSender(mysqlCloud), CADENCE_SECONDS);
+            MongoToSQL targetMySql = new MongoToSQL(mysqlLocal, new SqlSender(mysqlCloud,mysqlLocal), CADENCE_SECONDS);
 
             sourceCluster.useCollections(collectionNames);
 
