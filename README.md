@@ -29,44 +29,44 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 
 Criação de Roles no MySQL
 ```mysql
-USE mysql;
-CREATE ROLE 'admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.users TO 'admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.cultures TO 'admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'admin';
-GRANT SELECT ON aluno_g07_local.measurements TO 'admin';
-GRANT SELECT ON aluno_g07_local.alerts TO 'admin';
 
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateUser TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateRole TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteUser TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateUser TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserById TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserByRoleId TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spAddUserToCultures TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCulture TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteCulture TO 'admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'admin';
+CREATE ROLE 'group_admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.users TO 'group_admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.cultures TO 'group_admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'group_admin';
+GRANT SELECT ON aluno_g07_local.measurements TO 'group_admin';
+GRANT SELECT ON aluno_g07_local.alerts TO 'group_admin';
 
-CREATE ROLE 'researcher';
-GRANT SELECT ON aluno_g07_local.* TO 'researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateUser TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateRole TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteUser TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateUser TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserById TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserByRoleId TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spAddUserToCultures TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCulture TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteCulture TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'group_admin';
 
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_rel_culture_params_set TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params_set TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteParam TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spExportCultureMeasuresToCSV TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsManager TO 'researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsResearcher TO 'researcher';
+CREATE ROLE 'group_researcher';
+GRANT SELECT ON aluno_g07_local.* TO 'group_researcher';
 
-CREATE ROLE 'technician';
-GRANT SELECT ON aluno_g07_local.users TO 'technician';
-GRANT SELECT ON aluno_g07_local.alerts TO 'technician';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_rel_culture_params_set TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params_set TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteParam TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spExportCultureMeasuresToCSV TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsManager TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsResearcher TO 'group_researcher';
+
+CREATE ROLE 'group_technician';
+GRANT SELECT ON aluno_g07_local.users TO 'group_technician';
+GRANT SELECT ON aluno_g07_local.alerts TO 'group_technician';
 
 FLUSH PRIVILEGES;
 ```

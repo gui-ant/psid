@@ -1,6 +1,7 @@
 <?php
 include('config.php');
 header("Content-Type:application/json");
+session_start();
 
 if (!empty($_GET['sp']))
 	$procedure = $_GET['sp'];
@@ -17,6 +18,7 @@ if (!empty($_GET['json']))
 else
 	$json = 'false';
 
+
 $data = get_data_from_sp($procedure, $param, $json);
 
 if (empty($data)) {
@@ -27,7 +29,12 @@ if (empty($data)) {
 
 function get_data_from_sp($procedure, $param, $json)
 {
-	$conn = db_connect();
+	// echo var_dump($procedure) . "<br>";
+	// echo var_dump($param) . "<br>";
+	// echo var_dump($json) . "<br>";
+
+	
+	$conn = db_connect($_POST['username'], $_POST['password']);
 	if (!$conn) {
 		die("Connection Failed: " . mysqli_connect_error());
 	}
@@ -35,6 +42,7 @@ function get_data_from_sp($procedure, $param, $json)
 	$sql = "call " . $procedure . "(" . $param . ")";
 	$result = mysqli_query($conn, $sql);
 	$rows = array();
+
 	if ($result) {
 		if ($json == "true") {
 			if (mysqli_num_rows($result) > 0) {
@@ -44,6 +52,7 @@ function get_data_from_sp($procedure, $param, $json)
 			}
 		}
 	}
+	
 	mysqli_close($conn);
 	if ($json == "true") {
 		return json_encode($rows);
@@ -58,3 +67,4 @@ function get_data_from_sp($procedure, $param, $json)
 		return ($str);
 	}
 }
+?>

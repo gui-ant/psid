@@ -38,25 +38,26 @@ if (isset($_GET['logout'])) {
             </div>
         <?php endif ?>
 
-        <?php if (isset($_SESSION['username'])) : ?>
+        <?php if (isset($_SESSION['user_email'])) : ?>
             <p>
                 Bem-vindo <strong><?php echo $_SESSION['username']; ?></strong>&nbsp;<a href="index.php?logout='1'">Sair</a>
             </p>
 
 
-            <?php if ($_SESSION['user_role'] == 2) : ?>
+            <?php if ($_SESSION['user_role'] == 1) : ?>
                 <!-- Researcher View -->
                 <p>
-                    <?php include('selectCulture.php') ?>
+                    <?php include('selectCulture.php'); ?>
                 </p>
                 <p>
-                    <?php if (isset($_POST['culture_id']))
+                    <?php if (isset($_POST['culture_id'])){
                         if ($_POST['culture_id'] != null)
-                            include('cultures.php')
+                            include('cultures.php');
+					}
                     ?>
                 </p>
 
-            <?php elseif ($_SESSION['user_role'] == 1) : ?>
+            <?php elseif ($_SESSION['user_role'] == 2) : ?>
                 <!-- Admin View -->
                 <p>Painel de Admnistração</p>
             <?php elseif ($_SESSION['user_role'] == NULL) : ?>
