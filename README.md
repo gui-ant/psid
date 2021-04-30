@@ -128,7 +128,14 @@ END
 
 /* spCreateCultureParam */
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateCultureParam`(IN user_id` INT(11), IN sensor_type VARCHAR(64), IN valmax INT(11), IN valmin INT(11), IN tolerance INT(11), OUT param_id INT(11))
+CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateCultureParam`(
+	IN user_id` INT(11), 
+	IN sensor_type VARCHAR(64), 
+	IN valmax INT(11), 
+	IN valmin INT(11), 
+	IN tolerance INT(11), 
+	OUT param_id INT(11)
+)
 IF ((SELECT role_id from users WHERE id = user_id) = 1 && valmax > valmin) THEN
 
 INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance)
