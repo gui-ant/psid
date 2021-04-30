@@ -63,8 +63,8 @@ GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_rel_culture_params_set TO 'g
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params_set TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteParam TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spExportCultureMeasuresToCSV TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsManager TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spIsResearcher TO 'group_researcher';
+GRANT EXECUTE ON FUNCTION aluno_g07_local.spIsManager TO 'group_researcher';
+GRANT EXECUTE ON FUNCTION aluno_g07_local.spIsResearcher TO 'group_researcher';
 
 CREATE ROLE 'group_technician';
 GRANT SELECT ON aluno_g07_local.users TO 'group_technician';
