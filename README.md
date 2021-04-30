@@ -87,36 +87,38 @@ SHOW GRANTS FOR 'group_researcher'; /* role (researcher) */
 - Stored Procedures
 ```mysql
 /* spCreateUser */
-
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateUser`(
 	IN `p_email` VARCHAR(50) CHARSET latin1,
 	IN `p_name` VARCHAR(100) CHARSET latin1,
 	IN `p_pass` VARCHAR(64) CHARSET latin1,
 	IN `p_role` ENUM('admin','researcher','technician') CHARSET latin1
 )
-LANGUAGE SQL
-NOT DETERMINISTIC
-CONTAINS SQL
-SQL SECURITY DEFINER
-COMMENT ''
 BEGIN
 
 SET p_pass := CONCAT("'", p_pass, "'");
 SET p_email := CONCAT("'", p_email, "'");
+
 SET @p_role_group := CONCAT("'group_", p_role, "'");
 SET @mysqluser := CONCAT(p_email,"@'localhost'");
 
 /* CRIA USER/PASSWORD NO MYSQL*/
 SET @sql := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
-PREPARE stmt FROM @sql; EXECUTE stmt; SELECT @SQL;
+SELECT @SQL;
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
 
 /* ATRIBUI ROLE AO USER*/
 SET @sql := CONCAT('GRANT ', @p_role_group,' TO ', @mysqluser);
-PREPARE stmt FROM @sql; EXECUTE stmt; SELECT @SQL; 
+SELECT @SQL;
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
 
 /* DEFINE A ATRIBUIÇÃO DO ROLE POR DEFEITO NO INÍCIO DE SESSÃO*/
 SET @sql := CONCAT('SET DEFAULT ROLE ', @p_role_group,' FOR ', @mysqluser);
-PREPARE stmt FROM @sql; EXECUTE stmt; SELECT @SQL;
+SELECT @SQL;
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
 
 /* CRIA USER NA TABELA users */
 INSERT INTO users (username,email) VALUES (p_name, p_email);
@@ -124,7 +126,8 @@ INSERT INTO users (username,email) VALUES (p_name, p_email);
 DEALLOCATE PREPARE stmt;
 FLUSH PRIVILEGES;
 
-END
+END$$
+DELIMITER ;
 
 /* spCreateCultureParam */
 DELIMITER $$
