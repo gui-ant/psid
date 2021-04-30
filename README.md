@@ -174,4 +174,29 @@ IF ((SELECT role_id from users WHERE id = user_id) = 1) THEN
 END IF$$
 DELIMITER ;
 
+/* spIsManager (Function) */
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` FUNCTION `spIsManager`(`p_culture_id` INT
+) RETURNS varchar(64) CHARSET utf8mb4
+    SQL SECURITY INVOKER
+BEGIN
+
+DECLARE rev_username VARCHAR(64);
+DECLARE at_sign_pos INT;
+DECLARE username VARCHAR(64);
+DECLARE is_manager INT;
+
+SET rev_username = REVERSE(CURRENT_USER());
+SET at_sign_pos = LOCATE("@", rev_username);
+SET username = CONCAT("'",REVERSE(REPLACE(rev_username, LEFT(rev_username,at_sign_pos),"")),"'");
+SET is_manager = 0;
+
+SELECT COUNT(*) INTO is_manager 
+FROM users AS u JOIN cultures AS c ON c.manager_id = u.id 
+WHERE u.email=username AND c.id=p_culture_id; 
+
+RETURN is_manager;
+ 
+END$$
+DELIMITER ;
 ```
