@@ -86,8 +86,9 @@ SHOW GRANTS FOR 'group_researcher'; /* role (researcher) */
 ```
 - Stored Procedures
 ```mysql
-/* spCreateUser */
+
 DELIMITER $$
+/* spCreateUser */
 DROP PROCEDURE IF EXISTS spCreateUser;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateUser`(
 	IN `p_email` VARCHAR(50) CHARSET latin1,
@@ -130,9 +131,10 @@ FLUSH PRIVILEGES;
 END$$
 DELIMITER ;
 
+
+DELIMITER $$
 /* spCreateCultureParam */
 DROP PROCEDURE IF EXISTS spCreateCultureParam;
-DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateCultureParam`(
 	IN user_id` INT(11), 
 	IN sensor_type VARCHAR(64), 
@@ -150,8 +152,8 @@ SET param_id = LAST_INSERT_ID();
 END IF$$
 DELIMITER ;
 
-/* spCreateCultureParamsSet */ 
 DELIMITER $$
+/* spCreateCultureParamsSet */ 
 CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateCultureParamsSet`(
 	IN user_id` INT(11), 
 	IN culture_id INT(11), 
@@ -166,9 +168,9 @@ SET set_id = LAST_INSERT_ID();
 END IF$$
 DELIMITER ;
 
+DELIMITER $$
 /* spCreateRelCultureParamsSet */
 DROP PROCEDURE IF EXISTS spCreateRelCultureParamsSet;
-DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateRelCultureParamsSet`(
 	IN user_id` INT(11), 
 	IN set_id INT(11), 
@@ -180,9 +182,9 @@ IF ((SELECT role_id from users WHERE id = user_id) = 1) THEN
 END IF$$
 DELIMITER ;
 
+DELIMITER $$
 /* spIsManager (Function) */
 DROP FUNCTION IF EXISTS spIsManager;
-DELIMITER $$
 CREATE DEFINER=`root`@`localhost` FUNCTION `spIsManager`(`p_culture_id` INT
 ) RETURNS varchar(64) CHARSET utf8mb4
     SQL SECURITY INVOKER
