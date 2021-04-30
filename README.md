@@ -160,4 +160,18 @@ SET set_id = LAST_INSERT_ID();
 
 END IF$$
 DELIMITER ;
+
+/* spCreateRelCultureParamsSet */
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateRelCultureParamsSet`(
+	IN user_id` INT(11), 
+	IN set_id INT(11), 
+	IN param_id INT(11)
+)
+IF ((SELECT role_id from users WHERE id = user_id) = 1) THEN
+	Insert INTO rel_culture_params_set (set_id, culture_param_id)
+	VALUES (set_id, param_id);
+END IF$$
+DELIMITER ;
+
 ```
