@@ -170,7 +170,6 @@ DELIMITER ;
 
 DELIMITER $$
 /* spCreateRelCultureParamsSet */
-DROP PROCEDURE IF EXISTS spCreateRelCultureParamsSet;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateRelCultureParamsSet`(
 	IN user_id INT(11), 
 	IN set_id INT(11), 
