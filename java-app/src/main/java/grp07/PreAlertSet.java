@@ -1,5 +1,7 @@
 package grp07;
 
+import com.mysql.cj.protocol.x.SyncFlushDeflaterOutputStream;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
@@ -22,8 +24,12 @@ public class PreAlertSet {
     }
 
     //populado por cada Thread de sensor
-    public synchronized void addPreAlert (Timestamp insertion, CultureParams param) {
-        susParams.put(insertion, param);
+    public synchronized void addPreAlert (Timestamp insertion, CultureParams param, boolean isAlert) {
+        System.out.println("addPreAlert: " + param.getSensorType());
+        deleteParamOcc(param);
+        if (isAlert) {
+            susParams.put(insertion, param);
+        }
         altered = true;
         notifyAll();
     }
@@ -47,19 +53,105 @@ public class PreAlertSet {
         }
     }
 
+    private void deleteParamOcc (CultureParams param) {
+        System.out.println("deleteParamOcc -> " + param.getSensorType());
+        for(Iterator<Map.Entry<Timestamp, CultureParams>> it = susParams.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Timestamp, CultureParams> entry = it.next();
+            if(entry.getValue().isEqual(param)) {
+                System.out.println("deleParaOcc, sao iguais");
+                it.remove();
+                break;
+            }
+        }
+    }
+
     // apagar registos com mais de 30 segundos
     private void deleteOldAlerts() {
-        Map<Timestamp, CultureParams> newSusParams = new HashMap<>();
         Timestamp curr = Timestamp.from(Instant.now());
         curr.setTime(curr.getTime() + (30*1000));
 
-        for (Timestamp time : susParams.keySet()) {
-            if (time.before(curr)) {
-                CultureParams par = susParams.get(time);
-                newSusParams.put(time, par);
+        for(Iterator<Map.Entry<Timestamp, CultureParams>> it = susParams.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Timestamp, CultureParams> entry = it.next();
+            if(entry.getKey().after(curr)) {
+                it.remove();
             }
         }
-        susParams = newSusParams;
     }
+
+/*
+    public static void main(String[] args) {
+        Hashtable<Long, List<CultureParams>> allParams = new Hashtable<>();
+        PreAlertSet pas = new PreAlertSet(allParams);
+
+        User u = new User(3);
+        u.setEmail("mail");
+        u.setName("name");
+        u.setRole(2);
+
+        Zone z = new Zone(6);
+        z.setTemperature(20);
+        z.setHumidity(21);
+        z.setLight(22);
+
+        Culture c = new Culture(5L);
+        c.setName("cultura");
+        c.setZone(z);
+        c.setManager(u);
+        c.setState(true);
+
+        CultureParams p1 = new CultureParams();
+        p1.setSensorType("h");
+        p1.setValMax(5);
+        p1.setValMin(2);
+        p1.setTolerance(15);
+        p1.setCulture(c);
+
+        CultureParams p11 = new CultureParams();
+        p11.setSensorType("h");
+        p11.setValMax(5);
+        p11.setValMin(2);
+        p11.setTolerance(15);
+        p11.setCulture(c);
+
+
+        CultureParams p2 = new CultureParams();
+        p2.setSensorType("t");
+        p2.setValMax(10);
+        p2.setValMin(4);
+        p2.setTolerance(30);
+        p2.setCulture(c);
+
+        CultureParams p22 = new CultureParams();
+        p22.setSensorType("t");
+        p22.setValMax(10);
+        p22.setValMin(4);
+        p22.setTolerance(30);
+        p22.setCulture(c);
+
+
+//        try {
+//            pas.analyse();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+
+        pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
+        System.out.println("susParams size " + pas.susParams.size());
+
+        System.out.println();
+        pas.addPreAlert(Timestamp.from(Instant.now()), p11, true);
+        System.out.println("susParams size " + pas.susParams.size());
+
+        System.out.println();
+        pas.addPreAlert(Timestamp.from(Instant.now()), p2, true);
+        System.out.println("susParams size " + pas.susParams.size());
+
+        System.out.println();
+        pas.addPreAlert(Timestamp.from(Instant.now()), p22, false);
+        System.out.println("susParams size " + pas.susParams.size());
+
+    }
+*/
 
 }

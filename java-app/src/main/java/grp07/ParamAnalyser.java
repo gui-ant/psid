@@ -30,8 +30,12 @@ public class ParamAnalyser {
 
     public void analyseParameters() {
         for (CultureParams param : paramList) {
-            if (isSuspect(param)) {
-                preAlertCompiler.addPreAlert(Timestamp.from(Instant.now()), param);
+            boolean isSus = isSuspect(param);
+            if (isSus) {
+                preAlertCompiler.addPreAlert(Timestamp.from(Instant.now()), param, true);
+            }
+            if (! isSus) {
+                preAlertCompiler.addPreAlert(Timestamp.from(Instant.now()), param, false);
             }
             if (param.getTolerance() > maxTolerance) {
                 maxTolerance = param.getTolerance();

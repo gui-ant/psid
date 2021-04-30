@@ -30,4 +30,10 @@ public class User {
     public Long getId() {
         return id;
     }
+
+
+    // TODO - APENAS PARA TESTE, APAGAR!!!
+    public void setRole(int r) {
+        this.role = r;
+    }
 }
