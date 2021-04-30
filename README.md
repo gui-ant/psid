@@ -31,6 +31,7 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 ```mysql
 
 CREATE ROLE 'group_admin';
+GRANT CREATE_USER TO 'group_admin';
 GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.users TO 'group_admin';
 GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.cultures TO 'group_admin';
 GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'group_admin';
