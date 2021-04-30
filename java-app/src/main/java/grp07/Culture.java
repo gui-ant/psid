@@ -60,4 +60,13 @@ public class Culture {
     public Long getId() {
         return id;
     }
+
+    public boolean isEqual(Culture cul) {
+        if (id == cul.getId() && name.equals(cul.getName()) && zone.isEqual(cul.getZone()) && manager.isEqual(cul.getManager()) && state == cul.isState()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }

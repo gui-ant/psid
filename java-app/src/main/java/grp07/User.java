@@ -31,6 +31,19 @@ public class User {
         return id;
     }
 
+    public int getRole() {
+        return role;
+    }
+
+    public boolean isEqual(User u) {
+        if(id == u.getId() && email.equals(u.getEmail()) && name.equals(u.getName()) && role == u.getRole()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 
     // TODO - APENAS PARA TESTE, APAGAR!!!
     public void setRole(int r) {

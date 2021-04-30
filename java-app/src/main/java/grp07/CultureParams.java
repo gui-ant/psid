@@ -48,7 +48,7 @@ public class CultureParams {
     }
 
     public boolean isEqual(CultureParams param) {
-        if (sensorType.equals(param.getSensorType()) && valMax == param.getValMax() && valMin == param.getValMin() && tolerance == param.getTolerance() && culture.equals(param.getCulture())) {
+        if (sensorType.equals(param.getSensorType()) && valMax == param.getValMax() && valMin == param.getValMin() && tolerance == param.getTolerance() && culture.isEqual(param.getCulture())) {
             return true;
         }
         else {

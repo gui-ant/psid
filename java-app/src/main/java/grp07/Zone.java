@@ -38,4 +38,13 @@ public class Zone {
         return this.id;
     }
 
+    public boolean isEqual(Zone z) {
+        if (id == z.getId() && temperature == z.getTemperature() && humidity == z.getHumidity() && light == z.getLight()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 }
