@@ -135,8 +135,8 @@ DELIMITER ;
 DELIMITER $$
 /* spCreateCultureParam */
 DROP PROCEDURE IF EXISTS spCreateCultureParam;
-CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateCultureParam`(
-	IN user_id` INT(11), 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateCultureParam`(
+	IN user_id INT(11), 
 	IN sensor_type VARCHAR(64), 
 	IN valmax INT(11), 
 	IN valmin INT(11), 
@@ -154,8 +154,8 @@ DELIMITER ;
 
 DELIMITER $$
 /* spCreateCultureParamsSet */ 
-CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateCultureParamsSet`(
-	IN user_id` INT(11), 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateCultureParamsSet`(
+	IN user_id INT(11), 
 	IN culture_id INT(11), 
 	OUT set_id INT
 )
@@ -171,8 +171,8 @@ DELIMITER ;
 DELIMITER $$
 /* spCreateRelCultureParamsSet */
 DROP PROCEDURE IF EXISTS spCreateRelCultureParamsSet;
-CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateRelCultureParamsSet`(
-	IN user_id` INT(11), 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateRelCultureParamsSet`(
+	IN user_id INT(11), 
 	IN set_id INT(11), 
 	IN param_id INT(11)
 )
