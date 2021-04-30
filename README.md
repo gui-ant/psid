@@ -86,7 +86,8 @@ SHOW GRANTS FOR 'group_researcher'; /* role (researcher) */
 ```
 - Stored Procedures
 ```mysql
-/* spCreateUser(<email>,<user>,<pass>,<role: ENUM('admin','researcher','technician')>) */
+/* spCreateUser */
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateUser`(
 	IN `p_email` VARCHAR(50) CHARSET latin1,
 	IN `p_name` VARCHAR(100) CHARSET latin1,
@@ -124,4 +125,16 @@ DEALLOCATE PREPARE stmt;
 FLUSH PRIVILEGES;
 
 END
+
+/* spCreateCultureParam */
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE spCreateCultureParam`(IN user_id` INT(11), IN sensor_type VARCHAR(64), IN valmax INT(11), IN valmin INT(11), IN tolerance INT(11), OUT param_id INT(11))
+IF ((SELECT role_id from users WHERE id = user_id) = 1 && valmax > valmin) THEN
+
+INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance)
+VALUES (sensor_type, valmax, valmin, tolerance);
+SET param_id = LAST_INSERT_ID();
+
+END IF$$
+DELIMITER ;
 ```
