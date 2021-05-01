@@ -131,9 +131,7 @@ FLUSH PRIVILEGES;
 END$$
 DELIMITER ;
 
-
 DELIMITER $$
-/* spCreateCultureParam */
 DROP PROCEDURE IF EXISTS spCreateCultureParam;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateCultureParam`(
 	IN user_id INT(11), 
@@ -153,7 +151,6 @@ END IF$$
 DELIMITER ;
 
 DELIMITER $$
-/* spCreateCultureParamsSet */ 
 DROP PROCEDURE IF EXISTS spCreateCultureParamsSet;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateCultureParamsSet`(
 	IN user_id INT(11), 
@@ -170,7 +167,6 @@ END IF$$
 DELIMITER ;
 
 DELIMITER $$
-/* spCreateRelCultureParamsSet */
 DROP PROCEDURE IF EXISTS spCreateRelCultureParamsSet;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateRelCultureParamsSet`(
 	IN user_id INT(11), 
@@ -184,7 +180,6 @@ END IF$$
 DELIMITER ;
 
 DELIMITER $$
-/* spIsManager (Function) */
 DROP FUNCTION IF EXISTS spIsManager;
 CREATE DEFINER=`root`@`localhost` FUNCTION `spIsManager`(`p_culture_id` INT
 ) RETURNS varchar(64) CHARSET utf8mb4
@@ -208,5 +203,12 @@ WHERE u.email=username AND c.id=p_culture_id;
 RETURN is_manager;
  
 END$$
+DELIMITER ;
+
+DELIMITER $$
+DROP FUNCTION IF EXISTS spIsResearcher;
+CREATE DEFINER=`root`@`localhost` FUNCTION `spIsResearcher`() RETURNS tinyint(4)
+    SQL SECURITY INVOKER
+RETURN CURRENT_ROLE()='group_researcher'$$
 DELIMITER ;
 ```
