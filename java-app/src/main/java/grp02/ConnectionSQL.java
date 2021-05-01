@@ -1,8 +1,6 @@
 package grp02;
 
-import grp07.Measurement;
 import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 //Só para testes ainda!!!!
 

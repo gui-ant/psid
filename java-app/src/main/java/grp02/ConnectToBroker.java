@@ -1,6 +1,11 @@
 package grp02;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import grp07.Measurement;
+import org.bson.BsonBinary;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
@@ -27,33 +32,46 @@ public class ConnectToBroker {
     }
 
     public void connectAsSubsriber(String topic, int QOS) throws MqttException {
-
         this.topic = topic;
 
-        client.setCallback(new MqttCallback() {
-
-            @Override
-            public void connectionLost(Throwable cause) { //Called when the client lost the connection to the broker
-            }
-
-            @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                System.out.println(topic + ": " + message.toString());
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {//Called when a outgoing publish is complete
-            }
-        });
+        client.setCallback(sqlCallback());
 
         tryConnect();
         client.subscribe(topic, QOS);
     }
 
-    public void tryConnect() throws MqttException {
+    private void tryConnect() throws MqttException {
         client.connect();
         System.out.println(client.getClientId());
         System.out.println("Connected successfully");
+    }
+
+    private MqttCallback sqlCallback(){
+        return new MqttCallback() {
+
+            @Override
+            public void connectionLost(Throwable cause) { System.err.println("Connection lost!"); }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                System.out.println(topic + ": " + message.toString());
+
+                String[] message_info = MyUtils.messageIntoArray(message);
+                try {
+
+                    Measurement measurement = MyUtils.buildMeasurement(message_info);
+                    System.out.println(topic + ": " + measurement.toString());
+
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Illegal argument: Array size was incorrect");
+                }
+
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token) {
+            }
+        };
     }
 
     public void startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
