@@ -73,9 +73,8 @@ GRANT SELECT ON aluno_g07_local.alerts TO 'group_technician';
 FLUSH PRIVILEGES;
 ```
 - Criação de user (como root ou admin)
-```mysql
-/* 1. Editar vars e executar */
 :warning: Têm de selecionar primeiro a BD (e.g. USE aluno_g07_local;)
+```mysql
 SET @email:= 'inv1@foo.bar';SET @name:= 'Inv1';SET @pass:= '';SET @role:= 'researcher'; call spCreateUser(@email,@name,@pass,@role);
 ```
 
