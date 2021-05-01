@@ -58,9 +58,9 @@ GRANT SELECT ON aluno_g07_local.* TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_rel_culture_params_set TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params_set TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCultureParam TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateRelCultureParamsSet TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCultureParamsSet TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteParam TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spExportCultureMeasuresToCSV TO 'group_researcher';
 GRANT EXECUTE ON FUNCTION aluno_g07_local.isManager TO 'group_researcher';
@@ -106,10 +106,9 @@ IF NOT isEmail(p_email) THEN
 END IF;
 
 SET p_pass := CONCAT("'", p_pass, "'");
-SET p_email := CONCAT("'", p_email, "'");
 
 SET @p_role_group := CONCAT("'group_", p_role, "'");
-SET @mysqluser := CONCAT(p_email,"@'localhost'");
+SET @mysqluser := CONCAT("'", p_email,"'@'localhost'");
 
 
 SET @sql := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
@@ -249,6 +248,18 @@ DROP TRIGGER IF EXISTS existsPrevAlert;
 CREATE TRIGGER existsPrevAlert BEFORE INSERT ON alerts
 FOR EACH ROW IF checkPrevAlert(NEW.parameter_set_id,5) THEN
 	SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Alerta já existente';
+END IF$$
+DELIMITER ;
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS spAddUsersToCultures;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUsersToCultures`(
+	IN `p_culture_id` INT(11),
+	IN `p_user_id` INT(11)
+)
+    NO SQL
+IF isManager(p_user_id) THEN
+	Insert INTO culture_users (culture_id, user_id) VALUES (p_culture_id, p_user_id);
 END IF$$
 DELIMITER ;
 ```

@@ -83,7 +83,7 @@ function login($email, $password)
         //$query = "SELECT * FROM users WHERE email='$email' AND pass='$password'";
 		//$GLOBALS['mysql_user'] = $email;
         //$GLOBALS['mysql_pass'] = $password;
-        $connection = db_connect($email, $password);
+        $conn = db_connect($email, $password);
         //$results = mysqli_query($db, $query);
 
 //         if (mysqli_num_rows($results) == 1) {
@@ -96,29 +96,30 @@ function login($email, $password)
 //         } else {
 //             return false;
 
-        if (!$connection) {
-          die("Connection failed: " .$connection->connect_error);
+        if (!$conn) {
+          die("Connection failed: " .$conn->connect_error);
           return false;
         }
 
         $query = "SELECT * FROM users WHERE email='$email'";
-        $results = mysqli_query($connection, $query);
+        $results = mysqli_query($conn, $query);
 
         if (mysqli_num_rows($results) == 1) {
             $row = mysqli_fetch_array($results);
             $_SESSION['user_id'] = $row['id'];
 			$_SESSION['user_email'] = $email;
-            $_SESSION['username'] = $row['name'];
+            $_SESSION['username'] = $row['username'];
             $_SESSION['user_role'] = $row['role_id'];
+            //$_SESSION['user_role'] = 'group_researcher';
 			$_SESSION['user_pass'] = $password;
             $_SESSION['success'] = "Sessão iniciada";
 			
-			mysqli_close($connection);
+			mysqli_close($conn);
 			
             return true;
         } else {
 			
-			mysqli_close($connection);
+			mysqli_close($conn);
             return false;
         }
 

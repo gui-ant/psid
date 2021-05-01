@@ -73,7 +73,7 @@ function edit_culture_data($culture_id, $culture_name)
 		</div>
 		<div class="input-group">
 			<label>Nome cultura:</label>
-			<input type="text" name="culture_name" value="<?= $pieces[0]->name ?>" <?= $pieces[0]->manager_id == $_SESSION['user_id'] ? : "readonly" ?>>
+			<input type="text" name="culture_name" value="<?= $pieces[0]->name; ?>" <?= $pieces[0]->manager_id == $_SESSION['user_id'] ? : "readonly" ?>>
 			
 		</div>
 		
@@ -82,6 +82,14 @@ function edit_culture_data($culture_id, $culture_name)
 			<input type="hidden" name="update_culture">
 			<input type="hidden" name="goback" value="<?php echo $_POST['goback']; ?>">
 		<?php endif ?>
-
 	</form>
+
+	<?php if ($pieces[0]->manager_id == $_SESSION['user_id']) : ?>
+		<form action="add_parameters.php" method="POST">
+			<input type="hidden" name="culture_id" value="<?= $pieces[0]->id; ?>">
+			<input type="hidden" name="culture_name" value="<?= $pieces[0]->name; ?>">
+			<input class="btn" type="submit" value="Adicionar Parâmetros"/>
+		</form>
+	<?php endif ?>
+
 <?php endif ?>
