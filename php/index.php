@@ -44,7 +44,7 @@ if (isset($_GET['logout'])) {
             </p>
 
 
-            <?php if ($_SESSION['user_role'] == 1) : ?>
+            <?php if ($_SESSION['user_role'] == 'group_researcher') : ?>
                 <!-- Researcher View -->
                 <p>
                     <?php include('selectCulture.php'); ?>
@@ -57,7 +57,7 @@ if (isset($_GET['logout'])) {
                     ?>
                 </p>
 
-            <?php elseif ($_SESSION['user_role'] == 2) : ?>
+            <?php elseif ($_SESSION['user_role'] == 'group_admin') : ?>
                 <!-- Admin View -->
                 <p>Painel de Admnistração</p>
             <?php elseif ($_SESSION['user_role'] == NULL) : ?>
