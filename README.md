@@ -77,7 +77,7 @@ FLUSH PRIVILEGES;
 /* 1. Editar esta linha e executar */
 SET @user:='inv@foo.bar'; @pass:='', SET @role:='group_researcher';
 
-/* 1. Eecutar as restantes */
+/* 2. Eecutar as restantes */
 SET @query1 = CONCAT("CREATE USER '",@user,'"@'localhost' IDENTIFIED BY '",@pass,"'");
 PREPARE stmt FROM @query1; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 SET @query1 = CONCAT("GRANT '", @role,"' TO '", @user, "'; SET DEFAULT ROLE '", @role,"' FOR '", @user, "';");
