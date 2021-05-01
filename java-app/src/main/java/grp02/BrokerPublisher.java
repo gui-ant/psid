@@ -25,7 +25,7 @@ public class BrokerPublisher extends BrokerConnector {
         );
     }
 
-    static class ToBroker extends Thread {
+    private static class ToBroker extends Thread {
 
         private final MqttClient client;
         private final String topic;
