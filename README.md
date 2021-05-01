@@ -63,8 +63,8 @@ GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_rel_culture_params_set TO 'g
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreate_culture_params_set TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteParam TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE aluno_g07_local.spExportCultureMeasuresToCSV TO 'group_researcher';
-GRANT EXECUTE ON FUNCTION aluno_g07_local.spIsManager TO 'group_researcher';
-GRANT EXECUTE ON FUNCTION aluno_g07_local.spIsResearcher TO 'group_researcher';
+GRANT EXECUTE ON FUNCTION aluno_g07_local.isManager TO 'group_researcher';
+GRANT EXECUTE ON FUNCTION aluno_g07_local.isResearcher TO 'group_researcher';
 
 CREATE ROLE 'group_technician';
 GRANT SELECT ON aluno_g07_local.users TO 'group_technician';
@@ -180,8 +180,9 @@ END IF$$
 DELIMITER ;
 
 DELIMITER $$
-DROP FUNCTION IF EXISTS spIsManager;
-CREATE DEFINER=`root`@`localhost` FUNCTION `spIsManager`(`p_culture_id` INT
+DROP FUNCTION IF EXISTS isManager;
+CREATE DEFINER=`root`@`localhost` FUNCTION `isManager`(
+	`p_culture_id` INT
 ) RETURNS varchar(64) CHARSET utf8mb4
     SQL SECURITY INVOKER
 BEGIN
@@ -206,9 +207,11 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-DROP FUNCTION IF EXISTS spIsResearcher;
-CREATE DEFINER=`root`@`localhost` FUNCTION `spIsResearcher`() RETURNS tinyint(4)
-    SQL SECURITY INVOKER
-RETURN CURRENT_ROLE()='group_researcher'$$
+DROP FUNCTION IF EXISTS hasRole;
+CREATE DEFINER=`root`@`localhost` FUNCTION `hasRole`(
+	IN `p_role` ENUM('admin','researcher','technician') CHARSET latin1
+	) RETURNS tinyint(4)
+	SQL SECURITY INVOKER
+RETURN CURRENT_ROLE()=CONCAT('group_', p_role);$$
 DELIMITER ;
 ```
