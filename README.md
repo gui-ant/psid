@@ -101,32 +101,35 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateUser`(
 	IN `p_role` ENUM('admin','researcher','technician') CHARSET latin1
 )
 BEGIN
+IF NOT isEmail(p_email) THEN
+	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "The email is invalid.";
+END IF;
 
 SET p_pass := CONCAT("'", p_pass, "'");
 SET p_email := CONCAT("'", p_email, "'");
 
-SET @role_group := CONCAT("'group_", p_role, "'");
-SET @mysql_user := CONCAT(p_email,"@'localhost'");
+SET @p_role_group := CONCAT("'group_", p_role, "'");
+SET @mysqluser := CONCAT(p_email,"@'localhost'");
 
-/* CRIA USER/PASSWORD NO MYSQL*/
-SET @sql := CONCAT('CREATE USER ', @mysql_user, ' IDENTIFIED BY ', p_pass);
+
+SET @sql := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
 SELECT @SQL;
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 
-/* ATRIBUI ROLE AO USER*/
-SET @sql := CONCAT('GRANT ', @role_group,' TO ', @mysql_user);
+
+SET @sql := CONCAT('GRANT ', @p_role_group,' TO ', @mysqluser);
 SELECT @SQL;
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 
-/* DEFINE A ATRIBUIÇÃO DO ROLE POR DEFEITO NO INÍCIO DE SESSÃO*/
-SET @sql := CONCAT('SET DEFAULT ROLE ', @role_group,' FOR ', @mysql_user);
+
+SET @sql := CONCAT('SET DEFAULT ROLE ', @p_role_group,' FOR ', @mysqluser);
 SELECT @SQL;
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 
-/* CRIA USER NA TABELA users */
+
 INSERT INTO users (username,email) VALUES (p_name, p_email);
 
 DEALLOCATE PREPARE stmt;
