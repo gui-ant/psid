@@ -11,6 +11,7 @@ public class ParamAnalyser {
     private List<Measurement> measurements;
     private int maxTolerance;
     private int insertionRate;  //frequencia a que as medidas são geradas
+    private int numCycles = 10;
 
     public ParamAnalyser (PreAlertSet preAlertCompiler, ArrayList<CultureParams> paramList, int insertionRate) {
         this.preAlertCompiler = preAlertCompiler;
@@ -21,6 +22,7 @@ public class ParamAnalyser {
     }
 
     public void addMeasurement (Measurement measure) {
+        System.out.println("addMeasurement: " + measure.getMeasure());
         this.measurements.add(0, measure);
     }
 
@@ -45,6 +47,16 @@ public class ParamAnalyser {
     }
 
     private boolean isSuspect (CultureParams param) {
+
+        //controlar subidas/descidas constantes em parametros sem tolerancia
+        if (param.getTolerance() == 0) {
+            // TODO - ele lança ALERTA, ou passa o alerta para o PreAlertCompiler para ser logo enviado para o MySQL???
+            Alert alert = zeroToleranceAnalyser(param);
+            if (alert != null) {
+                // ENVIAR ALERTA!!!
+            }
+        }
+
         int tolerance = param.getTolerance();
         Timestamp headTime = measurements.get(0).getTimestamp();
 
@@ -57,6 +69,63 @@ public class ParamAnalyser {
             if (headTime.compareTo(measure.getTimestamp()) > tolerance) {
                 break;
             }
+        }
+        return true;
+    }
+
+    private Alert zeroToleranceAnalyser(CultureParams param) {
+        boolean constantRise = constantRise(param);
+        boolean constantFall = constantFall(param);
+        Alert alert = null;
+        if(constantRise) {
+            String msg = "Subida constante perto dos limites definidos, há " + String.valueOf(numCycles) + " medidas consecutivas";
+            // alert = ...
+        }
+        if(constantFall) {
+            String msg = "Descida constante perto dos limites definidos, há " + String.valueOf(numCycles) + " medidas consecutivas";
+            // alert = ...
+        }
+        return alert;
+    }
+
+    private boolean constantRise (CultureParams param) {
+        //sempre a descer, dentro de limites, durante 7 medidas
+        double diff = (param.getValMax() - param.getValMin()) * 0.3;
+        double minLim = param.getValMax() - diff;
+
+        double val = Double.parseDouble(measurements.get(0).getMeasure());
+
+        if (val > param.getValMax() || val < minLim || measurements.size() < numCycles) {
+            return false;
+        }
+
+        for (int ind = 1; ind < numCycles; ind++) {
+            double newval = Double.parseDouble(measurements.get(ind).getMeasure());
+            if (newval >= val || newval > param.getValMax() || newval < minLim) {
+                return false;
+            }
+            val = newval;
+        }
+        return true;
+    }
+
+    private boolean constantFall (CultureParams param) {
+        //sempre a subir, dentro de limites, durante 7 medidas
+        double diff = (param.getValMax() - param.getValMin()) * 0.3;
+        double maxLim = param.getValMin() + diff;
+
+        double val = Double.parseDouble(measurements.get(0).getMeasure());
+
+        if (val > maxLim || val < param.getValMin() || measurements.size() < numCycles) {
+            return false;
+        }
+
+        for (int ind = 1; ind < numCycles; ind++) {
+            double newval = Double.parseDouble(measurements.get(ind).getMeasure());
+            if (newval <= val || newval > maxLim || newval < param.getValMin()) {
+                return false;
+            }
+            val = newval;
         }
         return true;
     }
@@ -75,8 +144,6 @@ public class ParamAnalyser {
     }
 
     private Timestamp addSecondsThreshold(Timestamp initialTime, int tolerance, int rate) {
-        //ver com iterator???
-
         Timestamp newTime = initialTime;
         newTime.setTime(initialTime.getTime() + (tolerance + 3*rate)*1000);
         return newTime;
