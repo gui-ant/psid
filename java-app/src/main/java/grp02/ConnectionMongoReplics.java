@@ -1,6 +1,6 @@
 package grp02;
 
-import grp07.*;
+import grp07.ConnectToMongo;
 
 public class ConnectionMongoReplics {
 
