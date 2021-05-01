@@ -16,14 +16,14 @@ public class BrokerSubscriber extends BrokerConnector {
         super(URI, topic, qos);
         buffer = new LinkedBlockingQueue<Measurement>();
 
-        client.setCallback(inserInBufferCallback());
+        client.setCallback(insertInBufferCallback());
         tryConnect();
         client.subscribe(topic, this.qos);
     }
 
     public LinkedBlockingQueue<Measurement> getBuffer() { return buffer; }
 
-    private MqttCallback inserInBufferCallback(){
+    private MqttCallback insertInBufferCallback(){
         return new MqttCallback() {
 
             @Override
