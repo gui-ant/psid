@@ -72,17 +72,10 @@ GRANT SELECT ON aluno_g07_local.alerts TO 'group_technician';
 
 FLUSH PRIVILEGES;
 ```
-- Criação de user 'researcher'
+- Criação de user (como root ou admin)
 ```mysql
 /* 1. Editar esta linha e executar */
-SET @user:='inv@foo.bar'; @pass:='', SET @role:='group_researcher';
-
-/* 2. Eecutar as restantes */
-SET @query1 = CONCAT("CREATE USER '",@user,'"@'localhost' IDENTIFIED BY '",@pass,"'");
-PREPARE stmt FROM @query1; EXECUTE stmt; DEALLOCATE PREPARE stmt;
-SET @query1 = CONCAT("GRANT '", @role,"' TO '", @user, "'; SET DEFAULT ROLE '", @role,"' FOR '", @user, "';");
-PREPARE stmt FROM @query1; EXECUTE stmt; DEALLOCATE PREPARE stmt;
-FLUSH PRIVILEGES;
+SET @email:='inv1@foo.bar';SET @name:='Inv1';SET @pass:='';SET @role:='researcher'; call aluno_g07_local.spCreateUser(@email,@name,@pass,@role);
 ```
 
 - Exibir roles
