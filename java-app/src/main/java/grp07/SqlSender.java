@@ -159,7 +159,7 @@ public class SqlSender {
 
 
             //enviar para SQL
-            String sql = "INSERT INTO measures (id, value, sensor_id, zone_id, date, isCorrect) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO measurements (id, value, sensor_id, zone_id, date, isCorrect) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, id);
             statement.setString(2, value);
