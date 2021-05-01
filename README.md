@@ -75,7 +75,7 @@ FLUSH PRIVILEGES;
 - Criação de user (como root ou admin)
 ```mysql
 /* 1. Editar vars e executar */
-SET @email:='inv1@foo.bar';SET @name:='Inv1';SET @pass:='';SET @role:='researcher'; call aluno_g07_local.spCreateUser(@email,@name,@pass,@role);
+SET @email:= 'inv1@foo.bar';SET @name:= 'Inv1';SET @pass:= '';SET @role:= 'researcher'; call aluno_g07_local.spCreateUser(@email,@name,@pass,@role);
 ```
 
 - Exibir roles
