@@ -74,11 +74,14 @@ FLUSH PRIVILEGES;
 ```
 - Criação de user 'researcher'
 ```mysql
-SET @user:='inv@foo.bar'; SET @role:='group_researcher';
+/* 1. Editar esta linha e executar */
+SET @user:='inv@foo.bar'; @pass:='', SET @role:='group_researcher';
 
-CREATE USER @user;
-GRANT @role TO @user;
-SET DEFAULT ROLE @role FOR @user;
+/* 1. Eecutar as restantes */
+SET @query1 = CONCAT("CREATE USER '",@user,'"@'localhost' IDENTIFIED BY '",@pass,"'");
+PREPARE stmt FROM @query1; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @query1 = CONCAT("GRANT '", @role,"' TO '", @user, "'; SET DEFAULT ROLE '", @role,"' FOR '", @user, "';");
+PREPARE stmt FROM @query1; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 FLUSH PRIVILEGES;
 ```
 
