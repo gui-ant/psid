@@ -9,25 +9,22 @@ public class MongoToBroker {
     private static final String SOURCE_DB = "g07";
 
     private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
+    private static final String TOPIC = "t_sensores";// nome na especificação
+    private static final int QOS = 0;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws MqttException {
 
         String[] collectionNames = {"sensort1"};
 
-        try {
+        ConnectToMongo cluster = new ConnectToMongo(SOURCE_URI_ATLAS, SOURCE_DB);
+        ConnectToBroker publisher = new ConnectToBroker(BROKER_URI);
 
-            ConnectToMongo cluster = new ConnectToMongo(SOURCE_URI_ATLAS, SOURCE_DB);
+        publisher.connectAsPublisher(TOPIC);
 
-            ConnectToBroker broker = new ConnectToBroker(BROKER_URI);
+        cluster.useCollections(collectionNames);
+        cluster.startFetching();
 
+        publisher.startPublishing(cluster.getFetchingSource());
 
-            cluster.useCollections(collectionNames);
-            cluster.startFetching();
-
-            broker.startPublishing(cluster.getFetchingSource());
-
-        } catch (MqttException e){
-            e.printStackTrace();
-        }
     }
 }
