@@ -214,4 +214,14 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `hasRole`(
 	SQL SECURITY INVOKER
 RETURN CURRENT_ROLE()=CONCAT('group_', p_role);$$
 DELIMITER ;
+
+DELIMITER $$
+DROP FUNCTION IF EXISTS isEmail;
+CREATE DEFINER=`root`@`localhost` FUNCTION `isEmail`(`p_email` VARCHAR(50)
+) RETURNS tinyint(4)
+BEGIN
+SET p_email = CONCAT("'",p_email,"'");
+RETURN (SELECT p_email REGEXP '^[^@]+@[^@]+\.[^@]{2,}$')=1;
+END$$
+DELIMITER ;
 ```
