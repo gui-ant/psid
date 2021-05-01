@@ -74,7 +74,7 @@ FLUSH PRIVILEGES;
 ```
 - Criação de user 'researcher'
 ```mysql
-SET @user='inv@foo.bar';SET @role='group_researcher'
+SET @user='inv@foo.bar';SET @role='group_researcher';
 CREATE USER @user;
 GRANT @role TO @user;
 SET DEFAULT ROLE @role FOR @user;
