@@ -1,6 +1,7 @@
 package grp02;
 
 import grp07.ConnectToMongo;
+import grp07.Measurement;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 public class MongoToBroker {
