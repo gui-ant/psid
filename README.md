@@ -227,7 +227,7 @@ DELIMITER ;
 
 DELIMITER $$
 DROP FUNCTION IF EXISTS checkPrevAlert;
-CREATE DEFINER=`root`@`localhost` FUNCTION checkPrevAlert`(rule_set_id` INT, mins INT) RETURNS tinyint(1)
+CREATE DEFINER=`root`@`localhost` FUNCTION checkPrevAlert(`rule_set_id` INT, mins INT) RETURNS tinyint(1)
 RETURN EXISTS ( 
 SELECT * 
 FROM alerts 
