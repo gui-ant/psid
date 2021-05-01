@@ -258,7 +258,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUsersToCultures`(
 	IN `p_user_id` INT(11)
 )
     NO SQL
-IF isManager(p_culture_id) THEN
+IF isManager(p_user_id) THEN
 	Insert INTO culture_users (culture_id, user_id) VALUES (p_culture_id, p_user_id);
 END IF$$
 DELIMITER ;
