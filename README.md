@@ -262,4 +262,24 @@ IF isManager(p_user_id) THEN
 	Insert INTO culture_users (culture_id, user_id) VALUES (p_culture_id, p_user_id);
 END IF$$
 DELIMITER ;
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS spDeleteParam;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spDeleteParam`(
+	IN `p_param_id` INT
+)
+BEGIN
+SET @culture_id:=-1;
+
+SELECT sets.culture_id INTO @culture_id 
+FROM culture_params AS params
+JOIN rel_culture_params_set as rels ON params.id = rels.culture_param_id
+JOIN culture_params_sets as sets ON sets.id = rels.set_id
+WHERE params.id = p_param_id; 
+
+CALL spStopIfNotManager(@culture_id);
+
+DELETE FROM culture_params WHERE id=p_param_id;
+END$$
+DELIMITER ;
 ```
