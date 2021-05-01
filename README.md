@@ -224,4 +224,24 @@ SET p_email = CONCAT("'",p_email,"'");
 RETURN (SELECT p_email REGEXP '^[^@]+@[^@]+\.[^@]{2,}$')=1;
 END$$
 DELIMITER ;
+
+DELIMITER $$
+DROP FUNCTION IF EXISTS checkPrevAlert;
+CREATE DEFINER=`root`@`localhost` FUNCTION checkPrevAlert`(rule_set_id` INT, mins INT) RETURNS tinyint(1)
+RETURN EXISTS ( 
+SELECT * 
+FROM alerts 
+WHERE parameter_set_id = rule_set_id 
+AND
+created_at >= NOW()- INTERVAL mins MINUTE 
+)$$
+DELIMITER ;
+
+DELIMITER $$
+DROP TRIGGER IF EXISTS existsPrevAlert;
+CREATE TRIGGER existsPrevAlert BEFORE INSERT ON alerts
+FOR EACH ROW IF checkPrevAlert(NEW.parameter_set_id,5) THEN
+	SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Alerta já existente';
+END IF$$
+DELIMITER ;
 ```
