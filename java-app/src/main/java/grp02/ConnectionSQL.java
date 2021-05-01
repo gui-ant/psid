@@ -12,10 +12,8 @@ public class ConnectionSQL {
 
     public static void main(String[] args) throws MqttException {
 
-        String[] collectionNames = {"sensort1"};
-
         ConnectToBroker subscriber = new ConnectToBroker(BROKER_URI);
-        subscriber.connectAsSubsriber(TOPIC, QOS);
+        subscriber.connectAsSubscriber(TOPIC, QOS);
 
     }
 
