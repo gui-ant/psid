@@ -101,23 +101,23 @@ BEGIN
 SET p_pass := CONCAT("'", p_pass, "'");
 SET p_email := CONCAT("'", p_email, "'");
 
-SET @p_role_group := CONCAT("'group_", p_role, "'");
-SET @mysqluser := CONCAT(p_email,"@'localhost'");
+SET @role_group := CONCAT("'group_", p_role, "'");
+SET @mysql_user := CONCAT(p_email,"@'localhost'");
 
 /* CRIA USER/PASSWORD NO MYSQL*/
-SET @sql := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
+SET @sql := CONCAT('CREATE USER ', @mysql_user, ' IDENTIFIED BY ', p_pass);
 SELECT @SQL;
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 
 /* ATRIBUI ROLE AO USER*/
-SET @sql := CONCAT('GRANT ', @p_role_group,' TO ', @mysqluser);
+SET @sql := CONCAT('GRANT ', @role_group,' TO ', @mysql_user);
 SELECT @SQL;
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 
 /* DEFINE A ATRIBUIÇÃO DO ROLE POR DEFEITO NO INÍCIO DE SESSÃO*/
-SET @sql := CONCAT('SET DEFAULT ROLE ', @p_role_group,' FOR ', @mysqluser);
+SET @sql := CONCAT('SET DEFAULT ROLE ', @role_group,' FOR ', @mysql_user);
 SELECT @SQL;
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
