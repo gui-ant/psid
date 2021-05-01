@@ -250,4 +250,16 @@ FOR EACH ROW IF checkPrevAlert(NEW.parameter_set_id,5) THEN
 	SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Alerta já existente';
 END IF$$
 DELIMITER ;
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS spAddUsersToCultures;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUsersToCultures`(
+	IN `p_culture_id` INT(11),
+	IN `p_user_id` INT(11)
+)
+    NO SQL
+IF isManager(p_culture_id) THEN
+	Insert INTO culture_users (culture_id, user_id) VALUES (p_culture_id, p_user_id);
+END IF$$
+DELIMITER ;
 ```
