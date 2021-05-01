@@ -80,8 +80,13 @@ SET @email:= 'inv1@foo.bar';SET @name:= 'Inv1';SET @pass:= '';SET @role:= 'resea
 
 - Exibir roles
 ```mysql
+
+Em root:
 SHOW GRANTS FOR 'inv@foo.bar'; /* user */
 SHOW GRANTS FOR 'group_researcher'; /* role (researcher) */
+
+Da dessão ativa:
+SHOW GRANTS;
 ```
 - Stored Procedures
 ```mysql
