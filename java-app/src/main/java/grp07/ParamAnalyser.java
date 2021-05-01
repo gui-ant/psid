@@ -45,6 +45,16 @@ public class ParamAnalyser {
     }
 
     private boolean isSuspect (CultureParams param) {
+
+        //controlar subidas/descidas constantes em parametros sem tolerancia
+        if (param.getTolerance() == 0) {
+            // TODO - ele lança ALERTA, ou passa o alerta para o PreAlertCompiler para ser logo enviado para o MySQL???
+            Alert alert = zeroToleranceAnalyser(param);
+            if (alert != null) {
+                // ENVIAR ALERTA!!!
+            }
+        }
+
         int tolerance = param.getTolerance();
         Timestamp headTime = measurements.get(0).getTimestamp();
 
@@ -57,6 +67,61 @@ public class ParamAnalyser {
             if (headTime.compareTo(measure.getTimestamp()) > tolerance) {
                 break;
             }
+        }
+        return true;
+    }
+
+    private Alert zeroToleranceAnalyser(CultureParams param) {
+        boolean constantRise = constantRise(param);
+        boolean constantFall = constantFall(param);
+        Alert alert = null;
+        if(constantRise) {
+            // alert = ...
+        }
+        if(constantFall) {
+            // alert = ...
+        }
+        return alert;
+    }
+
+    private boolean constantRise (CultureParams param) {
+        //sempre a descer, dentro de limites, durante 7 medidas
+        double diff = (param.getValMax() - param.getValMin()) * 0.3;
+        double minLim = param.getValMax() - diff;
+        int numCycles = 7;
+        double val = Double.parseDouble(measurements.get(0).getMeasure());
+
+        if (val > param.getValMax() || val < minLim || measurements.size() < numCycles) {
+            return false;
+        }
+
+        for (int ind = 1; ind < numCycles; ind++) {
+            double newval = Double.parseDouble(measurements.get(ind).getMeasure());
+            if (newval >= val || newval > param.getValMax() || newval < minLim) {
+                return false;
+            }
+            val = newval;
+        }
+        return true;
+    }
+
+    private boolean constantFall (CultureParams param) {
+        //sempre a subir, dentro de limites, durante 7 medidas
+        double diff = (param.getValMax() - param.getValMin()) * 0.3;
+        double maxLim = param.getValMin() + diff;
+        int numCycles = 7;
+        double val = Double.parseDouble(measurements.get(0).getMeasure());
+
+        if (val > maxLim || val < param.getValMin() || measurements.size() < numCycles) {
+            return false;
+        }
+
+        for (int ind = 1; ind < numCycles; ind++) {
+            double newval = Double.parseDouble(measurements.get(ind).getMeasure());
+            if (newval <= val || newval > maxLim || newval < param.getValMin()) {
+                return false;
+            }
+            val = newval;
         }
         return true;
     }
