@@ -31,7 +31,7 @@ public class ConnectToBroker {
         tryConnect();
     }
 
-    public void connectAsSubsriber(String topic, int QOS) throws MqttException {
+    public void connectAsSubscriber(String topic, int QOS) throws MqttException {
         this.topic = topic;
 
         client.setCallback(sqlCallback());
@@ -54,17 +54,19 @@ public class ConnectToBroker {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                System.out.println(topic + ": " + message.toString());
 
                 String[] message_info = MyUtils.messageIntoArray(message);
+                for (String s: message_info) { System.out.print(s); }
+
                 try {
 
                     Measurement measurement = MyUtils.buildMeasurement(message_info);
-                    System.out.println(topic + ": " + measurement.toString());
 
                 } catch (IllegalArgumentException e) {
                     System.err.println("Illegal argument: Array size was incorrect");
                 }
+
+
 
             }
 
@@ -81,9 +83,6 @@ public class ConnectToBroker {
                 }
         );
     }
-
-    //TODO
-    public void startListening(){}
 
     static class BrokerPublisher extends Thread {
 
