@@ -33,6 +33,11 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.12.8</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>1.0.2</version>
+        </dependency>
     </dependencies>
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
