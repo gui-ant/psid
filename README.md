@@ -106,10 +106,9 @@ IF NOT isEmail(p_email) THEN
 END IF;
 
 SET p_pass := CONCAT("'", p_pass, "'");
-SET p_email := CONCAT("'", p_email, "'");
 
 SET @p_role_group := CONCAT("'group_", p_role, "'");
-SET @mysqluser := CONCAT(p_email,"@'localhost'");
+SET @mysqluser := CONCAT("'", p_email,"'@'localhost'");
 
 
 SET @sql := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
