@@ -33,7 +33,7 @@ public class BrokerSubscriber extends BrokerConnector {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
 
                 String[] message_info = MyUtils.messageIntoArray(message);
-                for (String s: message_info) { System.out.print(s); }
+                for (String s: message_info) { System.out.println(s); }
 
                 try {
                     Measurement measurement = MyUtils.buildMeasurement(message_info);
