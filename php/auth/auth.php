@@ -108,7 +108,7 @@ function login($email, $password)
             $row = mysqli_fetch_array($results);
             $_SESSION['user_id'] = $row['id'];
 			$_SESSION['user_email'] = $email;
-            $_SESSION['username'] = $row['name'];
+            $_SESSION['username'] = $row['username'];
             $_SESSION['user_role'] = $row['role_id'];
 			$_SESSION['user_pass'] = $password;
             $_SESSION['success'] = "Sessão iniciada";
