@@ -11,6 +11,7 @@ public class ParamAnalyser {
     private List<Measurement> measurements;
     private int maxTolerance;
     private int insertionRate;  //frequencia a que as medidas são geradas
+    private int numCycles = 10;
 
     public ParamAnalyser (PreAlertSet preAlertCompiler, ArrayList<CultureParams> paramList, int insertionRate) {
         this.preAlertCompiler = preAlertCompiler;
@@ -21,6 +22,7 @@ public class ParamAnalyser {
     }
 
     public void addMeasurement (Measurement measure) {
+        System.out.println("addMeasurement: " + measure.getMeasure());
         this.measurements.add(0, measure);
     }
 
@@ -76,9 +78,11 @@ public class ParamAnalyser {
         boolean constantFall = constantFall(param);
         Alert alert = null;
         if(constantRise) {
+            String msg = "Subida constante perto dos limites definidos, há " + String.valueOf(numCycles) + " medidas consecutivas";
             // alert = ...
         }
         if(constantFall) {
+            String msg = "Descida constante perto dos limites definidos, há " + String.valueOf(numCycles) + " medidas consecutivas";
             // alert = ...
         }
         return alert;
@@ -88,7 +92,7 @@ public class ParamAnalyser {
         //sempre a descer, dentro de limites, durante 7 medidas
         double diff = (param.getValMax() - param.getValMin()) * 0.3;
         double minLim = param.getValMax() - diff;
-        int numCycles = 7;
+
         double val = Double.parseDouble(measurements.get(0).getMeasure());
 
         if (val > param.getValMax() || val < minLim || measurements.size() < numCycles) {
@@ -109,7 +113,7 @@ public class ParamAnalyser {
         //sempre a subir, dentro de limites, durante 7 medidas
         double diff = (param.getValMax() - param.getValMin()) * 0.3;
         double maxLim = param.getValMin() + diff;
-        int numCycles = 7;
+
         double val = Double.parseDouble(measurements.get(0).getMeasure());
 
         if (val > maxLim || val < param.getValMin() || measurements.size() < numCycles) {
@@ -140,8 +144,6 @@ public class ParamAnalyser {
     }
 
     private Timestamp addSecondsThreshold(Timestamp initialTime, int tolerance, int rate) {
-        //ver com iterator???
-
         Timestamp newTime = initialTime;
         newTime.setTime(initialTime.getTime() + (tolerance + 3*rate)*1000);
         return newTime;
