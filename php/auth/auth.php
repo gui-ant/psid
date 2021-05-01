@@ -101,7 +101,7 @@ function login($email, $password)
           return false;
         }
 
-        $query = "SELECT * FROM users WHERE email='$email'";
+        $query = "SELECT *, CURRENT_ROLE() as role FROM users WHERE email='$email'";
         $results = mysqli_query($conn, $query);
 
         if (mysqli_num_rows($results) == 1) {
@@ -109,8 +109,8 @@ function login($email, $password)
             $_SESSION['user_id'] = $row['id'];
 			$_SESSION['user_email'] = $email;
             $_SESSION['username'] = $row['username'];
-            $_SESSION['user_role'] = $row['role_id'];
-            //$_SESSION['user_role'] = 'group_researcher';
+            //$_SESSION['user_role'] = $row['role_id'];
+            $_SESSION['user_role'] = $row['role'];
 			$_SESSION['user_pass'] = $password;
             $_SESSION['success'] = "Sessão iniciada";
 			
