@@ -108,7 +108,8 @@ SELECT CONCAT("User created (id: ", @inserted_id, ", role: ", @p3,")");
 DELIMITER ;
 ```
 
-- Criação de parametrização default para a cultura (1 - Amoebozoa). Cria 2 Sets (OR) e um dos Sets tem parametrizações para 2 tipos de sensor (AND).  
+- Criação de parametrização default para a cultura (1 - Amoebozoa). Cria 2 Sets (OR) e um dos Sets tem parametrizações para 2 tipos de sensor (AND).
+ 
 :warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'res1' como responsável da cultura 1, logam-se como res1 no mysql e correm os comandos)  
 :warning: Têm também de alterar o parâmetro user_id (SET @user_id=7;) para o id do user 'Res1'.
 ```mysql
