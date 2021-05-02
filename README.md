@@ -30,47 +30,66 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 - Criação de Roles no MySQL de acordo com a especificação
 ```mysql
 
+use g07_local;
 CREATE ROLE 'group_admin';
 GRANT CREATE USER ON *.* TO `group_admin`;
 GRANT GRANT OPTION ON *.* TO 'group_admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.users TO 'group_admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.cultures TO 'group_admin';
-GRANT SELECT,INSERT,UPDATE,DELETE ON aluno_g07_local.culture_users TO 'group_admin';
-GRANT SELECT ON aluno_g07_local.measurements TO 'group_admin';
-GRANT SELECT ON aluno_g07_local.alerts TO 'group_admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON g07_local.users TO 'group_admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON g07_local.cultures TO 'group_admin';
+GRANT SELECT,INSERT,UPDATE,DELETE ON g07_local.culture_users TO 'group_admin';
+GRANT SELECT ON g07_local.measurements TO 'group_admin';
+GRANT SELECT ON g07_local.alerts TO 'group_admin';
 
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateUser TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateRole TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteUser TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateUser TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserById TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetUserByRoleId TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spAddUserToCultures TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCulture TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteCulture TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateUser TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateRole TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spDeleteUser TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spGetUserById TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spGetUserByRoleId TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spAddUserToCultures TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spGetCulturesByUserId TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateCulture TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spDeleteCulture TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spUpdateCultureName TO 'group_admin';
 
 CREATE ROLE 'group_researcher';
-GRANT SELECT ON aluno_g07_local.* TO 'group_researcher';
+GRANT SELECT ON g07_local.* TO 'group_researcher';
 
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCultureById TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spGetCulturesByUserId TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spUpdateCultureName TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCultureParam TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateRelCultureParamsSet TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spCreateCultureParamsSet TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spDeleteParam TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE aluno_g07_local.spExportCultureMeasuresToCSV TO 'group_researcher';
-GRANT EXECUTE ON FUNCTION aluno_g07_local.isManager TO 'group_researcher';
-GRANT EXECUTE ON FUNCTION aluno_g07_local.isResearcher TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spGetCulturesByUserId TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spUpdateCultureName TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateCultureParam TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateRelCultureParamsSet TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateCultureParamsSet TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spDeleteParam TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spExportCultureMeasuresToCSV TO 'group_researcher';
+GRANT EXECUTE ON FUNCTION g07_local.isManager TO 'group_researcher';
+GRANT EXECUTE ON FUNCTION g07_local.isResearcher TO 'group_researcher';
 
 CREATE ROLE 'group_technician';
-GRANT SELECT ON aluno_g07_local.users TO 'group_technician';
-GRANT SELECT ON aluno_g07_local.alerts TO 'group_technician';
+GRANT SELECT ON g07_local.users TO 'group_technician';
+GRANT SELECT ON g07_local.alerts TO 'group_technician';
 
 FLUSH PRIVILEGES;
+
+SET @inserted_id=-1;
+
+SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin';  
+CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
+
+SET @p0='res1@foo.bar'; SET @p1='Res1'; SET @p2='pass'; SET @p3='researcher'; 
+CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
+INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
+(1, 'Amoebozoa', 1, @inserted_id, 0),
+(2, 'Sporozoa', 2, @inserted_id, 0),
+(3, 'Escherichia coli', 1, @inserted_id, 0),
+(4, 'Ranunculus', 2, @inserted_id, 0),
+(5, 'Archamoebae', 1, @inserted_id, 0),
+(6, 'Flabellinea', 1, @inserted_id, 0);
+
+SET @p0='tech1@foo.bar'; SET @p1='Tech1'; SET @p2='pass'; SET @p3='technician'; 
+CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
 ```
 - Criação de user (como root ou admin)  
 :warning: Têm de selecionar primeiro a BD (e.g. USE aluno_g07_local;)
