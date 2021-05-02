@@ -71,6 +71,7 @@ GRANT SELECT ON g07_local.alerts TO 'group_technician';
 FLUSH PRIVILEGES;
 ```
 - Criação de users e culturas default (como root ou admin) 
+
 |User          |Email          |Name   |Pass |Role             | 
 |--------------|---------------|-------|-----|-----------------| 
 |Administrador |admin1@foo.bar |Admin1 |pass |group_admin      | 
