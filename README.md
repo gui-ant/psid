@@ -71,11 +71,11 @@ GRANT SELECT ON g07_local.alerts TO 'group_technician';
 FLUSH PRIVILEGES;
 ```
 - Criação de users e culturas default (como root ou admin) 
-| User          | Email          | Name      | Pass | Role             |
-| ------------- | -------------- | --------- | ---- | ---------------- |
-| Administrador | admin1@foo.bar | Admin1    | pass | group_admin      |
-| Investigador  | res1@foo.bar   | Res1      | pass | group_researcher |
-| Técnico Man.  | tech1@foo.bar  | Tech1     | pass | group_technician |
+|User          |Email          |Name   |Pass |Role             |
+|--------------|---------------|-------|-----|-----------------|
+|Administrador |admin1@foo.bar |Admin1 |pass |group_admin      |
+|Investigador  |res1@foo.bar   |Res1   |pass |group_researcher |
+|Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician |
 
 -> 6 culturas associadas ao user 'Res1'
 
