@@ -146,6 +146,7 @@ public class ParamAnalyser {
         return newTime;
     }
 
+    /*
     public static void main (String[] args) {
         User u = new User(3);
         u.setEmail("mail");
@@ -212,4 +213,5 @@ public class ParamAnalyser {
 
         pa.analyseParameters();
     }
+     */
 }
