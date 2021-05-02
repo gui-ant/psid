@@ -36,8 +36,10 @@ public class PreAlertSet {
     //executado pelo supervisor
     public synchronized void analyse() throws InterruptedException {
         while (! altered) {
+            System.out.println("Supervisor vai dormir");
             wait();
         }
+        System.out.println("Supervisor não dorme!");
         altered = false;
         deleteOldAlerts();
 
