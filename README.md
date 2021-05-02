@@ -26,7 +26,6 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
     * **Técnico de Manutenção** -> **user**: pajo@iscte<span>.</span>pt **pass**: often
 
 [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
-
 - Criação de Roles no MySQL de acordo com a especificação
 ```mysql
 CREATE ROLE 'group_admin';
