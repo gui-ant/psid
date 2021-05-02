@@ -2,10 +2,7 @@ package grp07;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ParameterSupervisor extends Thread {
     private PreAlertSet preAlertSet;
@@ -19,11 +16,60 @@ public class ParameterSupervisor extends Thread {
         System.out.println("Supervisor started");
         while (true) {
             try {
-                System.out.println("Supervisor dentro do while/try");
+//                System.out.println("Supervisor dentro do while/try");
                 preAlertSet.analyse();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
+
+    /*
+    public static void main(String[] args) {
+        User u = new User(3);
+        u.setEmail("mail");
+        u.setName("name");
+        u.setRole(2);
+
+        Zone z = new Zone(6);
+        z.setTemperature(20);
+        z.setHumidity(21);
+        z.setLight(22);
+
+        Culture c = new Culture(5L);
+        c.setName("cultura");
+        c.setZone(z);
+        c.setManager(u);
+        c.setState(true);
+
+        CultureParams p1 = new CultureParams();
+        p1.setSensorType("h");
+        p1.setValMax(5);
+        p1.setValMin(2);
+        p1.setTolerance(1);
+        p1.setCulture(c);
+
+        List<CultureParams> list = new ArrayList<>();
+        list.add(p1);
+
+        Hashtable<Long, List<CultureParams>> todosParams = new Hashtable<>();
+        todosParams.put(1L, list);
+
+        PreAlertSet pas = new PreAlertSet(todosParams);
+        pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
+
+        ParameterSupervisor ps = new ParameterSupervisor(pas);
+        ps.start();
+
+        while (true) {
+            try {
+                sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
+        }
+
+    }
+     */
 }
