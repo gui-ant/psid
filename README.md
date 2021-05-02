@@ -29,8 +29,6 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 
 - Criação de Roles no MySQL de acordo com a especificação
 ```mysql
-
-use g07_local;
 CREATE ROLE 'group_admin';
 GRANT CREATE USER ON *.* TO `group_admin`;
 GRANT GRANT OPTION ON *.* TO 'group_admin';
@@ -72,14 +70,21 @@ GRANT SELECT ON g07_local.users TO 'group_technician';
 GRANT SELECT ON g07_local.alerts TO 'group_technician';
 
 FLUSH PRIVILEGES;
-
+```
+- Criação de user e culturas default (como root ou admin) 
+```mysql
+use g07_local;
 SET @inserted_id=-1;
-
 SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin';  
 CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
 
+SELECT CONCAT("User created (id: ", @inserted_id, ", role: ", @p3,")");
+
 SET @p0='res1@foo.bar'; SET @p1='Res1'; SET @p2='pass'; SET @p3='researcher'; 
 CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
+
+SELECT CONCAT("User created (id: ", @inserted_id, ", role: ", @p3,")");
+
 INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
 (1, 'Amoebozoa', 1, @inserted_id, 0),
 (2, 'Sporozoa', 2, @inserted_id, 0),
@@ -90,11 +95,9 @@ INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
 
 SET @p0='tech1@foo.bar'; SET @p1='Tech1'; SET @p2='pass'; SET @p3='technician'; 
 CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
-```
-- Criação de user (como root ou admin)  
-:warning: Têm de selecionar primeiro a BD (e.g. USE aluno_g07_local;)
-```mysql
-SET @email:= 'inv1@foo.bar';SET @name:= 'Inv1';SET @pass:= '';SET @role:= 'researcher'; call spCreateUser(@email,@name,@pass,@role);
+
+SELECT CONCAT("User created (id: ", @inserted_id, ", role: ", @p3,")");
+DELIMITER ;
 ```
 
 - Exibir roles
