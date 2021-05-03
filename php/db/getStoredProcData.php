@@ -43,6 +43,8 @@ function get_data_from_sp($procedure, $param, $json)
 	$result = mysqli_query($conn, $sql);
 	$rows = array();
 
+	//echo var_dump($result) . "<br>";
+
 	if ($result) {
 		if ($json == "true") {
 			if (mysqli_num_rows($result) > 0) {

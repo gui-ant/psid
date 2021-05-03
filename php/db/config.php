@@ -1,7 +1,7 @@
 <?php
 
  $mysql_server = "localhost";
- $mysql_database = "aluno_g07_local";
+ $mysql_database = "g07_local";
  $mysql_user = "";
  $mysql_pass = "";
 

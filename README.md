@@ -38,11 +38,8 @@ GRANT SELECT ON g07_local.measurements TO 'group_admin';
 GRANT SELECT ON g07_local.alerts TO 'group_admin';
 
 GRANT EXECUTE ON PROCEDURE g07_local.spCreateUser TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE g07_local.spCreateRole TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spDeleteUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE g07_local.spGetUserById TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE g07_local.spGetUserByRoleId TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spAddUserToCultures TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCulturesByUserId TO 'group_admin';
@@ -57,12 +54,11 @@ GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCulturesByUserId TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spUpdateCultureName TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spCreateCultureParam TO 'group_researcher';
-GRANT EXECUTE ON PROCEDURE g07_local.spCreateRelCultureParamsSet TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spCreateCultureParamsSet TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateRelCultureParamsSet TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spDeleteParam TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spExportCultureMeasuresToCSV TO 'group_researcher';
 GRANT EXECUTE ON FUNCTION g07_local.isManager TO 'group_researcher';
-GRANT EXECUTE ON FUNCTION g07_local.isResearcher TO 'group_researcher';
 
 CREATE ROLE 'group_technician';
 GRANT SELECT ON g07_local.users TO 'group_technician';
@@ -111,20 +107,21 @@ DELIMITER ;
 - Criação de parametrização default para a cultura (1 - Amoebozoa). Cria 2 Sets (OR) e um dos Sets tem parametrizações para 2 tipos de sensor (AND).
  
 :warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'res1' como responsável da cultura 1, logam-se como res1 no mysql e correm os comandos)  
-:warning: Têm também de alterar o parâmetro user_id (SET @user_id=7;) para o id do user 'Res1'.
+:warning: Têm também de alterar o parâmetro culture_id (SET @culture_id=2;) para o id da cultura a parametrizar.
 ```mysql
 use g07_local;
 DELIMITER $$
-SET @user_id=<id_user>;
+
+SET @culture_id=<culture_id>;
 
 SET @set_id=0;SET @param_id=0; 
-call spCreateCultureParamsSet(@user_id,2,@set_id); 
-call spCreateCultureParam(@user_id,"H",20.0,10.0,0,@set_id,@param_id);
+call spCreateCultureParamsSet(@culture_id,@set_id); 
+call spCreateCultureParam("H",20.0,10.0,0,@set_id,@param_id);
 
 SET @set_id=0;SET @param_id=0; 
-call spCreateCultureParamsSet(@user_id,2,@set_id);
-call spCreateCultureParam(@user_id,"L",1.0,-5.0,0,@set_id,@param_id);
-call spCreateCultureParam(@user_id,"T",5.0,0.0,0,@set_id,@param_id);
+call spCreateCultureParamsSet(@culture_id,@set_id);
+call spCreateCultureParam("L",1.0,-5.0,0,@set_id,@param_id);
+call spCreateCultureParam("T",5.0,0.0,0,@set_id,@param_id);
 $$
 DELIMITER ;
 ```
