@@ -1,10 +1,10 @@
 <?php
-include('db/config.php');
+include("db/config.php");
 session_start();
 
 if (!isset($_SESSION['username'])) {
     $_SESSION['msg'] = "Inicie sessão";
-    header('location: auth/login.php');
+    header("location: auth/login.php");
 }
 if (isset($_GET['logout'])) {
     session_destroy();
@@ -17,7 +17,7 @@ if (isset($_GET['logout'])) {
 
 <head>
     <title>Home</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="nicepage.css">
 </head>
 
 <body>
@@ -40,19 +40,19 @@ if (isset($_GET['logout'])) {
 
         <?php if (isset($_SESSION['user_email'])) : ?>
             <p>
-                Bem-vindo <strong><?php echo $_SESSION['username']; ?></strong>&nbsp;<a href="index.php?logout='1'">Sair</a>
+                Bem-vindo <strong><?php echo $_SESSION['username']; ?></strong>&nbsp;<a href="php/?logout='1'">Sair</a>
             </p>
 
 
             <?php if ($_SESSION['user_role'] == 'group_researcher') : ?>
                 <!-- Researcher View -->
                 <p>
-                    <?php include('selectCulture.php'); ?>
+                    <?php include("php/selectCulture.php"); ?>
                 </p>
                 <p>
                     <?php if (isset($_POST['culture_id'])){
                         if ($_POST['culture_id'] != null)
-                            include('cultures.php');
+                            include("php/cultures.php");
 					}
                     ?>
                 </p>
