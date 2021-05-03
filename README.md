@@ -40,7 +40,7 @@ GRANT SELECT ON g07_local.alerts TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spCreateUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spDeleteUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE g07_local.spAddUserToCultures TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spAddUserToCulture TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCulturesByUserId TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spCreateCulture TO 'group_admin';
