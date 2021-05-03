@@ -106,6 +106,7 @@ DELIMITER ;
 :warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'Res1' como responsável da cultura 1, logam-se como 'Res1' no mysql e correm os comandos)  
 ```mysql
 use g07_local
+
 DELIMITER $$
 
 SET @culture_id=1;
