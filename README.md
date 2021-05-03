@@ -26,7 +26,6 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
     * **Técnico de Manutenção** -> **user**: pajo@iscte<span>.</span>pt **pass**: often
 
 [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
-
 - Criação de Roles no MySQL de acordo com a especificação
 ```mysql
 CREATE ROLE 'group_admin';
@@ -71,7 +70,16 @@ GRANT SELECT ON g07_local.alerts TO 'group_technician';
 
 FLUSH PRIVILEGES;
 ```
-- Criação de user e culturas default (como root ou admin) 
+- Criação de users e culturas default (como root ou admin) 
+
+|User          |Email          |Name   |Pass |Role             | 
+|--------------|---------------|-------|-----|-----------------| 
+|Administrador |admin1@foo.bar |Admin1 |pass |group_admin      | 
+|Investigador  |res1@foo.bar   |Res1   |pass |group_researcher | 
+|Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
+
+-> 6 culturas associadas ao user 'Res1'
+
 ```mysql
 use g07_local;
 SET @inserted_id=-1;
@@ -100,6 +108,27 @@ SELECT CONCAT("User created (id: ", @inserted_id, ", role: ", @p3,")");
 DELIMITER ;
 ```
 
+- Criação de parametrização default para a cultura (1 - Amoebozoa). Cria 2 Sets (OR) e um dos Sets tem parametrizações para 2 tipos de sensor (AND).
+ 
+:warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'res1' como responsável da cultura 1, logam-se como res1 no mysql e correm os comandos)  
+:warning: Têm também de alterar o parâmetro user_id (SET @user_id=7;) para o id do user 'Res1'.
+```mysql
+use g07_local;
+DELIMITER $$
+SET @user_id=<id_user>;
+
+SET @set_id=0;SET @param_id=0; 
+call spCreateCultureParamsSet(@user_id,2,@set_id); 
+call spCreateCultureParam(@user_id,"H",20.0,10.0,0,@set_id,@param_id);
+
+SET @set_id=0;SET @param_id=0; 
+call spCreateCultureParamsSet(@user_id,2,@set_id);
+call spCreateCultureParam(@user_id,"L",1.0,-5.0,0,@set_id,@param_id);
+call spCreateCultureParam(@user_id,"T",5.0,0.0,0,@set_id,@param_id);
+$$
+DELIMITER ;
+```
+
 - Exibir roles
 ```mysql
 
@@ -109,199 +138,4 @@ SHOW GRANTS FOR 'group_researcher'; /* role (researcher) */
 
 Da dessão ativa:
 SHOW GRANTS;
-```
-- Stored Procedures
-```mysql
-
-DELIMITER $$
-/* spCreateUser */
-DROP PROCEDURE IF EXISTS spCreateUser;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateUser`(
-	IN `p_email` VARCHAR(50) CHARSET latin1,
-	IN `p_name` VARCHAR(100) CHARSET latin1,
-	IN `p_pass` VARCHAR(64) CHARSET latin1,
-	IN `p_role` ENUM('admin','researcher','technician') CHARSET latin1
-)
-BEGIN
-IF NOT isEmail(p_email) THEN
-	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "The email is invalid.";
-END IF;
-
-SET p_pass := CONCAT("'", p_pass, "'");
-
-SET @p_role_group := CONCAT("'group_", p_role, "'");
-SET @mysqluser := CONCAT("'", p_email,"'@'localhost'");
-
-
-SET @sql := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
-SELECT @SQL;
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-
-
-SET @sql := CONCAT('GRANT ', @p_role_group,' TO ', @mysqluser);
-SELECT @SQL;
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-
-
-SET @sql := CONCAT('SET DEFAULT ROLE ', @p_role_group,' FOR ', @mysqluser);
-SELECT @SQL;
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-
-
-INSERT INTO users (username,email) VALUES (p_name, p_email);
-
-DEALLOCATE PREPARE stmt;
-FLUSH PRIVILEGES;
-
-END$$
-DELIMITER ;
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spCreateCultureParam;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateCultureParam`(
-	IN user_id INT(11), 
-	IN sensor_type VARCHAR(64), 
-	IN valmax INT(11), 
-	IN valmin INT(11), 
-	IN tolerance INT(11), 
-	OUT param_id INT(11)
-)
-IF ((SELECT role_id from users WHERE id = user_id) = 1 && valmax > valmin) THEN
-
-INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance)
-VALUES (sensor_type, valmax, valmin, tolerance);
-SET param_id = LAST_INSERT_ID();
-
-END IF$$
-DELIMITER ;
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spCreateCultureParamsSet;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateCultureParamsSet`(
-	IN user_id INT(11), 
-	IN culture_id INT(11), 
-	OUT set_id INT
-)
-IF ((SELECT role_id from users WHERE id = user_id) = 1) THEN
-
-INSERT INTO culture_params_sets (culture_id)
-VALUES (culture_id);
-SET set_id = LAST_INSERT_ID();
-
-END IF$$
-DELIMITER ;
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spCreateRelCultureParamsSet;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateRelCultureParamsSet`(
-	IN user_id INT(11), 
-	IN set_id INT(11), 
-	IN param_id INT(11)
-)
-IF ((SELECT role_id from users WHERE id = user_id) = 1) THEN
-	Insert INTO rel_culture_params_set (set_id, culture_param_id)
-	VALUES (set_id, param_id);
-END IF$$
-DELIMITER ;
-
-DELIMITER $$
-DROP FUNCTION IF EXISTS isManager;
-CREATE DEFINER=`root`@`localhost` FUNCTION `isManager`(
-	`p_culture_id` INT
-) RETURNS varchar(64) CHARSET utf8mb4
-    SQL SECURITY INVOKER
-BEGIN
-
-DECLARE rev_username VARCHAR(64);
-DECLARE at_sign_pos INT;
-DECLARE username VARCHAR(64);
-DECLARE is_manager INT;
-
-SET rev_username = REVERSE(CURRENT_USER());
-SET at_sign_pos = LOCATE("@", rev_username);
-SET username = CONCAT("'",REVERSE(REPLACE(rev_username, LEFT(rev_username,at_sign_pos),"")),"'");
-SET is_manager = 0;
-
-SELECT COUNT(*) INTO is_manager 
-FROM users AS u JOIN cultures AS c ON c.manager_id = u.id 
-WHERE u.email=username AND c.id=p_culture_id; 
-
-RETURN is_manager;
- 
-END$$
-DELIMITER ;
-
-DELIMITER $$
-DROP FUNCTION IF EXISTS hasRole;
-CREATE DEFINER=`root`@`localhost` FUNCTION `hasRole`(
-	IN `p_role` ENUM('admin','researcher','technician') CHARSET latin1
-	) RETURNS tinyint(4)
-	SQL SECURITY INVOKER
-RETURN CURRENT_ROLE()=CONCAT('group_', p_role);$$
-DELIMITER ;
-
-DELIMITER $$
-DROP FUNCTION IF EXISTS isEmail;
-CREATE DEFINER=`root`@`localhost` FUNCTION `isEmail`(`p_email` VARCHAR(50)
-) RETURNS tinyint(4)
-BEGIN
-SET p_email = CONCAT("'",p_email,"'");
-RETURN (SELECT p_email REGEXP '^[^@]+@[^@]+\.[^@]{2,}$')=1;
-END$$
-DELIMITER ;
-
-DELIMITER $$
-DROP FUNCTION IF EXISTS checkPrevAlert;
-CREATE DEFINER=`root`@`localhost` FUNCTION checkPrevAlert(`rule_set_id` INT, mins INT) RETURNS tinyint(1)
-RETURN EXISTS ( 
-SELECT * 
-FROM alerts 
-WHERE parameter_set_id = rule_set_id 
-AND
-created_at >= NOW()- INTERVAL mins MINUTE 
-)$$
-DELIMITER ;
-
-DELIMITER $$
-DROP TRIGGER IF EXISTS existsPrevAlert;
-CREATE TRIGGER existsPrevAlert BEFORE INSERT ON alerts
-FOR EACH ROW IF checkPrevAlert(NEW.parameter_set_id,5) THEN
-	SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Alerta já existente';
-END IF$$
-DELIMITER ;
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spAddUsersToCultures;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUsersToCultures`(
-	IN `p_culture_id` INT(11),
-	IN `p_user_id` INT(11)
-)
-    NO SQL
-IF isManager(p_user_id) THEN
-	Insert INTO culture_users (culture_id, user_id) VALUES (p_culture_id, p_user_id);
-END IF$$
-DELIMITER ;
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spDeleteParam;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spDeleteParam`(
-	IN `p_param_id` INT
-)
-BEGIN
-SET @culture_id:=-1;
-
-SELECT sets.culture_id INTO @culture_id 
-FROM culture_params AS params
-JOIN rel_culture_params_set as rels ON params.id = rels.culture_param_id
-JOIN culture_params_sets as sets ON sets.id = rels.set_id
-WHERE params.id = p_param_id; 
-
-CALL spStopIfNotManager(@culture_id);
-
-DELETE FROM culture_params WHERE id=p_param_id;
-END$$
-DELIMITER ;
 ```
