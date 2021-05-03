@@ -78,7 +78,8 @@ FLUSH PRIVILEGES;
 
 ```mysql
 DELIMITER $$
-use g07_local;
+use g07_local
+
 SET @inserted_id=-1;
 SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin';  
 CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
