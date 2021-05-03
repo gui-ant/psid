@@ -77,9 +77,9 @@ FLUSH PRIVILEGES;
 -> 6 culturas associadas ao user 'Res1'
 
 ```mysql
-DELIMITER $$
 use g07_local
 
+DELIMITER $$
 SET @inserted_id=-1;
 SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin';  
 CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
@@ -105,7 +105,7 @@ DELIMITER ;
  
 :warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'Res1' como responsável da cultura 1, logam-se como 'Res1' no mysql e correm os comandos)  
 ```mysql
-use g07_local;
+use g07_local
 DELIMITER $$
 
 SET @culture_id=1;
