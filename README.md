@@ -37,15 +37,16 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON g07_local.culture_users TO 'group_admin';
 GRANT SELECT ON g07_local.measurements TO 'group_admin';
 GRANT SELECT ON g07_local.alerts TO 'group_admin';
 
-GRANT EXECUTE ON PROCEDURE g07_local.spCreateUser TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE g07_local.spDeleteUser TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spAddUserToCulture TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateCulture TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spCreateUser TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spDeleteCulture TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spDeleteUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCulturesByUserId TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE g07_local.spCreateCulture TO 'group_admin';
-GRANT EXECUTE ON PROCEDURE g07_local.spDeleteCulture TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spUpdateCultureName TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
+GRANT EXECUTE ON PROCEDURE g07_local.spSetCultureManager TO 'group_admin';
 
 CREATE ROLE 'group_researcher';
 GRANT SELECT ON g07_local.* TO 'group_researcher';
