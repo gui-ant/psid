@@ -77,17 +77,14 @@ FLUSH PRIVILEGES;
 -> 6 culturas associadas ao user 'Res1'
 
 ```mysql
+DELIMITER $$
 use g07_local;
 SET @inserted_id=-1;
 SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin';  
 CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
 
-SELECT CONCAT("User created (id: ", @inserted_id, ", role: ", @p3,")");
-
 SET @p0='res1@foo.bar'; SET @p1='Res1'; SET @p2='pass'; SET @p3='researcher'; 
 CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
-
-SELECT CONCAT("User created (id: ", @inserted_id, ", role: ", @p3,")");
 
 INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
 (1, 'Amoebozoa', 1, @inserted_id, 0),
@@ -99,8 +96,7 @@ INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
 
 SET @p0='tech1@foo.bar'; SET @p1='Tech1'; SET @p2='pass'; SET @p3='technician'; 
 CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
-
-SELECT CONCAT("User created (id: ", @inserted_id, ", role: ", @p3,")");
+$$
 DELIMITER ;
 ```
 
