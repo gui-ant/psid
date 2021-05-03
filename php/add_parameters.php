@@ -11,6 +11,7 @@ if (isset($_GET['logout'])) {
     unset($_SESSION['username']);
     header("location: auth/login.php");
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +26,7 @@ if (isset($_GET['logout'])) {
     <link rel="stylesheet" href="nicepage.css" media="screen">
 <link rel="stylesheet" href="add_parameters.css" media="screen">
     <script class="u-script" type="text/javascript" src="jquery.js" defer=""></script>
-    <script class="u-script" type="text/javascript" src="nicepage.js" defer=""></script>
+    <!--<script class="u-script" type="text/javascript" src="nicepage.js" defer=""></script>-->
     <meta name="generator" content="Nicepage 3.9.3, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i">
     
@@ -52,9 +53,12 @@ if (isset($_GET['logout'])) {
         <div class="u-form u-form-1">
 		
           <form action="add_parameters.php" method="POST" class="u-clearfix u-form-spacing-12 u-form-vertical u-inner-form" style="padding: 0;" source="custom" name="form">
+
+           <input type="hidden" name="culture_id" value="<?= $_POST['culture_id']; ?>">
+           <input type="hidden" name="culture_name" value="<?= $_POST['culture_name']; ?>">
             <div class="u-form-checkbox u-form-group u-form-partition-factor-3 u-form-group-2">
 			
-              <input type="checkbox" id="name-f2a8" name="hum" class="u-block-d8e4-33 u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input-rectangle" style="">
+              <input type="checkbox" id="name-f2a8" name="hum" value="On" class="u-block-d8e4-33 u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input-rectangle" style="">
               <label for="name-f2a8" class="u-label u-label-2">Humidity</label>
 			  
             </div>
@@ -126,17 +130,15 @@ if (isset($_GET['logout'])) {
 			</div>
             <div class="u-align-center u-form-group u-form-submit u-form-group-14">
               
-			  <a href="#" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">Submit</a>
-              <input type="submit" value="submit" class="u-form-control-hidden">
+			        <!--<a href="#" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">Submit</a>-->
+
+              <input type="submit" value="Submit" name="submit" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">
+              <a href="index.php" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">Go Back</a>
             </div>
 
-            <?php if(!isset($_POST['hum']) && !isset($_POST['temp']) && !isset($_POST['luz'])) : ?>
-            <div class="u-form-send-message u-form-send-message"> Please select at least one of the checkboxes (Humidity, Temperature, Light) </div>
-            <?php endif ?>
-
-            <div class="u-form-send-message u-form-send-success"> Your form has been successfully submitted :) </div>
+            <!--<div class="u-form-send-message u-form-send-success"> Your form has been successfully submitted :) </div>
             <div class="u-form-send-error u-form-send-message"> Unable to send your data. Please fix errors then try again. </div>
-            <input type="hidden" value="" name="recaptchaResponse">
+            <input type="hidden" value="" name="recaptchaResponse">-->
           </form>
         </div>
       </div>
