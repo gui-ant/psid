@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 03-Maio-2021 às 23:55
+-- Tempo de geração: 04-Maio-2021 às 01:58
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -31,9 +31,14 @@ DROP PROCEDURE IF EXISTS `spAddUserToCulture`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUserToCulture` (IN `p_culture_id` INT(11), IN `p_user_id` INT(11))  NO SQL
     SQL SECURITY INVOKER
 BEGIN
-IF getUserInfo('role') = 'group_admin' THEN
-	INSERT INTO culture_users (culture_id, user_id) VALUES (p_culture_id, p_user_id);
-END IF;
+/* INSERE APENAS SE O USER NÃO FOR JÁ RESPONSÁVEL DA CULTURA OU JÁ ESTIVER ATRIBUÍDO */
+INSERT INTO culture_users (culture_id, user_id) 
+SELECT p_culture_id, p_user_id
+WHERE 
+	(SELECT c.manager_id FROM cultures AS c, culture_users AS cu WHERE c.id = p_culture_id) <> p_user_id 
+	OR 
+	(SELECT COUNT(*) FROM culture_users WHERE culture_id=p_culture_id AND user_id=p_user_id) = 0
+;
 END$$
 
 DROP PROCEDURE IF EXISTS `spCreateCulture`$$
@@ -142,20 +147,15 @@ SET @p_role_group := CONCAT("'group_", p_role, "'");
 SET @mysqluser := CONCAT("'", p_email,"'");
 
 
-SET @sql := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
+SET @qry := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
+PREPARE stmt FROM @qry; EXECUTE stmt;
+
+SET @qry := CONCAT('GRANT ', @p_role_group,' TO ', @mysqluser);
+PREPARE stmt FROM @qry; EXECUTE stmt;
 
 
-SET @sql := CONCAT('GRANT ', @p_role_group,' TO ', @mysqluser);
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-
-
-SET @sql := CONCAT('SET DEFAULT ROLE ', @p_role_group,' FOR ', @mysqluser);
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-
+SET @qry := CONCAT('SET DEFAULT ROLE ', @p_role_group,' FOR ', @mysqluser);
+PREPARE stmt FROM @qry; EXECUTE stmt;
 
 INSERT INTO users (username,email) VALUES (p_name, p_email);
 SET out_user_id = LAST_INSERT_ID();
@@ -213,6 +213,11 @@ SELECT c.*
 FROM cultures AS c
 LEFT JOIN culture_users AS cu on cu.culture_id = c.id 
 WHERE cu.user_id = p_user_id or c.manager_id = p_user_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `spSetCultureManager`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spSetCultureManager` (IN `p_culture_id` INT, IN `p_user_id` INT)  BEGIN
+UPDATE cultures AS c SET c.manager_id=p_user_id WHERE c.id=p_culture_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `spStopIfNotManager`$$
