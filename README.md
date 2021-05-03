@@ -107,12 +107,11 @@ DELIMITER ;
 - Criação de parametrização default para a cultura (1 - Amoebozoa). Cria 2 Sets (OR) e um dos Sets tem parametrizações para 2 tipos de sensor (AND).
  
 :warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'Res1' como responsável da cultura 1, logam-se como 'Res1' no mysql e correm os comandos)  
-:warning: Têm também de alterar o parâmetro culture_id (SET @culture_id=2;) para o id da cultura a parametrizar.
 ```mysql
 use g07_local;
 DELIMITER $$
 
-SET @culture_id=<culture_id>;
+SET @culture_id=1;
 
 SET @set_id=0;SET @param_id=0; 
 call spCreateCultureParamsSet(@culture_id,@set_id); 
