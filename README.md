@@ -130,7 +130,7 @@ DELIMITER ;
 ```mysql
 
 Em root:
-SHOW GRANTS FOR 'inv@foo.bar'; /* user */
+SHOW GRANTS FOR 'res1@foo.bar'; /* user */
 SHOW GRANTS FOR 'group_researcher'; /* role (researcher) */
 
 Da dessão ativa:
