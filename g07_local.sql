@@ -25,7 +25,7 @@ DELIMITER $$
 --
 -- Procedimentos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUsersToCultures` (IN `p_culture_id` INT(11), IN `p_user_id` INT(11))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUserToCulture` (IN `p_culture_id` INT(11), IN `p_user_id` INT(11))  NO SQL
     SQL SECURITY INVOKER
 BEGIN
 IF getUserInfo('role') = 'group_admin' THEN
