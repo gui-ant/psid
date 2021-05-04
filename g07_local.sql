@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 04-Maio-2021 às 01:58
+-- Tempo de geração: 04-Maio-2021 às 21:10
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -147,7 +147,7 @@ SET @p_role_group := CONCAT("'group_", p_role, "'");
 SET @mysqluser := CONCAT("'", p_email,"'");
 
 
-SET @qry := CONCAT('CREATE USER ', @mysqluser, ' IDENTIFIED BY ', p_pass);
+SET @qry := CONCAT('CREATE USER IF NOT EXISTS ', @mysqluser, '  IDENTIFIED BY ', p_pass);
 PREPARE stmt FROM @qry; EXECUTE stmt;
 
 SET @qry := CONCAT('GRANT ', @p_role_group,' TO ', @mysqluser);
@@ -266,7 +266,7 @@ created_at >= NOW()- INTERVAL p_mins MINUTE
 )$$
 
 DROP FUNCTION IF EXISTS `getUserInfo`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `getUserInfo` (`p_property` ENUM('name','host','role')) RETURNS VARCHAR(50) CHARSET utf8mb4 BEGIN
+CREATE DEFINER=`root`@`localhost` FUNCTION `getUserInfo` (`p_property` ENUM('name','host','role')) RETURNS VARCHAR(50) CHARSET latin1 BEGIN
 
 	DECLARE res VARCHAR(50); 
 	DECLARE rev_username VARCHAR(64);
