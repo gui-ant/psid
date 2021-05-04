@@ -56,10 +56,10 @@ function create_params($params) {
 
     $query = "
     SET @user_id=" . $_SESSION['user_id'] . ";SET @set_id=0;SET @param_id=0;
-    call spCreateCultureParamsSet(@user_id," . $_POST['culture_id'] . ",@set_id);";
+    call spCreateCultureParamsSet(" . $_POST['culture_id'] . ",@set_id);";
 
     foreach($params as $p) {
-        $query = $query . "call spCreateCultureParam(@user_id," . $p;
+        $query = $query . "call spCreateCultureParam(" . $p;
     }
       //echo var_dump($query) . "<br>";
     

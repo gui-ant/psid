@@ -17,7 +17,7 @@ if (isset($_GET['logout'])) {
 
 <head>
     <title>Home</title>
-    <link rel="stylesheet" type="text/css" href="nicepage.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
@@ -40,19 +40,19 @@ if (isset($_GET['logout'])) {
 
         <?php if (isset($_SESSION['user_email'])) : ?>
             <p>
-                Bem-vindo <strong><?php echo $_SESSION['username']; ?></strong>&nbsp;<a href="php/?logout='1'">Sair</a>
+                Bem-vindo <strong><?php echo $_SESSION['username']; ?></strong>&nbsp;<a href="?logout='1'">Sair</a>
             </p>
 
 
             <?php if ($_SESSION['user_role'] == 'group_researcher') : ?>
                 <!-- Researcher View -->
                 <p>
-                    <?php include("php/selectCulture.php"); ?>
+                    <?php include("selectCulture.php"); ?>
                 </p>
                 <p>
                     <?php if (isset($_POST['culture_id'])){
                         if ($_POST['culture_id'] != null)
-                            include("php/cultures.php");
+                            include("cultures.php");
 					}
                     ?>
                 </p>
