@@ -19,10 +19,6 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 1. Iniciar XAMPP
 2. Iniciar servidor Apache
 3. Aceder a [localhost/psid/php](http://localhost/psid/php) no browser (considerando que o projeto se encontra na pasta c:\xampp\htdocs. Podem também fazer um clone do rep para essa pasta)
-4. Login:
-    * **Admin** -> **user**: sid2021g07\@gmail<span>.</span>com **pass**: sid2021!
-    * **Investigador** -> **user**: gfaas1@iscte.pt (ou o vosso) **pass**: asd
-    * **Técnico de Manutenção** -> **user**: pajo@iscte<span>.</span>pt **pass**: often
 
 [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
 - Criação de Roles no MySQL de acordo com a especificação
