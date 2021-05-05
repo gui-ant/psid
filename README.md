@@ -28,7 +28,7 @@ cd <path_to_project>
 mysql -u root < db_reset.sql
 ```
 
-- Criação de Roles no MySQL de acordo com a especificação
+- Criação de Roles no MySQL de acordo com a especificação  
 ⚠️Script de reset à DB já corre estes dados
 ```mysql
 CREATE ROLE IF NOT EXISTS 'group_admin';
@@ -79,7 +79,7 @@ FLUSH PRIVILEGES;
 |Investigador  |res1@foo.bar   |Res1   |pass |group_researcher | 
 |Investigador  |res2@foo.bar   |Res2   |pass |group_researcher | 
 |Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
-
+  
 ⚠️Script de reset à DB já corre estes dados
 ```mysql
 use g07_local
