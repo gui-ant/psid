@@ -98,8 +98,8 @@ INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
 (5, 'Archamoebae', 1, @res1_id, 0),
 (6, 'Flabellinea', 1, @res2_id, 0);
 
-CALL spAddUserToCulture(@res2_id, 1);
-CALL spAddUserToCulture(@res1_id, 2);
+CALL spAddUserToCulture(1, @res2_id);
+CALL spAddUserToCulture(2, @res1_id);
 $$
 DELIMITER ;
 ```
