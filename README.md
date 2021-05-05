@@ -65,7 +65,6 @@ GRANT SELECT ON g07_local.alerts TO 'group_technician';
 FLUSH PRIVILEGES;
 ```
 - Criação de users e culturas default (como root ou admin)  
-⚠️Ficheiro dump já inclui estes dados
 
 |User          |Email          |Name   |Pass |Role             | 
 |--------------|---------------|-------|-----|-----------------| 
@@ -74,6 +73,7 @@ FLUSH PRIVILEGES;
 |Investigador  |res2@foo.bar   |Res2   |pass |group_researcher | 
 |Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
 
+⚠️Ficheiro dump já inclui estes dados
 ```mysql
 use g07_local
 
