@@ -23,7 +23,7 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
 
 - Reset à DB por CLI (Shell XAMPP)
-```batch
+```
 mysql -u root
 MariaDB [(none)]> \. <path_to_file>\db_reset.sql
 ```
