@@ -64,7 +64,7 @@ GRANT SELECT ON g07_local.alerts TO 'group_technician';
 
 FLUSH PRIVILEGES;
 ```
-- Criação de users e culturas default (como root ou admin) 
+- Criação de users e culturas default (como root ou admin)  
 
 |User          |Email          |Name   |Pass |Role             | 
 |--------------|---------------|-------|-----|-----------------| 
@@ -73,6 +73,7 @@ FLUSH PRIVILEGES;
 |Investigador  |res2@foo.bar   |Res2   |pass |group_researcher | 
 |Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
 
+⚠️Ficheiro dump já inclui estes dados
 ```mysql
 use g07_local
 
@@ -98,8 +99,8 @@ INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
 (5, 'Archamoebae', 1, @res1_id, 0),
 (6, 'Flabellinea', 1, @res2_id, 0);
 
-CALL spAddUserToCulture(@res2_id, 1);
-CALL spAddUserToCulture(@res1_id, 2);
+CALL spAddUserToCulture(1, @res2_id);
+CALL spAddUserToCulture(2, @res1_id);
 $$
 DELIMITER ;
 ```
@@ -107,6 +108,7 @@ DELIMITER ;
 - Criação de parametrização default para a cultura (1 - Amoebozoa). Cria 2 Sets (OR) e um dos Sets tem parametrizações para 2 tipos de sensor (AND).
  
 :warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'Res1' como responsável da cultura 1, logam-se como 'Res1' no mysql e correm os comandos)  
+⚠️Ficheiro dump já inclui estes dados
 ```mysql
 use g07_local
 
