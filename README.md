@@ -76,8 +76,6 @@ FLUSH PRIVILEGES;
 |Investigador  |res2@foo.bar   |Res2   |pass |group_researcher | 
 |Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
 
--> 6 culturas associadas ao user 'Res1'
-
 ```mysql
 use g07_local
 
