@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 05-Maio-2021 às 15:16
+-- Tempo de geração: 05-Maio-2021 às 23:25
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -31,7 +31,7 @@ DROP PROCEDURE IF EXISTS `spAddUserToCulture`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUserToCulture` (IN `p_culture_id` INT(11), IN `p_user_id` INT(11))  NO SQL
     SQL SECURITY INVOKER
 BEGIN
-/* INSERE APENAS SE O USER NÃO FOR JÁ RESPONSÁVEL DA CULTURA OU JÁ ESTIVER ATRIBUÍDO */
+
 INSERT INTO culture_users (culture_id, user_id) 
 SELECT p_culture_id, p_user_id
 WHERE 
@@ -58,24 +58,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateCultureParam` (IN `p_sensor
 SET @culture_id:=0;
 SET @mysql_user:="";
 
-/* DETERMINA A CULTURE_ID ATRAVÉS DO SET_ID */
+
 SELECT culture_id INTO @culture_id 
 FROM  culture_params_sets
 WHERE id = p_set_id; 
 
 IF isManager(@culture_id) && p_valmax > p_valmin && p_tolerance >= 0 THEN
 
-	/* CONVERTE user@host PARA 'user'@'host' PARA EVITAR PROBLEMAS COM O '@'*/
+	
 	SELECT CONCAT("'",getUserInfo('name'),"'@'",getUserInfo('host'),"'") INTO @mysql_user;
 	
-	/* ELEVA PRIVILÉGIOS DE ESCRITA */
+	
 	SET @qry = CONCAT("GRANT INSERT ON culture_params TO ", @mysql_user);
 	PREPARE stmt FROM @qry;	EXECUTE stmt;
 	
 	INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance) VALUES (p_sensor_type, p_valmax, p_valmin, p_tolerance);
 	SET out_param_id = LAST_INSERT_ID();
 	
-	/* ELIMINA PRIVILÉGIOS DE ESCRITA */
+	
 	SET @qry = CONCAT("REVOKE INSERT ON culture_params FROM ", @mysql_user);
 	PREPARE stmt FROM @qry;	EXECUTE stmt;
 	
@@ -90,17 +90,17 @@ SET @mysql_user:="";
 
 IF isManager(p_culture_id) THEN
 	
-	/* CONVERTE user@host PARA 'user'@'host' PARA EVITAR PROBLEMAS COM O '@'*/
+	
 	SELECT CONCAT("'",getUserInfo('name'),"'@'",getUserInfo('host'),"'") INTO @mysql_user;
 	
-	/* ELEVA PRIVILÉGIOS DE ESCRITA */
+	
 	SET @qry = CONCAT("GRANT INSERT ON culture_params_sets TO ", @mysql_user);
 	PREPARE stmt FROM @qry;	EXECUTE stmt;
 	
 	INSERT INTO culture_params_sets (culture_id) VALUES (p_culture_id);
 	SET out_set_id = LAST_INSERT_ID();
 	
-		/* ELIMINA PRIVILÉGIOS DE ESCRITA */
+		
 	SET @qry = CONCAT("REVOKE INSERT ON culture_params_sets FROM ", @mysql_user);
 	PREPARE stmt FROM @qry;	EXECUTE stmt;
 	
@@ -118,16 +118,16 @@ WHERE id = p_set_id;
 
 IF isManager(@culture_id) THEN
 
-	/* CONVERTE user@host PARA 'user'@'host' PARA EVITAR PROBLEMAS COM O '@'*/
+	
 	SELECT CONCAT("'",getUserInfo('name'),"'@'",getUserInfo('host'),"'") INTO @mysql_user;
 	
-	/* ELEVA PRIVILÉGIOS DE ESCRITA */
+	
 	SET @qry = CONCAT("GRANT INSERT ON rel_culture_params_set TO ", @mysql_user);
 	PREPARE stmt FROM @qry;	EXECUTE stmt;
 	
 	INSERT INTO rel_culture_params_set (set_id, culture_param_id) VALUES (p_set_id, p_param_id);
 	
-			/* ELIMINA PRIVILÉGIOS DE ESCRITA */
+			
 	SET @qry = CONCAT("REVOKE INSERT ON rel_culture_params_set FROM ", @mysql_user);
 	PREPARE stmt FROM @qry;	EXECUTE stmt;
 	
@@ -157,10 +157,11 @@ PREPARE stmt FROM @qry; EXECUTE stmt;
 SET @qry := CONCAT('SET DEFAULT ROLE ', @p_role_group,' FOR ', @mysqluser);
 PREPARE stmt FROM @qry; EXECUTE stmt;
 
-INSERT INTO users (username,email) VALUES (p_name, p_email);
+INSERT INTO users (username, email) VALUES (p_name, p_email) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), username=p_name;
+
 SET out_user_id = LAST_INSERT_ID();
 
-SELECT CONCAT("User created (id: ", out_user_id,")") as SUCCESS;
+SELECT CONCAT("User created (id: ", out_user_id,")") as success;
 
 DEALLOCATE PREPARE stmt;
 FLUSH PRIVILEGES;
@@ -410,18 +411,6 @@ CREATE TABLE `cultures` (
   `state` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Extraindo dados da tabela `cultures`
---
-
-INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
-(1, 'Amoebozoa', 1, 2, 0),
-(2, 'Sporozoa', 2, 3, 0),
-(3, 'Escherichia coli', 1, 2, 0),
-(4, 'Ranunculus', 2, 3, 0),
-(5, 'Archamoebae', 1, 2, 0),
-(6, 'Flabellinea', 1, 3, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -437,15 +426,6 @@ CREATE TABLE `culture_params` (
   `tolerance` double(5,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Extraindo dados da tabela `culture_params`
---
-
-INSERT INTO `culture_params` (`id`, `sensor_type`, `valmax`, `valmin`, `tolerance`) VALUES
-(1, 'H', 20.00, 10.00, 0.00),
-(2, 'L', 1.00, -5.00, 0.00),
-(3, 'T', 5.00, 0.00, 0.00);
-
 -- --------------------------------------------------------
 
 --
@@ -458,14 +438,6 @@ CREATE TABLE `culture_params_sets` (
   `culture_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Extraindo dados da tabela `culture_params_sets`
---
-
-INSERT INTO `culture_params_sets` (`id`, `culture_id`) VALUES
-(1, 1),
-(2, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -477,14 +449,6 @@ CREATE TABLE `culture_users` (
   `culture_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Extraindo dados da tabela `culture_users`
---
-
-INSERT INTO `culture_users` (`culture_id`, `user_id`) VALUES
-(1, 3),
-(2, 2);
 
 -- --------------------------------------------------------
 
@@ -514,15 +478,6 @@ CREATE TABLE `rel_culture_params_set` (
   `culture_param_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Extraindo dados da tabela `rel_culture_params_set`
---
-
-INSERT INTO `rel_culture_params_set` (`set_id`, `culture_param_id`) VALUES
-(1, 1),
-(2, 2),
-(2, 3);
-
 -- --------------------------------------------------------
 
 --
@@ -535,16 +490,6 @@ CREATE TABLE `users` (
   `username` varchar(100) NOT NULL,
   `email` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Extraindo dados da tabela `users`
---
-
-INSERT INTO `users` (`id`, `username`, `email`) VALUES
-(1, 'Admin1', 'admin1@foo.bar'),
-(2, 'Res1', 'res1@foo.bar'),
-(3, 'Res2', 'res2@foo.bar'),
-(4, 'Tech1', 'tech1@foo.bar');
 
 --
 -- Índices para tabelas despejadas
@@ -606,7 +551,7 @@ ALTER TABLE `rel_culture_params_set`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT de tabelas despejadas
@@ -622,25 +567,25 @@ ALTER TABLE `alerts`
 -- AUTO_INCREMENT de tabela `cultures`
 --
 ALTER TABLE `cultures`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `culture_params`
 --
 ALTER TABLE `culture_params`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `culture_params_sets`
 --
 ALTER TABLE `culture_params_sets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restrições para despejos de tabelas
