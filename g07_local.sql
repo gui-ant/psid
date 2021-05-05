@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 05-Maio-2021 às 04:35
+-- Tempo de geração: 05-Maio-2021 às 05:10
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -206,6 +206,26 @@ LEFT JOIN culture_users cu on cu.culture_id = c.id
 WHERE c.id = p_culture_id;
 END$$
 
+DROP PROCEDURE IF EXISTS `spGetCultureParams`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spGetCultureParams` (IN `p_culture_id` INT)  NO SQL
+SELECT
+	params.id as id,
+    sets.id as set_id,
+    sensor_type,
+    valmax,
+    valmin,
+    tolerance
+FROM
+    rel_culture_params_set rel
+JOIN culture_params params
+ON
+    params.id = rel.culture_param_id
+JOIN culture_params_sets sets
+ON
+    sets.id = rel.set_id
+WHERE
+    sets.culture_id = p_culture_id$$
+
 DROP PROCEDURE IF EXISTS `spGetCulturesByUserId`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spGetCulturesByUserId` (IN `p_user_id` INT(11))  NO SQL
 BEGIN
@@ -232,26 +252,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spUpdateCultureName` (IN `p_culture
 CALL spStopIfNotManager(p_culture_id);
 UPDATE cultures c SET c.name=p_new_name WHERE c.id=p_culture_id;
 END$$
-
-DROP PROCEDURE IF EXISTS `test_spGetCultureParams`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `test_spGetCultureParams` (IN `p_culture_id` INT)  NO SQL
-    COMMENT 'Permite ver parâmetros de uma cultura. Só para testes!'
-SELECT
-	sets.id as id,
-    sensor_type,
-    valmax,
-    valmin,
-    tolerance
-FROM
-    rel_culture_params_set rel
-JOIN culture_params params
-ON
-    params.id = rel.culture_param_id
-JOIN culture_params_sets sets
-ON
-    sets.id = rel.set_id
-WHERE
-    sets.culture_id = p_culture_id$$
 
 --
 -- Funções
