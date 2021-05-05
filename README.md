@@ -21,6 +21,13 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 3. Aceder a [localhost/psid/php](http://localhost/psid/php) no browser (considerando que o projeto se encontra na pasta c:\xampp\htdocs. Podem também fazer um clone do rep para essa pasta)
 
 [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
+
+- Reset à DB por CLI (Shell XAMPP)
+```batch
+mysql -u root
+MariaDB [(none)]> \. <path_to_file>\db_reset.sql
+```
+
 - Criação de Roles no MySQL de acordo com a especificação
 ```mysql
 CREATE ROLE IF NOT EXISTS 'group_admin';
