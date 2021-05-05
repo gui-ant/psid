@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 05-Maio-2021 às 14:56
+-- Tempo de geração: 05-Maio-2021 às 15:16
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -410,6 +410,18 @@ CREATE TABLE `cultures` (
   `state` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Extraindo dados da tabela `cultures`
+--
+
+INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
+(1, 'Amoebozoa', 1, 2, 0),
+(2, 'Sporozoa', 2, 3, 0),
+(3, 'Escherichia coli', 1, 2, 0),
+(4, 'Ranunculus', 2, 3, 0),
+(5, 'Archamoebae', 1, 2, 0),
+(6, 'Flabellinea', 1, 3, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -425,6 +437,15 @@ CREATE TABLE `culture_params` (
   `tolerance` double(5,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Extraindo dados da tabela `culture_params`
+--
+
+INSERT INTO `culture_params` (`id`, `sensor_type`, `valmax`, `valmin`, `tolerance`) VALUES
+(1, 'H', 20.00, 10.00, 0.00),
+(2, 'L', 1.00, -5.00, 0.00),
+(3, 'T', 5.00, 0.00, 0.00);
+
 -- --------------------------------------------------------
 
 --
@@ -437,6 +458,14 @@ CREATE TABLE `culture_params_sets` (
   `culture_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Extraindo dados da tabela `culture_params_sets`
+--
+
+INSERT INTO `culture_params_sets` (`id`, `culture_id`) VALUES
+(1, 1),
+(2, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -448,6 +477,14 @@ CREATE TABLE `culture_users` (
   `culture_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Extraindo dados da tabela `culture_users`
+--
+
+INSERT INTO `culture_users` (`culture_id`, `user_id`) VALUES
+(1, 3),
+(2, 2);
 
 -- --------------------------------------------------------
 
@@ -477,6 +514,15 @@ CREATE TABLE `rel_culture_params_set` (
   `culture_param_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Extraindo dados da tabela `rel_culture_params_set`
+--
+
+INSERT INTO `rel_culture_params_set` (`set_id`, `culture_param_id`) VALUES
+(1, 1),
+(2, 2),
+(2, 3);
+
 -- --------------------------------------------------------
 
 --
@@ -489,6 +535,16 @@ CREATE TABLE `users` (
   `username` varchar(100) NOT NULL,
   `email` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Extraindo dados da tabela `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `email`) VALUES
+(1, 'Admin1', 'admin1@foo.bar'),
+(2, 'Res1', 'res1@foo.bar'),
+(3, 'Res2', 'res2@foo.bar'),
+(4, 'Tech1', 'tech1@foo.bar');
 
 --
 -- Índices para tabelas despejadas
@@ -566,25 +622,25 @@ ALTER TABLE `alerts`
 -- AUTO_INCREMENT de tabela `cultures`
 --
 ALTER TABLE `cultures`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `culture_params`
 --
 ALTER TABLE `culture_params`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `culture_params_sets`
 --
 ALTER TABLE `culture_params_sets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Restrições para despejos de tabelas
@@ -613,7 +669,7 @@ ALTER TABLE `culture_params_sets`
 --
 ALTER TABLE `culture_users`
   ADD CONSTRAINT `culture` FOREIGN KEY (`culture_id`) REFERENCES `cultures` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `culture_users_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `culture_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limitadores para a tabela `rel_culture_params_set`
