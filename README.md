@@ -27,7 +27,7 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
 - Criação de Roles no MySQL de acordo com a especificação
 ```mysql
-CREATE ROLE 'group_admin';
+CREATE ROLE IF NOT EXISTS 'group_admin';
 GRANT CREATE USER ON *.* TO `group_admin`;
 GRANT GRANT OPTION ON *.* TO 'group_admin';
 GRANT SELECT,INSERT,UPDATE,DELETE ON g07_local.users TO 'group_admin';
@@ -47,7 +47,7 @@ GRANT EXECUTE ON PROCEDURE g07_local.spUpdateCultureName TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spSetCultureManager TO 'group_admin';
 
-CREATE ROLE 'group_researcher';
+CREATE ROLE IF NOT EXISTS 'group_researcher';
 GRANT SELECT ON g07_local.* TO 'group_researcher';
 
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_researcher';
@@ -61,7 +61,7 @@ GRANT EXECUTE ON PROCEDURE g07_local.spExportCultureMeasuresToCSV TO 'group_rese
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureParams TO 'group_researcher';
 GRANT EXECUTE ON FUNCTION g07_local.isManager TO 'group_researcher';
 
-CREATE ROLE 'group_technician';
+CREATE ROLE IF NOT EXISTS 'group_technician';
 GRANT SELECT ON g07_local.users TO 'group_technician';
 GRANT SELECT ON g07_local.alerts TO 'group_technician';
 
