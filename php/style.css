@@ -28,7 +28,13 @@ p {
     padding: 20px;
 }
 
-form, .content {
+form {
+    margin: 0px auto;
+    padding: 20px;
+    background: white;
+}
+
+.content {
     width: 30%;
     margin: 0px auto;
     padding: 20px;
@@ -53,6 +59,18 @@ input {
     text-align: left;
     margin: 3px;
 }
+
+input[type=checkbox] {
+    cursor: pointer;
+    width: 20px;
+    height: 18px;
+    padding: 0;
+    margin:0;
+    vertical-align: top;
+    position: relative;
+    top: 2px;
+    *overflow: hidden;
+  }
 
 .btn {
     font-size: 15px;

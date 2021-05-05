@@ -99,6 +99,13 @@ if ($culture_id != "") {
 	$url = "localhost/psid/php/db/getStoredProcData.php?sp=spGetCultureParams&p=" . $culture_id . "&json=true";
 	$res = db_curl_request($url);
 	$culture_params = json_decode($res);
+
+	$params_sets = array();
+	foreach ($culture_params as $i => $param) {
+		if (!isset($params_sets[$param->set_id]))
+			$params_sets[$param->set_id] = array();
+		array_push($params_sets[$param->set_id], $param);
+	}
 }
 ?>
 
@@ -122,8 +129,6 @@ if ($culture_id != "") {
 <?php else : ?>
 	<p>Não tem culturas atribuidas.</p>
 <?php endif; ?>
-
-
 
 <?php if (isset($active_culture)) : ?>
 	Dados da Cultura
@@ -155,14 +160,19 @@ if ($culture_id != "") {
 
 <?php endif ?>
 
-<?php if (isset($culture_params)) : ?>
+<?php if (isset($params_sets)) : ?>
 	Parâmetros da Cultura
-	<form action="index.php" method="POST" class="form-group">
+	<form action="index.php" method="POST">
 		<br>
-		<?php foreach ($culture_params as $i => $piece) : ?>
-			<div class="input-group">
-				<input id="chk_param_<?= $piece->id; ?>" type="checkbox" name="chk_param[]" value="<?= $piece->id; ?>">
-				<label for="chk_param_<?= $piece->id; ?>"><?= "Set ID: $piece->set_id, Sensor Type: $piece->sensor_type, Max Val.: $piece->valmax, Min Val.: $piece->valmin, Tolerance: $piece->tolerance" ?>;</label>
+		<?php foreach ($params_sets as $i => $param) : ?>
+			<div class="input-group" style="border: 3px dashed grey;border-radius: 6px;margin-bottom:10px">
+					<?php foreach ($param as $p) : ?>
+						<label for="chk_param_<?= $param[0]->id; ?>">
+							<span></span><input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "disabled" ?>>
+							<?= "Sensor Type: $p->sensor_type, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; "?>
+						</label>
+					<?php endforeach; ?>
+				</label>
 			</div>
 		<?php endforeach; ?>
 		<?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
@@ -170,5 +180,4 @@ if ($culture_id != "") {
 			<input type="hidden" name="delete_param">
 		<?php endif ?>
 	</form>
-
-<?php endif ?>
+<?php endif ?>			
