@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 05-Maio-2021 às 05:10
+-- Tempo de geração: 05-Maio-2021 às 14:56
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -197,6 +197,9 @@ IF getUserInfo('role') = 'group_admin' THEN
 	DELETE from users WHERE id = p_user_id;
 END IF$$
 
+DROP PROCEDURE IF EXISTS `spExportCulturemeasurestoCSV`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spExportCulturemeasurestoCSV` ()  SELECT 1$$
+
 DROP PROCEDURE IF EXISTS `spGetCultureById`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spGetCultureById` (IN `p_culture_id` INT)  NO SQL
 BEGIN
@@ -251,6 +254,47 @@ DROP PROCEDURE IF EXISTS `spUpdateCultureName`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spUpdateCultureName` (IN `p_culture_id` INT, IN `p_new_name` VARCHAR(50))  BEGIN
 CALL spStopIfNotManager(p_culture_id);
 UPDATE cultures c SET c.name=p_new_name WHERE c.id=p_culture_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `spUpdateUser`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spUpdateUser` (IN `p_email` VARCHAR(50), IN `p_name` VARCHAR(50), IN `p_pass` VARCHAR(50))  BEGIN
+DECLARE user_id INT;
+DECLARE role VARCHAR(50);
+DECLARE err VARCHAR(64);
+
+SET user_id=0;
+SET role='';
+SET err='';
+
+IF p_email='' THEN
+	SET err='Argument #1(p_email) cannot be empty.';
+END IF;
+
+SELECT 'The user email doenst exists.' INTO err WHERE err='' AND (SELECT COUNT(*) FROM users u WHERE u.email=p_email) = 0;
+
+IF err<>'' THEN 
+	SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = err;
+END IF;
+SET err ='';
+
+SELECT u.id INTO user_id FROM users u WHERE u.email=p_email;
+
+IF p_name='' THEN
+	SELECT (SELECT u.username FROM users u WHERE u.id=user_id) INTO p_name;
+END IF;
+
+SET p_email=CONCAT("'",p_email ,"'@'%'");
+SET @qry:=CONCAT("ALTER USER ", p_email, " IDENTIFIED BY '",p_pass,"'");
+PREPARE stmt FROM @qry;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SELECT 'Name already exists.' INTO err WHERE err='' AND (SELECT COUNT(*) FROM users u WHERE u.username=p_name AND u.id<>user_id) > 0 ;
+IF err<>'' THEN 
+	SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = err;
+END IF;
+
+UPDATE users u SET u.username=p_name WHERE u.id=user_id;
 END$$
 
 --
