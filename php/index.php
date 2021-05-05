@@ -2,13 +2,13 @@
 include("db/config.php");
 session_start();
 
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['user_name'])) {
     $_SESSION['msg'] = "Inicie sessão";
     header("location: auth/login.php");
 }
 if (isset($_GET['logout'])) {
     session_destroy();
-    unset($_SESSION['username']);
+    unset($_SESSION['user_name']);
     header("location: auth/login.php");
 }
 ?>
@@ -40,21 +40,14 @@ if (isset($_GET['logout'])) {
 
         <?php if (isset($_SESSION['user_email'])) : ?>
             <p>
-                Bem-vindo <strong><?php echo $_SESSION['username']; ?></strong>&nbsp;<a href="?logout='1'">Sair</a>
+                Bem-vindo <strong><?php echo $_SESSION['user_name']; ?></strong>&nbsp;<a href="?logout='1'">Sair</a>
             </p>
 
 
             <?php if ($_SESSION['user_role'] == 'group_researcher') : ?>
                 <!-- Researcher View -->
                 <p>
-                    <?php include("selectCulture.php"); ?>
-                </p>
-                <p>
-                    <?php if (isset($_POST['culture_id'])){
-                        if ($_POST['culture_id'] != null)
-                            include("cultures.php");
-					}
-                    ?>
+                    <?php include("cultures.php");?>
                 </p>
 
             <?php elseif ($_SESSION['user_role'] == 'group_admin') : ?>

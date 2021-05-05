@@ -1,7 +1,6 @@
 <?php
 include('config.php');
 header("Content-Type:application/json");
-session_start();
 
 if (!empty($_GET['sp']))
 	$procedure = $_GET['sp'];
@@ -18,7 +17,6 @@ if (!empty($_GET['json']))
 else
 	$json = 'false';
 
-
 $data = get_data_from_sp($procedure, $param, $json);
 
 if (empty($data)) {
@@ -29,21 +27,16 @@ if (empty($data)) {
 
 function get_data_from_sp($procedure, $param, $json)
 {
-	// echo var_dump($procedure) . "<br>";
-	// echo var_dump($param) . "<br>";
-	// echo var_dump($json) . "<br>";
-
+	$session = json_decode($_POST['session']);
+	$conn = db_connect($session->user_email, $session->user_pass);
 	
-	$conn = db_connect($_POST['username'], $_POST['password']);
 	if (!$conn) {
 		die("Connection Failed: " . mysqli_connect_error());
 	}
 
-	$sql = "call " . $procedure . "(" . $param . ")";
+	$sql = "call " . $procedure . "(" . $param . ");";
 	$result = mysqli_query($conn, $sql);
 	$rows = array();
-
-	//echo var_dump($result) . "<br>";
 
 	if ($result) {
 		if ($json == "true") {

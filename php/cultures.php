@@ -1,4 +1,5 @@
 <?php
+
 $culture_id = "";
 $pieces = null;
 
@@ -14,19 +15,6 @@ if (isset($_POST['update_culture'])) {
 	$success = "Cultura atualizada";
 }
 
-if ($culture_id != "") {
-	$url = "http://localhost/psid/php/db/getStoredProcData.php?sp=spGetCultureById&p=" . $culture_id . "&json=true";
-	$client = curl_init($url);
-	curl_setopt($client, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($client, CURLOPT_POST, true);
-	curl_setopt($client, CURLOPT_POSTFIELDS, "username=".$_SESSION['user_email']."&password=".$_SESSION['user_pass']);
-	$response = curl_exec($client);
-	$pieces = json_decode($response);
-	
-	// echo var_dump($response);
-	// echo var_dump($pieces);
-}
-
 function edit_culture_data($culture_id, $culture_name)
 {
 	$conn = db_connect();
@@ -34,7 +22,7 @@ function edit_culture_data($culture_id, $culture_name)
 	$number_updates = 0;
 
 	if ($conn) {
-		$sql = "UPDATE cultures SET name='$culture_name' WHERE id=$culture_id;";
+		$sql = "call spUpdateCultureName($culture_id, '$culture_name');";
 		$result = mysqli_query($conn, $sql);
 		$res = mysqli_query($conn, $sql);
 		if (!$res) {
@@ -62,6 +50,44 @@ function edit_culture_data($culture_id, $culture_name)
 		</h3>
 	</div>
 <?php endif ?>
+
+<?php
+$url = "localhost/psid/php/db/getStoredProcData.php?sp=spGetCulturesByUserId&p=" . $_SESSION['user_id'] . "&json=true";
+$res = db_curl_request($url);
+$pieces = json_decode($res);
+?>
+
+<?php if (!is_null($pieces)) : ?>
+	<form name="Combobox" action="index.php" method="post">
+		<div class="input-group">
+			<select name="culture_id" id="itens">
+				<option>Escolha uma cultura:</option>
+				<?php foreach ($pieces as $i => $piece) : ?>
+					<?php if (isset($_POST['culture_id'])) : ?>
+						<option value="<?= $piece->id; ?>" <?= $_POST['culture_id'] == $piece->id ? 'selected' : ''; ?>><?= $piece->name; ?></option>
+					<?php else : ?>
+						<option value="<?= $piece->id; ?>"><?= $piece->name; ?></option>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			</select>
+		</div>
+		<input class="btn" type="submit" name="btnEnvia" value="Ver">
+		<input class="btn" type="hidden" name="goback" value="<?php echo $_SERVER['REQUEST_URI'] ?>">
+	</form>
+<?php else : ?>
+	<p>Não tem culturas atribuidas.</p>
+<?php endif; ?>
+
+<?php
+if ($culture_id != "") {
+	$url = "localhost/psid/php/db/getStoredProcData.php?sp=spGetCultureById&p=" . $culture_id . "&json=true";
+	$res = db_curl_request($url);
+	$pieces = json_decode($res);
+	
+	// echo var_dump($response);
+	// echo var_dump($pieces);
+}
+?>
 
 <?php if (!is_null($pieces)) : ?>
 	Dados da Cultura
