@@ -60,7 +60,7 @@ $pieces = json_decode($res);
 <?php if (!is_null($pieces)) : ?>
 	<form name="Combobox" action="index.php" method="post">
 		<div class="input-group">
-			<select name="culture_id" id="itens">
+			<select name="culture_id" id="itens" onchange="this.form.submit()">
 				<option>Escolha uma cultura:</option>
 				<?php foreach ($pieces as $i => $piece) : ?>
 					<?php if (isset($_POST['culture_id'])) : ?>
@@ -71,7 +71,7 @@ $pieces = json_decode($res);
 				<?php endforeach; ?>
 			</select>
 		</div>
-		<input class="btn" type="submit" name="btnEnvia" value="Ver">
+		<!-- <input class="btn" type="submit" name="btnEnvia" value="Ver">-->
 		<input class="btn" type="hidden" name="goback" value="<?php echo $_SERVER['REQUEST_URI'] ?>">
 	</form>
 <?php else : ?>
@@ -91,7 +91,7 @@ if ($culture_id != "") {
 
 <?php if (!is_null($pieces)) : ?>
 	Dados da Cultura
-	<form action="index.php" method="POST">
+	<form action="index.php" method="POST" class="form-group">
 		<br>
 		<div class="input-group">
 			<label>ID cultura:</label>
@@ -100,7 +100,6 @@ if ($culture_id != "") {
 		<div class="input-group">
 			<label>Nome cultura:</label>
 			<input type="text" name="culture_name" value="<?= $pieces[0]->name; ?>" <?= $pieces[0]->manager_id == $_SESSION['user_id'] ? : "readonly" ?>>
-			
 		</div>
 		
 		<?php if ($pieces[0]->manager_id == $_SESSION['user_id']) : ?>
