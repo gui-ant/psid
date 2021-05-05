@@ -25,8 +25,7 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 - Reset à DB por CLI (Shell XAMPP)
 ```
 cd <path_to_project>
-mysql -u root
-MariaDB [(none)]> \. db_reset.sql
+mysql -u root < db_reset.sql
 ```
 
 - Criação de Roles no MySQL de acordo com a especificação
