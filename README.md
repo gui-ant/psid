@@ -29,6 +29,7 @@ mysql -u root < db_reset.sql
 ```
 
 - Criação de Roles no MySQL de acordo com a especificação
+⚠️Script de reset à DB já corre estes dados
 ```mysql
 CREATE ROLE IF NOT EXISTS 'group_admin';
 GRANT CREATE USER ON *.* TO `group_admin`;
@@ -79,7 +80,7 @@ FLUSH PRIVILEGES;
 |Investigador  |res2@foo.bar   |Res2   |pass |group_researcher | 
 |Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
 
-⚠️Ficheiro dump já inclui estes dados
+⚠️Script de reset à DB já corre estes dados
 ```mysql
 use g07_local
 
@@ -114,7 +115,7 @@ DELIMITER ;
 - Criação de parametrização default para a cultura (1 - Amoebozoa). Cria 2 Sets (OR) e um dos Sets tem parametrizações para 2 tipos de sensor (AND).
  
 :warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'Res1' como responsável da cultura 1, logam-se como 'Res1' no mysql e correm os comandos)  
-⚠️Ficheiro dump já inclui estes dados
+
 ```mysql
 use g07_local
 
