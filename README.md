@@ -72,6 +72,7 @@ FLUSH PRIVILEGES;
 |--------------|---------------|-------|-----|-----------------| 
 |Administrador |admin1@foo.bar |Admin1 |pass |group_admin      | 
 |Investigador  |res1@foo.bar   |Res1   |pass |group_researcher | 
+|Investigador  |res2@foo.bar   |Res2   |pass |group_researcher | 
 |Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
 
 -> 6 culturas associadas ao user 'Res1'
@@ -80,23 +81,29 @@ FLUSH PRIVILEGES;
 use g07_local
 
 DELIMITER $$
-SET @inserted_id=-1;
-SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin';  
-CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
+
+SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin'; 
+SET @admin1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3,@admin1_id);
 
 SET @p0='res1@foo.bar'; SET @p1='Res1'; SET @p2='pass'; SET @p3='researcher'; 
-CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
+SET @res1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3,@res1_id);
 
-INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
-(1, 'Amoebozoa', 1, @inserted_id, 0),
-(2, 'Sporozoa', 2, @inserted_id, 0),
-(3, 'Escherichia coli', 1, @inserted_id, 0),
-(4, 'Ranunculus', 2, @inserted_id, 0),
-(5, 'Archamoebae', 1, @inserted_id, 0),
-(6, 'Flabellinea', 1, @inserted_id, 0);
+SET @p0='res2@foo.bar'; SET @p1='Res2'; SET @p2='pass'; SET @p3='researcher'; 
+SET @res2_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3,@res2_id);
 
 SET @p0='tech1@foo.bar'; SET @p1='Tech1'; SET @p2='pass'; SET @p3='technician'; 
-CALL g07_local.spCreateUser(@p0, @p1, @p2, @p3,@inserted_id);
+SET @tech1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3,@tech1_id);
+
+INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
+(1, 'Amoebozoa', 1, @res1_id, 0),
+(2, 'Sporozoa', 2, @res2_id, 0),
+(3, 'Escherichia coli', 1, @res1_id, 0),
+(4, 'Ranunculus', 2, @res2_id, 0),
+(5, 'Archamoebae', 1, @res1_id, 0),
+(6, 'Flabellinea', 1, @res2_id, 0);
+
+CALL spAddUserToCulture(@res2_id,1);
+CALL spAddUserToCulture(@res1_id,2);
 $$
 DELIMITER ;
 ```
