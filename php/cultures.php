@@ -150,6 +150,11 @@ if ($culture_id != "") {
 		<?php endif ?>
 	</form>
 
+
+<?php endif ?>
+
+<?php if (isset($params_sets)) : ?>
+	Parâmetros da Cultura
 	<?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
 		<form action="add_parameters.php" method="POST">
 			<input type="hidden" name="culture_id" value="<?= $active_culture[0]->id; ?>">
@@ -157,27 +162,21 @@ if ($culture_id != "") {
 			<input class="btn" type="submit" value="Adicionar Parâmetros" />
 		</form>
 	<?php endif ?>
-
-<?php endif ?>
-
-<?php if (isset($params_sets)) : ?>
-	Parâmetros da Cultura
 	<form action="index.php" method="POST">
-		<br>
 		<?php foreach ($params_sets as $i => $param) : ?>
 			<div class="input-group" style="border: 3px dashed grey;border-radius: 6px;margin-bottom:10px">
-					<?php foreach ($param as $p) : ?>
-						<label for="chk_param_<?= $param[0]->id; ?>">
-							<span></span><input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "disabled" ?>>
-							<?= "Sensor Type: $p->sensor_type, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; "?>
-						</label>
-					<?php endforeach; ?>
+				<?php foreach ($param as $p) : ?>
+					<label for="chk_param_<?= $param[0]->id; ?>">
+						<span></span><input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "disabled" ?>>
+						<?= "Sensor Type: $p->sensor_type, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; " ?>
+					</label>
+				<?php endforeach; ?>
 				</label>
 			</div>
 		<?php endforeach; ?>
-		<?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
+		<?php if ($active_culture[0]->manager_id == $_SESSION['user_id'] && count($params_sets) > 0) : ?>
 			<input class="btn input-group" type="submit" name="submit" value="Eliminar">
 			<input type="hidden" name="delete_param">
 		<?php endif ?>
 	</form>
-<?php endif ?>			
+<?php endif ?>
