@@ -83,16 +83,16 @@ use g07_local
 DELIMITER $$
 
 SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin'; 
-SET @admin1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3,@admin1_id);
+SET @admin1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @admin1_id);
 
 SET @p0='res1@foo.bar'; SET @p1='Res1'; SET @p2='pass'; SET @p3='researcher'; 
-SET @res1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3,@res1_id);
+SET @res1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @res1_id);
 
 SET @p0='res2@foo.bar'; SET @p1='Res2'; SET @p2='pass'; SET @p3='researcher'; 
-SET @res2_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3,@res2_id);
+SET @res2_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @res2_id);
 
 SET @p0='tech1@foo.bar'; SET @p1='Tech1'; SET @p2='pass'; SET @p3='technician'; 
-SET @tech1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3,@tech1_id);
+SET @tech1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @tech1_id);
 
 INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
 (1, 'Amoebozoa', 1, @res1_id, 0),
@@ -102,8 +102,8 @@ INSERT INTO `cultures` (`id`, `name`, `zone_id`, `manager_id`, `state`) VALUES
 (5, 'Archamoebae', 1, @res1_id, 0),
 (6, 'Flabellinea', 1, @res2_id, 0);
 
-CALL spAddUserToCulture(@res2_id,1);
-CALL spAddUserToCulture(@res1_id,2);
+CALL spAddUserToCulture(@res2_id, 1);
+CALL spAddUserToCulture(@res1_id, 2);
 $$
 DELIMITER ;
 ```
