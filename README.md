@@ -19,16 +19,13 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 1. Iniciar XAMPP
 2. Iniciar servidor Apache
 3. Aceder a [localhost/psid/php](http://localhost/psid/php) no browser (considerando que o projeto se encontra na pasta c:\xampp\htdocs. Podem também fazer um clone do rep para essa pasta)
-4. Login:
-    * **Admin** -> **user**: sid2021g07\@gmail<span>.</span>com **pass**: sid2021!
-    * **Investigador** -> **user**: gfaas1@iscte.pt (ou o vosso) **pass**: asd
-    * **Técnico de Manutenção** -> **user**: pajo@iscte<span>.</span>pt **pass**: often
 
 [phpMyAdmin](http://194.210.86.10/phpmyadmin/db_structure.php?server=1&db=aluno_g07) (user: aluno, pass: aluno)
 - Criação de Roles no MySQL de acordo com a especificação
 ```mysql
-CREATE ROLE 'group_admin';
+CREATE ROLE IF NOT EXISTS 'group_admin';
 GRANT CREATE USER ON *.* TO `group_admin`;
+GRANT ALTER USER ON *.* TO `group_admin`;
 GRANT GRANT OPTION ON *.* TO 'group_admin';
 GRANT SELECT,INSERT,UPDATE,DELETE ON g07_local.users TO 'group_admin';
 GRANT SELECT,INSERT,UPDATE,DELETE ON g07_local.cultures TO 'group_admin';
@@ -47,7 +44,7 @@ GRANT EXECUTE ON PROCEDURE g07_local.spUpdateCultureName TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spSetCultureManager TO 'group_admin';
 
-CREATE ROLE 'group_researcher';
+CREATE ROLE IF NOT EXISTS 'group_researcher';
 GRANT SELECT ON g07_local.* TO 'group_researcher';
 
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_researcher';
@@ -61,7 +58,7 @@ GRANT EXECUTE ON PROCEDURE g07_local.spExportCultureMeasuresToCSV TO 'group_rese
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureParams TO 'group_researcher';
 GRANT EXECUTE ON FUNCTION g07_local.isManager TO 'group_researcher';
 
-CREATE ROLE 'group_technician';
+CREATE ROLE IF NOT EXISTS 'group_technician';
 GRANT SELECT ON g07_local.users TO 'group_technician';
 GRANT SELECT ON g07_local.alerts TO 'group_technician';
 
@@ -75,8 +72,6 @@ FLUSH PRIVILEGES;
 |Investigador  |res1@foo.bar   |Res1   |pass |group_researcher | 
 |Investigador  |res2@foo.bar   |Res2   |pass |group_researcher | 
 |Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
-
--> 6 culturas associadas ao user 'Res1'
 
 ```mysql
 use g07_local
