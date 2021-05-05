@@ -65,6 +65,7 @@ GRANT SELECT ON g07_local.alerts TO 'group_technician';
 FLUSH PRIVILEGES;
 ```
 - Criação de users e culturas default (como root ou admin) 
+⚠️Ficheiro dump já inclui estes dados
 
 |User          |Email          |Name   |Pass |Role             | 
 |--------------|---------------|-------|-----|-----------------| 
@@ -107,6 +108,7 @@ DELIMITER ;
 - Criação de parametrização default para a cultura (1 - Amoebozoa). Cria 2 Sets (OR) e um dos Sets tem parametrizações para 2 tipos de sensor (AND).
  
 :warning: Têm de definir o manager da cultura para o mesmo user que executa os comandos seguintes, pois é feita a validação se o user é responsável pela cultura que quer parametrizar(e.g. definem 'Res1' como responsável da cultura 1, logam-se como 'Res1' no mysql e correm os comandos)  
+⚠️Ficheiro dump já inclui estes dados
 ```mysql
 use g07_local
 
