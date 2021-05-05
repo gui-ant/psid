@@ -58,6 +58,7 @@ GRANT EXECUTE ON PROCEDURE g07_local.spCreateCultureParamsSet TO 'group_research
 GRANT EXECUTE ON PROCEDURE g07_local.spCreateRelCultureParamsSet TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spDeleteParam TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spExportCultureMeasuresToCSV TO 'group_researcher';
+GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureParams TO 'group_researcher';
 GRANT EXECUTE ON FUNCTION g07_local.isManager TO 'group_researcher';
 
 CREATE ROLE 'group_technician';
