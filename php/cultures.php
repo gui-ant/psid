@@ -15,6 +15,38 @@ if (isset($_POST['update_culture'])) {
 	$success = "Cultura atualizada";
 }
 
+if (isset($_POST['delete_param'])) {
+	$checkboxes = $_POST['chk_param'];
+
+	$result = delete_culture_params($checkboxes);
+	$success = "Parametro elimnado";
+}
+
+function delete_culture_params($param_ids)
+{
+	$conn = db_connect();
+
+	$number_updates = 0;
+	if ($conn) {
+		$sql = "";
+		foreach ($param_ids as $id)
+			$sql .= "call spDeleteParam($id);";
+
+		$res = mysqli_multi_query($conn, $sql);
+		if (!$res) {
+			$result = new stdClass();
+			$result->status = false;
+			$result->msg = mysqli_error($conn);
+			echo mysqli_error($conn);
+			exit;
+		}
+		$number_updates = 1;
+
+		mysqli_close($conn);
+	}
+	return $number_updates;
+}
+
 function edit_culture_data($culture_id, $culture_name)
 {
 	$conn = db_connect();
@@ -23,7 +55,7 @@ function edit_culture_data($culture_id, $culture_name)
 
 	if ($conn) {
 		$sql = "call spUpdateCultureName($culture_id, '$culture_name');";
-		$result = mysqli_query($conn, $sql);
+
 		$res = mysqli_query($conn, $sql);
 		if (!$res) {
 			$result = new stdClass();
@@ -60,9 +92,13 @@ if ($culture_id != "") {
 	$url = "localhost/psid/php/db/getStoredProcData.php?sp=spGetCultureById&p=" . $culture_id . "&json=true";
 	$res = db_curl_request($url);
 	$active_culture = json_decode($res);
-	
+
 	// echo var_dump($response);
 	// echo var_dump($pieces);
+
+	$url = "localhost/psid/php/db/getStoredProcData.php?sp=spGetCultureParams&p=" . $culture_id . "&json=true";
+	$res = db_curl_request($url);
+	$culture_params = json_decode($res);
 }
 ?>
 
@@ -99,9 +135,9 @@ if ($culture_id != "") {
 		</div>
 		<div class="input-group">
 			<label>Nome cultura:</label>
-			<input type="text" name="culture_name" value="<?= $active_culture[0]->name; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ? : "readonly" ?>>
+			<input type="text" name="culture_name" value="<?= $active_culture[0]->name; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "readonly" ?>>
 		</div>
-		
+
 		<?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
 			<input class="btn input-group" type="submit" name="submit" value="Gravar">
 			<input type="hidden" name="update_culture">
@@ -113,8 +149,26 @@ if ($culture_id != "") {
 		<form action="add_parameters.php" method="POST">
 			<input type="hidden" name="culture_id" value="<?= $active_culture[0]->id; ?>">
 			<input type="hidden" name="culture_name" value="<?= $active_culture[0]->name; ?>">
-			<input class="btn" type="submit" value="Adicionar Parâmetros"/>
+			<input class="btn" type="submit" value="Adicionar Parâmetros" />
 		</form>
 	<?php endif ?>
+
+<?php endif ?>
+
+<?php if (isset($culture_params)) : ?>
+	Parâmetros da Cultura
+	<form action="index.php" method="POST" class="form-group">
+		<br>
+		<?php foreach ($culture_params as $i => $piece) : ?>
+			<div class="input-group">
+				<input id="chk_param_<?= $piece->id; ?>" type="checkbox" name="chk_param[]" value="<?= $piece->id; ?>">
+				<label for="chk_param_<?= $piece->id; ?>"><?= "Set ID: $piece->set_id, Sensor Type: $piece->sensor_type, Max Val.: $piece->valmax, Min Val.: $piece->valmin, Tolerance: $piece->tolerance" ?>;</label>
+			</div>
+		<?php endforeach; ?>
+		<?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
+			<input class="btn input-group" type="submit" name="submit" value="Eliminar">
+			<input type="hidden" name="delete_param">
+		<?php endif ?>
+	</form>
 
 <?php endif ?>
