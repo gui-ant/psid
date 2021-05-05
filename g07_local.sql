@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 04-Maio-2021 às 21:10
+-- Tempo de geração: 05-Maio-2021 às 04:35
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -35,9 +35,9 @@ BEGIN
 INSERT INTO culture_users (culture_id, user_id) 
 SELECT p_culture_id, p_user_id
 WHERE 
-	(SELECT c.manager_id FROM cultures AS c, culture_users AS cu WHERE c.id = p_culture_id) <> p_user_id 
+	(SELECT c.manager_id FROM cultures c, culture_users AS cu WHERE c.id = p_culture_id) <> p_user_id 
 	OR 
-	(SELECT COUNT(*) FROM culture_users WHERE culture_id=p_culture_id AND user_id=p_user_id) = 0
+	(SELECT COUNT(*) FROM culture_users cu WHERE cu.culture_id=p_culture_id AND cu.user_id=p_user_id) = 0
 ;
 END$$
 
@@ -178,9 +178,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spDeleteParam` (IN `p_param_id` INT
 SET @culture_id:=-1;
 
 SELECT sets.culture_id INTO @culture_id 
-FROM culture_params AS params
-JOIN rel_culture_params_set as rels ON params.id = rels.culture_param_id
-JOIN culture_params_sets as sets ON sets.id = rels.set_id
+FROM culture_params params
+JOIN rel_culture_params_set rels ON params.id = rels.culture_param_id
+JOIN culture_params_sets sets ON sets.id = rels.set_id
 WHERE params.id = p_param_id; 
 
 CALL spStopIfNotManager(@culture_id);
@@ -201,8 +201,8 @@ DROP PROCEDURE IF EXISTS `spGetCultureById`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spGetCultureById` (IN `p_culture_id` INT)  NO SQL
 BEGIN
 SELECT c.*
-FROM cultures AS c
-LEFT JOIN culture_users AS cu on cu.culture_id = c.id 
+FROM cultures c
+LEFT JOIN culture_users cu on cu.culture_id = c.id 
 WHERE c.id = p_culture_id;
 END$$
 
@@ -210,14 +210,14 @@ DROP PROCEDURE IF EXISTS `spGetCulturesByUserId`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spGetCulturesByUserId` (IN `p_user_id` INT(11))  NO SQL
 BEGIN
 SELECT c.*
-FROM cultures AS c
-LEFT JOIN culture_users AS cu on cu.culture_id = c.id 
+FROM cultures c
+LEFT JOIN culture_users cu on cu.culture_id = c.id 
 WHERE cu.user_id = p_user_id or c.manager_id = p_user_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `spSetCultureManager`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spSetCultureManager` (IN `p_culture_id` INT, IN `p_user_id` INT)  BEGIN
-UPDATE cultures AS c SET c.manager_id=p_user_id WHERE c.id=p_culture_id;
+UPDATE cultures c SET c.manager_id=p_user_id WHERE c.id=p_culture_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `spStopIfNotManager`$$
@@ -230,7 +230,7 @@ END$$
 DROP PROCEDURE IF EXISTS `spUpdateCultureName`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spUpdateCultureName` (IN `p_culture_id` INT, IN `p_new_name` VARCHAR(50))  BEGIN
 CALL spStopIfNotManager(p_culture_id);
-UPDATE cultures AS c SET c.name=p_new_name WHERE c.id=p_culture_id;
+UPDATE cultures c SET c.name=p_new_name WHERE c.id=p_culture_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `test_spGetCultureParams`$$
@@ -243,11 +243,11 @@ SELECT
     valmin,
     tolerance
 FROM
-    rel_culture_params_set AS rel
-JOIN culture_params AS params
+    rel_culture_params_set rel
+JOIN culture_params params
 ON
     params.id = rel.culture_param_id
-JOIN culture_params_sets AS sets
+JOIN culture_params_sets sets
 ON
     sets.id = rel.set_id
 WHERE
@@ -286,7 +286,7 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `getUserInfo` (`p_property` ENUM('nam
 			WHEN p_property = 'host' THEN u.Host
 			WHEN p_property = 'role' THEN u.default_role
 		END) INTO res 
-	FROM mysql.user AS u WHERE u.User=username;
+	FROM mysql.user u WHERE u.User=username;
 	
 	RETURN res;
 	
@@ -307,8 +307,8 @@ DECLARE is_manager INT;
 SET is_manager = 0;
 
 SELECT COUNT(*) INTO is_manager 
-FROM users AS u 
-JOIN cultures AS c ON c.manager_id = u.id 
+FROM users u 
+JOIN cultures c ON c.manager_id = u.id 
 WHERE u.email=getUserInfo('name') AND c.id=p_culture_id; 
 
 RETURN is_manager;
