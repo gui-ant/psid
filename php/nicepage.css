@@ -5443,7 +5443,6 @@ a {
 }
 .u-form .u-form-group.u-form-checkbox input[type="checkbox"],
 .u-form .u-form-group.u-form-agree input[type="checkbox"] {
-  float: left;
   flex-shrink: 0;
 }
 .u-form .u-form-group.u-form-checkbox label.u-label,
@@ -21693,7 +21692,7 @@ a.u-link.u-hover-palette-1-light-3:hover {
 .u-container-style.u-palette-1-base:before,
 .u-table-alt-palette-1-base tr:nth-child(even) {
   color: #ffffff;
-  background-color: #478ac9;
+  background-color: #1a1a1a;
 }
 .u-button-style.u-palette-1-base,
 .u-button-style.u-palette-1-base[class*="u-border-"] {
