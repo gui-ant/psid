@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "PISID.db";
+    public static final String DATABASE_NAME = "g07_local.db";
     DatabaseConfig config = new DatabaseConfig();
 
     public DatabaseHandler(Context context) {
@@ -17,41 +17,36 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(config.SQL_CREATE_DROP_MEDICAO_IFEXISTS);
-        sqLiteDatabase.execSQL(config.SQL_CREATE_MEDICAO);
-        sqLiteDatabase.execSQL(config.SQL_CREATE_DROP_ALERTA_IFEXISTS);
-        sqLiteDatabase.execSQL(config.SQL_CREATE_ALERTA);
+        sqLiteDatabase.execSQL(config.SQL_CREATE_DROP_MEASUREMENT_IFEXISTS);
+        sqLiteDatabase.execSQL(config.SQL_CREATE_MEASUREMENT);
+        sqLiteDatabase.execSQL(config.SQL_CREATE_DROP_ALERT_IFEXISTS);
+        sqLiteDatabase.execSQL(config.SQL_CREATE_ALERT);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { }
-
-    public void insertMedicao(String hora, double leitura) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseConfig.Medicao.COLUMN_NAME_HORA, hora);
-        values.put(DatabaseConfig.Medicao.COLUMN_NAME_LEITURA, leitura);
-        getWritableDatabase().insert(DatabaseConfig.Medicao.TABLE_NAME,null, values);
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-    public void insertAlerta(String zona, String sensor, String hora, double leitura, String tipoAlerta, String cultura, String mensagem, int idUtilizador, int idCultura, String horaEscrita) {
+    public void insertMeasurement(String hora, double leitura) {
         ContentValues values = new ContentValues();
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_ZONA, zona);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_SENSOR, sensor);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_HORA, hora);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_LEITURA, leitura);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_TIPO_ALERTA, tipoAlerta);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_CULTURA, cultura);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_MENSAGEM, mensagem);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_ID_UTILIZADOR, idUtilizador);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_ID_CULTURA, idCultura);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_HORA_ESCRITA, horaEscrita);
-        getWritableDatabase().insert(DatabaseConfig.Alerta.TABLE_NAME,null, values);
+        values.put(DatabaseConfig.Measurements.COLUMN_DATE, hora);
+        values.put(DatabaseConfig.Measurements.COLUMN_SENSOR_ID, leitura);
+        getWritableDatabase().insert(DatabaseConfig.Measurements.TABLE_NAME, null, values);
     }
 
-    public void clearAlertas() { getWritableDatabase().execSQL(config.SQL_DELETE_ALERTA_DATA); }
+    public void insertAlert(String zona, String sensor, String hora, double leitura, String tipoAlerta, String cultura, String mensagem, int idUtilizador, int idCultura, String horaEscrita) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseConfig.Alerts.COLUMN_PARAM_SET_ID, zona);
+        values.put(DatabaseConfig.Alerts.COLUMN_CREATED_AT, sensor);
+        getWritableDatabase().insert(DatabaseConfig.Alerts.TABLE_NAME, null, values);
+    }
 
-    public void clearMedicoes() {
-        getWritableDatabase().execSQL(config.SQL_DELETE_MEDICAO_DATA);
+    public void clearAlerts() {
+        getWritableDatabase().execSQL(config.SQL_DELETE_ALERT_DATA);
+    }
+
+    public void clearMeasurements() {
+        getWritableDatabase().execSQL(config.SQL_DELETE_MEASUREMENT_DATA);
     }
 
 }
