@@ -4,11 +4,13 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
+import common.CustomLogger;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.types.ObjectId;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +29,18 @@ public class ConnectToMongo {
 
     private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer = new ConcurrentHashMap<>();
 
+    private CustomLogger log = new CustomLogger() {
+        @Override
+        protected PrintStream getLogComponent() {
+            return System.out;
+        }
+
+        @Override
+        protected void writeToComponent(String text) {
+            getLogComponent().println(text);
+        }
+    };
+
     public ConnectToMongo(String sourceUri) {
         this.client = MongoClients.create(sourceUri);
         System.out.println("Connected to the database successfully");
@@ -35,6 +49,10 @@ public class ConnectToMongo {
     public ConnectToMongo(String sourceUri, String sourceDatabase) {
         this(sourceUri);
         useDatabase(sourceDatabase);
+    }
+
+    public void setLog(CustomLogger logger) {
+        this.log = logger;
     }
 
     private Measurement getLastObject(MongoCollection<Measurement> collection) {
@@ -57,7 +75,6 @@ public class ConnectToMongo {
                 fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
         this.database = client.getDatabase(db).withCodecRegistry(pojoCodecRegistry);
-        useAllCollections();
     }
 
     public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getFetchingSource() {
@@ -67,6 +84,7 @@ public class ConnectToMongo {
     // Considera todas as coleções da database
     public void useAllCollections() {
         List<String> collectionNames = new ArrayList<>();
+
         for (String collection : database.listCollectionNames())
             collectionNames.add(collection);
 
@@ -113,7 +131,7 @@ public class ConnectToMongo {
             ObjectId lastId = doc.getId();
             while (true) {
                 try {
-                    System.out.println("Fetching " + getCollectionName(collection) + "...");
+                    log.write("Fetching " + getCollectionName(collection) + "...");
 
                     MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
 
@@ -122,7 +140,7 @@ public class ConnectToMongo {
                         doc = cursor.next();
                         lastId = doc.getId();
                         buffer.offer(doc);
-                        System.out.println("Fetched: " + doc.getId());
+                        log.write("Fetched: " + doc.getId());
                     }
                     sleep(SLEEP_TIME);
                 } catch (InterruptedException e) {
@@ -132,7 +150,7 @@ public class ConnectToMongo {
         }
     }
 
-    static class MeasurePublisher extends Thread {
+    class MeasurePublisher extends Thread {
         private final MongoCollection<Measurement> collection;
         private final LinkedBlockingQueue<Measurement> buffer;
 
@@ -146,7 +164,7 @@ public class ConnectToMongo {
             while (true) {
                 try {
                     InsertOneResult res = this.collection.insertOne(buffer.take());
-                    System.out.println("Inserted: " + res.getInsertedId());
+                    log.write("Inserted: " + res.getInsertedId());
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
