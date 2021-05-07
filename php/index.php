@@ -15,34 +15,41 @@ if (isset($_GET['logout'])) {
 
 
 <!DOCTYPE html>
-<html style="font-size: 16px;">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+
+<head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Udpate Culture">
-    <meta name="description" content="">
-    <meta name="page_type" content="np-template-header-footer-from-plugin">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="nicepage.css" media="screen">
-    <link rel="stylesheet" href="index-cultures.css" media="screen">
-    <script class="u-script" type="text/javascript" src="jquery.js" defer=""></script>
-    <script class="u-script" type="text/javascript" src="nicepage.js" defer=""></script>
-    <meta name="generator" content="Nicepage 3.9.3, nicepage.com">
-    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i">
-    
-    <script type="application/ld+json">{
-		"@context": "http://schema.org",
-		"@type": "Organization",
-		"name": "Home",
-		"url": "index.html"
-    }</script>
-    <meta property="og:title" content="update culture">
-    <meta property="og:type" content="website">
-    <meta name="theme-color" content="#478ac9">
-    <link rel="canonical" href="index.html">
-    <meta property="og:url" content="index.html">
-  </head>
-  <body class="u-body u-palette-1-base">
+    <meta name="description" content="None">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="css/styles_index.css">
+    <meta name="theme-color" content="#2F3BA2">
+</head>
+
+<body>
+
+<!--Bootstrap Scripts-->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
+    </script>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container"><button type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"
+                class="navbar-toggler"><span class="navbar-toggler-icon"></span></button>
+            <div id="navbarResponsive" class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"></li><a href="index.php" class="nav-link">Home</a>
+                    <li class="nav-item"><a href="?logout='1'" class="nav-link">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
   
         <!-- notification message -->
         <?php if (isset($_SESSION['success'])) : ?>
@@ -57,15 +64,11 @@ if (isset($_GET['logout'])) {
         <?php endif ?>
 
         <?php if (isset($_SESSION['user_email'])) : ?>
-            <section class="u-align-center u-clearfix u-grey-90 u-section-1" id="carousel_b2e3">
 
-                <div class="u-clearfix u-sheet u-sheet-1">
-
-                    <h2 class="u-text u-text-body-alt-color u-text-1">Welcome <?php echo $_SESSION['user_name']; ?></h2>
-                    <a href="?logout='1'" class="u-black u-btn u-button-style u-hover-palette-1-dark-1 u-btn-1">Logout<br></a>
-                    
-                    
-                    
+            <div class="container-fluid py-5"></div>
+                <h2 class="display-1">Welcome <?php echo $_SESSION['user_name']; ?></h2>
+                <h1 id="ivk9j" class="text-light"></h1>
+  
                     <?php if ($_SESSION['user_role'] == 'group_researcher') : ?>
                         <!-- Researcher View -->
                         <p>
@@ -78,7 +81,7 @@ if (isset($_GET['logout'])) {
                     <?php elseif ($_SESSION['user_role'] == NULL) : ?>
                         <!-- User with no roles View -->
                         <p>
-                            Ainda não tem perfil atribuído. Contacte um administrador.
+                            You don't have a profile yet. Please contact an administrator.
                         </p>
                     <?php endif ?>
                     </div>

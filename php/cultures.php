@@ -111,132 +111,112 @@ if ($culture_id != "") {
 ?>
 
 
- 
-    <section class="u-align-center u-clearfix u-grey-90 u-section-1" id="carousel_b2e3">
-      <div class="u-clearfix u-sheet u-sheet-1">
-      
 
-        <div class="u-form u-form-1">
 
-        <?php if (!is_null($user_cultures)) : ?>
-          
-        <form action="index.php" method="POST" class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 0px;" source="custom" name="Combobox">
-            <div class="u-form-group u-form-select u-form-group-1">
-              <div class="u-form-select-wrapper">
 
-              <select name="culture_id" id="itens" onchange="this.form.submit()" class="u-border-2 u-border-grey-90 u-custom-font u-input u-input-rectangle u-palette-1-dark-1 u-text-font u-input-1" >
-			
-							<option>Pick a culture:</option>
-							<?php foreach ($user_cultures as $i => $piece) : ?>
-								<?php if (isset($_POST['culture_id'])) : ?>
-									<option value="<?= $piece->id; ?>" <?= $_POST['culture_id'] == $piece->id ? 'selected' : ''; ?>><?= $piece->name; ?></option>
-								<?php else : ?>
-									<option value="<?= $piece->id; ?>"><?= $piece->name; ?></option>
-								<?php endif; ?>
-							<?php endforeach; ?>
-							
-							</select>
+    <?php if (!is_null($user_cultures)) : ?>
+        <div class="row">
+            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12 py-3 border-left">
+                <h3 class="text-light">Select a Culture:</h3>
 
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="12" version="1" class="u-caret"><path fill="currentColor" d="M4 8L0 4h8z"></path></svg>
-              </div>
-            
-            <input type="hidden" name="goback" value="<?php echo $_SERVER['REQUEST_URI'] ?>">
-          </form>
-
-        </div>
-      <?php else : ?>
-				<p>You don't have any cultures yet.</p>
-			<?php endif; ?>
-      </div>
-    </section>
-
-    <?php if (isset($active_culture)) : ?>
-    <section class="u-align-center u-clearfix u-grey-90 u-section-2" id="sec-ff2f">
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <h5 class="u-align-center u-text u-text-1">Culture's data</h5>
-        <div class="u-border-2 u-border-grey-50 u-container-style u-group u-shape-rectangle u-group-1">
-          <div class="u-container-layout u-container-layout-1">
-            <div class="u-form u-form-1">
-              
-            <form action="index.php" method="POST" class="u-clearfix u-form-spacing-12 u-form-vertical u-inner-form" style="padding: 0;" source="custom" name="form">
-                <div class="u-form-group u-form-group-1">
-                  <label for="text-6fa8" class="u-label u-label-1">Culture's id:</label>
-                  <input type="text" id="text-6fa8" name="culture_id" class="u-input u-input-1" value="<?= $active_culture[0]->id; ?>" readonly>
-                </div>
-                <div class="u-form-group u-form-group-2">
-                  <label for="text-6ea0" class="u-label u-label-2">Culture's name:</label>
-                  <input type="text" id="text-6ea0" name="culture_name" class="u-input u-input-1" value="<?= $active_culture[0]->name; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "readonly" ?>>
-                </div>
-                <?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
-                <div class="u-align-right u-form-group u-form-submit u-form-group-3">
-                  <!--<a href="#" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-hover-palette-1-dark-1 u-btn-1">Save</a>
-                  <input type="submit" value="submit" class="u-form-control-hidden">-->
-                  <input type="submit" value="Save" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-hover-palette-1-dark-1 u-btn-1">
-                </div>
-                <?php endif ?>
-                
-            </form>
+                <form action="index.php" method="POST" id="igb8m" class="form-block">
+                    <select name="culture_id" onchange="this.form.submit()" class="form-control">
+                        <option> </option>
+                        <?php foreach ($user_cultures as $i => $piece) : ?>
+                            <?php if (isset($_POST['culture_id'])) : ?>
+                                <option value="<?= $piece->id; ?>" <?= $_POST['culture_id'] == $piece->id ? 'selected' : ''; ?>><?= $piece->name; ?></option>
+                            <?php else : ?>
+                                <option value="<?= $piece->id; ?>"><?= $piece->name; ?></option>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
 
             </div>
-          </div>
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3"></div>
         </div>
-      </div>
-    </section>
-    <?php endif ?>
+        <?php else : ?>
+			<p>You don't have any cultures yet.</p>
+		<?php endif; ?>
 
-    <?php if (isset($params_sets)) : ?>
-    <section class="u-align-center u-clearfix u-grey-90 u-section-3" id="carousel_7d02">
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <h5 class="u-align-center u-text u-text-1">Culture's Parameters</h5>
-        <div class="u-border-2 u-border-grey-50 u-container-style u-group u-shape-rectangle u-group-1">
-          <div class="u-container-layout u-container-layout-1">
-            
-            <div class="u-form u-form-1">
-              <form action="index.php" method="POST" class="u-clearfix u-form-spacing-12 u-form-vertical u-inner-form" style="padding: 0;" source="custom" name="form">
-              
-              <?php foreach ($params_sets as $i => $param) : ?>
-                <div class="input-group" style="border: 3px dashed grey;border-radius: 6px;margin-bottom:10px; padding:3px;">
-                  <div class="u-form-checkbox u-form-group u-form-group-1">
-                    <?php foreach ($param as $p) : ?>
-                      <label for="chk_param_<?= $param[0]->id; ?>" class="u-label u-label-1">
-                        <span></span><input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "disabled" ?> class="u-block-45b7-76 u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input-rectangle">
-                        <?= "Sensor Type: $p->sensor_type, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; " ?>
-                      </label>
-                    <?php endforeach; ?>
-                  </div>
-                </div>
-              <?php endforeach; ?>
+    <div class="container-fluid py-5">
 
-              <!--<div class="u-form-checkbox u-form-group u-form-group-2">
-                  <input type="checkbox" id="checkbox-703f" name="checkbox" value="On">
-                  <label for="checkbox-703f" class="u-label u-label-2">[Parameter 2]</label>
-                </div>-->
-                
-              <?php if ($active_culture[0]->manager_id == $_SESSION['user_id'] && count($params_sets) > 0) : ?>
-                <div class="u-align-right u-form-group u-form-submit u-form-group-6">
-                  <!--<a href="#" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-hover-palette-1-dark-1 u-btn-1">Delete</a>
-                  <input type="submit" value="submit" class="u-form-control-hidden">-->
-                  <input type="submit" value="Delete" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-hover-palette-1-dark-1 u-btn-1">
-                  <input type="hidden" name="delete_param">
+        <?php if (isset($active_culture)) : ?>
+            <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3">
+                    <h4 class="text-light text-center"><u>Culture's Information</u></h4>
                 </div>
-              <?php endif ?>
-                
-              </form>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3 container-border">
+
+                    <form action="index.php" method="POST" id="itw3p" class="form-block">
+                        <label for="culture_id" id="culture_id" class="form-label">Culture's ID:</label>
+                        <input type="text" name="culture_id" class="form-control form-input" value="<?= $active_culture[0]->id; ?>" readonly/>
+                        <label for="culture_name" id="culture_name" class="form-label">Culture's name:</label>
+                        <input type="text" name="culture_name" value="<?= $active_culture[0]->name; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "readonly" ?> class="form-control form-input" />
+                        <?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
+                            <input type=submit value="Save Changes" class="btn btn-primary"/>
+                        <?php endif ?>
+                    </form>
+
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3"></div>
             </div>
-          </div>
-        </div>
+        <?php endif ?>
+    </div>
 
-        <?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
-					<form action="add_parameters.php" method="POST">
-						<input type="hidden" name="culture_id" value="<?= $active_culture[0]->id; ?>">
-						<input type="hidden" name="culture_name" value="<?= $active_culture[0]->name; ?>">
-            <!--<a href="#" class="u-black u-btn u-button-style u-hover-palette-1-dark-1 u-btn-2">Add parameters</a>
-            <input type="submit" value="submit" class="u-form-control-hidden">-->
-						<input type="submit" class="u-black u-btn u-button-style u-hover-palette-1-dark-1 u-btn-2" value="Add Parameters" />
-					</form>
-				<?php endif ?>
-        
-      </div>
-    </section>
-    <?php endif ?>
+    <div class="container-fluid py-5">
+
+        <?php if (isset($params_sets)) : ?>
+            <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3">
+                    <h4 class="text-light text-center"><u>Culture's Paramaters</u></h4>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3 container-border">
+
+                    <form action="index.php" method="POST" class="form-block">
+                        <?php foreach ($params_sets as $i => $param) : ?>
+                            <div class="form-check">
+                                <?php foreach ($param as $p) : ?>
+                                    <label for="chk_param_<?= $param[0]->id; ?>" class="u-label u-label-1">
+                                    <span></span>
+                                    <input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "disabled" ?> class="form-check-input">
+                                    <?= "Sensor Type: $p->sensor_type, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; " ?>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+
+                        <?php if ($active_culture[0]->manager_id == $_SESSION['user_id'] && count($params_sets) > 0) : ?>
+                            <input type="submit" value="Delete" class="btn btn-primary"/>
+                            <input type="hidden" name="delete_param">
+                        <?php endif ?>
+                    </form>
+
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3"></div>
+            </div>
+
+            <?php if ($active_culture[0]->manager_id == $_SESSION['user_id']) : ?>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3"></div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3">
+
+                        <form action="add_parameters.php" method="POST">
+                            <input type="hidden" name="culture_id" value="<?= $active_culture[0]->id; ?>">
+                            <input type="hidden" name="culture_name" value="<?= $active_culture[0]->name; ?>">
+                            <input type="submit" class="btn btn-primary btn-add" value="Add Parameters" />
+                        </form>
+                        <!--<a href="#" target="_blank" class="btn btn-primary btn-add">Add Parameters</a>-->
+
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 py-3"></div>
+                </div>
+            <?php endif ?> 
+        <?php endif ?> 
+
+        <section class="py-5"></section>
+    </div>
     
+</body>
+
+</html>

@@ -21692,7 +21692,7 @@ a.u-link.u-hover-palette-1-light-3:hover {
 .u-container-style.u-palette-1-base:before,
 .u-table-alt-palette-1-base tr:nth-child(even) {
   color: #ffffff;
-  background-color: #1a1a1a;
+  background-color: rgb(31, 32, 34);
 }
 .u-button-style.u-palette-1-base,
 .u-button-style.u-palette-1-base[class*="u-border-"] {
@@ -24324,12 +24324,12 @@ a.u-link.u-hover-grey-80:hover {
 .u-container-style.u-grey-90:before,
 .u-table-alt-grey-90 tr:nth-child(even) {
   color: #ffffff;
-  background-color: #1a1a1a;
+  background-color: rgb(31, 32, 34);
 }
 .u-button-style.u-grey-90,
 .u-button-style.u-grey-90[class*="u-border-"] {
   color: #ffffff !important;
-  background-color: #1a1a1a !important;
+  background-color: rgb(31, 32, 34) !important;
 }
 .u-button-style.u-grey-90:hover,
 .u-button-style.u-grey-90[class*="u-border-"]:hover,
@@ -24361,10 +24361,10 @@ a.u-button-style.u-button-style.u-active-grey-90[class*="u-border-"].active,
 li.active > a.u-button-style.u-button-style.u-active-grey-90,
 li.active > a.u-button-style.u-button-style.u-active-grey-90[class*="u-border-"] {
   color: #ffffff !important;
-  background-color: #1a1a1a !important;
+  background-color: rgb(31, 32, 34) !important;
 }
 a.u-link.u-hover-grey-90:hover {
-  color: #1a1a1a !important;
+  color: rgb(31, 32, 34) !important;
 }
 .u-border-color-1-dark-3,
 .u-separator-color-1-dark-3:after {
@@ -27767,12 +27767,12 @@ li.active > a.u-button-style.u-button-style.u-border-active-grey-80 {
 }
 .u-border-grey-90,
 .u-separator-grey-90:after {
-  border-color: #1a1a1a;
-  stroke: #1a1a1a;
+  border-color: rgb(31, 32, 34);
+  stroke: rgb(31, 32, 34);
 }
 .u-button-style.u-border-grey-90 {
-  border-color: #1a1a1a !important;
-  color: #1a1a1a !important;
+  border-color: rgb(31, 32, 34) !important;
+  color: rgb(31, 32, 34) !important;
   background-color: transparent !important;
 }
 .u-button-style.u-border-grey-90:hover,
@@ -27789,11 +27789,11 @@ a.u-button-style.u-border-hover-grey-90:focus,
 a.u-button-style.u-button-style.u-border-active-grey-90:active,
 a.u-button-style.u-button-style.u-border-active-grey-90.active,
 li.active > a.u-button-style.u-button-style.u-border-active-grey-90 {
-  color: #1a1a1a !important;
-  border-color: #1a1a1a !important;
+  color: rgb(31, 32, 34) !important;
+  border-color: rgb(31, 32, 34) !important;
 }
 .u-link.u-border-grey-90[class*="u-border-"] {
-  border-color: #1a1a1a !important;
+  border-color: rgb(31, 32, 34) !important;
 }
 .u-link.u-border-grey-90[class*="u-border-"]:hover {
   border-color: #171717 !important;
@@ -31921,7 +31921,7 @@ a.u-link.u-text-hover-grey-80:hover {
 .u-text-grey-90,
 a.u-button-style.u-text-grey-90,
 a.u-button-style.u-text-grey-90[class*="u-border-"] {
-  color: #1a1a1a !important;
+  color: rgb(31, 32, 34) !important;
 }
 a.u-button-style.u-text-grey-90:hover,
 a.u-button-style.u-text-grey-90[class*="u-border-"]:hover,
@@ -31945,18 +31945,18 @@ a.u-button-style.u-button-style.u-button-style.u-text-active-grey-90[class*="u-b
 :not(.level-2) > .u-nav > .u-nav-item > a.u-nav-link.u-nav-link.u-text-active-grey-90.active,
 .u-popupmenu-items.u-text-hover-grey-90 .u-nav-link:hover,
 .u-popupmenu-items.u-popupmenu-items.u-text-active-grey-90 .u-nav-link.active {
-  color: #1a1a1a !important;
+  color: rgb(31, 32, 34) !important;
 }
 .u-text-grey-90 svg,
 .u-text-hover-grey-90:hover svg,
 .u-text-hover-grey-90:focus svg {
-  fill: #1a1a1a;
+  fill: rgb(31, 32, 34);
 }
 .u-link.u-text-grey-90:hover {
   color: #171717 !important;
 }
 a.u-link.u-text-hover-grey-90:hover {
-  color: #1a1a1a !important;
+  color: rgb(31, 32, 34) !important;
 }
 /*end-variables colors*/
 
