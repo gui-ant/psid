@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 05-Maio-2021 às 23:25
+-- Tempo de geração: 08-Maio-2021 às 00:43
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -48,7 +48,7 @@ IF NOT isResearcher() THEN
 	SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = "Only researcher's can create cultures";
 END IF;
 
-INSERT INTO cultures (NAME, zone_id, p_manager_id) VALUES (p_name, p_zone_id, p_manager_id);
+INSERT INTO cultures (name, zone_id, p_manager_id) VALUES (p_name, p_zone_id, p_manager_id);
 
 END$$
 
@@ -382,7 +382,7 @@ CREATE TABLE `alerts` (
   `id` int(11) NOT NULL,
   `parameter_set_id` int(11) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `mensagem` varchar(150) NOT NULL
+  `message` varchar(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -463,7 +463,7 @@ CREATE TABLE `measurements` (
   `sensor_id` int(11) NOT NULL,
   `zone_id` int(11) NOT NULL,
   `date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `isCorrect` tinyint(1) NOT NULL
+  `is_correct` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
