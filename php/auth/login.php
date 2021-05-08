@@ -16,11 +16,9 @@
             <form method="post" action="login.php">
                 <h2 class="display-1">LOGIN</h2>
                 <?php if (count($errors) > 0) : ?>
-                    <div class="alert alert-danger">
-                        <?php foreach ($errors as $error) : ?>
-                            <p><?php echo $error ?></p>
-                        <?php endforeach ?>
-                    </div>
+                    <?php foreach ($errors as $error) : ?>
+                        <div class="alert alert-danger"><?= $error ?></div>
+                    <?php endforeach ?>
                 <?php endif ?>
                 <div class="form-group">
                     <label for="emaiInput" class="form-label">Email</label>

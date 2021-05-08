@@ -1,6 +1,4 @@
 <?php
-
-
 $culture_id = "";
 $pieces = null;
 
@@ -50,7 +48,7 @@ $user_cultures = json_decode($res);
 if ($culture_id != "") {
     $url = "localhost/psid/php/db/getStoredProcData.php?sp=spGetCultureById&p=" . $culture_id . "&json=true";
     $res = db_curl_request($url);
-    $active_culture = json_decode($res);
+    $active_culture = json_decode($res)[0];
 
     // echo var_dump($response);
     // echo var_dump($pieces);
@@ -116,15 +114,15 @@ if ($culture_id != "") {
                 <form action="index.php?culture_id=<?= $culture_id ?>" method="POST" id="itw3p" class="form-block">
                     <div class="form-group">
                         <label for="culture_id" id="culture_id" class="form-label">Culture's ID:</label>
-                        <input type="text" name="culture_id" class="form-control form-input" value="<?= $active_culture[0]->id; ?>" readonly />
+                        <input type="text" name="culture_id" class="form-control form-input" value="<?= $active_culture->id; ?>" readonly />
                     </div>
                     <div class="form-group">
                         <label for="culture_name" id="culture_name" class="form-label">Culture's name:</label>
-                        <input type="text" name="culture_name" value="<?= $active_culture[0]->name; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "readonly" ?> class="form-control form-input" />
+                        <input type="text" name="culture_name" value="<?= $active_culture->name; ?>" <?= $active_culture->manager_id == $_SESSION['user_id'] ?: "readonly" ?> class="form-control form-input" />
                     </div>
                     <div class="form-group">
                         <input type="hidden" name="update_culture">
-                        <input type=submit value="Save Changes" class="btn btn-primary" <?= $active_culture[0]->manager_id != $_SESSION['user_id'] ?  "disabled" : "" ?> />
+                        <input type=submit value="Save Changes" class="btn btn-primary" <?= $active_culture->manager_id != $_SESSION['user_id'] ?  "disabled" : "" ?> />
                     </div>
                 </form>
 
@@ -140,14 +138,14 @@ if ($culture_id != "") {
                 <h4 class="section-title text-light text-end">Culture's Paramaters</h4>
             </div>
             <div class="col-md-5 py-3 container-border">
-                <form action="parameters_handler.php" method="POST" class="form-block">
+                <form action="parameters_handler.php?culture_id=<?= $active_culture->id; ?>" method="POST" class="form-block">
                     <div class="form-group">
                         <?php foreach ($params_sets as $i => $param) : ?>
-                            <input type="hidden" name="culture_name" value="<?= $active_culture[0]->name; ?>">
+                            <input type="hidden" name="culture_name" value="<?= $active_culture->name; ?>">
                             <div class="form-check">
                                 <?php foreach ($param as $p) : ?>
                                     <label for="chk_param_<?= $param[0]->id; ?>">
-                                        <input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture[0]->manager_id == $_SESSION['user_id'] ?: "disabled" ?>>
+                                        <input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture->manager_id == $_SESSION['user_id'] ?: "disabled" ?>>
                                         <?= "Sensor Type: $p->sensor_type, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; " ?>
                                     </label>
                                 <?php endforeach; ?>
@@ -155,10 +153,10 @@ if ($culture_id != "") {
                         <?php endforeach; ?>
                         <div class="row py-0">
                             <div class="col-6">
-                                <a href="add_parameters.php?culture_id=<?= $active_culture[0]->id; ?>" target="_blank" class="btn btn-primary btn-add <?= $active_culture[0]->manager_id != $_SESSION['user_id'] ?  "disabled" : "" ?>">Add Parameters</a>
+                                <a href="add_parameters.php?culture_id=<?= $active_culture->id; ?>" target="_blank" class="btn btn-primary btn-add <?= $active_culture->manager_id != $_SESSION['user_id'] ?  "disabled" : "" ?>">Add Parameters</a>
                             </div>
                             <div class="col-6 text-end">
-                                <input type="submit" name="delete_param" value="Delete" class="btn btn-primary" <?= $active_culture[0]->manager_id != $_SESSION['user_id'] ?  "disabled" : "" ?> />
+                                <input type="submit" name="delete_param" value="Delete" class="btn btn-primary" <?= $active_culture->manager_id != $_SESSION['user_id'] ?  "disabled" : "" ?> />
                             </div>
                         </div>
                     </div>

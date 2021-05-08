@@ -1,5 +1,4 @@
 <?php
-session_start();
 include('parameters_handler.php');
 
 if (!isset($_SESSION['user_name'])) {
@@ -66,12 +65,20 @@ if (isset($_GET['culture_id'])) {
   </nav>
   <div class="container">
     <div class="container-fluid py-5"></div>
-    <h2 class="display-1">Add parameters to <?= $active_culture->name ?></h2>
+    <h2 class="display-1">Add parameters to <?= $active_culture->name ?></b></h2>
     <h6 class="section-title text-light text-center">Click the checkboxes of the parameters you want to link together.</h6>
-
+    <?php if (isset($error)) : ?>
+      <div class="alert alert-danger"><?= $error ?></div>
+    <?php endif ?>
+    <?php if (isset($warning)) : ?>
+      <div class="alert alert-warning"><?= $warning ?></div>
+    <?php endif ?>
+    <?php if (isset($success)) : ?>
+      <div class="alert alert-success"><?= $success ?></div>
+    <?php endif ?>
     <section class="section-params my-5">
       <form action="add_parameters.php?culture_id=<?= $active_culture->id ?>" method="POST" style="padding: 0;" source="custom" name="form">
-        
+
         <div class="row py-3">
           <div class="col-12">
             <input type="checkbox" id="name-f2a8" name="hum" value="On" class="form-check-input">
@@ -114,16 +121,16 @@ if (isset($_GET['culture_id'])) {
             <label for="checkbox-b369" class="form-label">Light</label>
           </div>
           <div class="col-md-4">
-            
+
             <label for="text-ff66" class="form-label">Minimum Value</label>
             <input type="number" min="0" placeholder="Enter min tolerated" id="text-ff66" name="min_l" value="0" class="form-control">
-            
+
           </div>
           <div class="col-md-4">
-            
+
             <label for="text-38c5" class="form-label">Maximum Value</label>
             <input type="number" min="0" placeholder="Enter max tolerated" id="text-38c5" name="max_l" value="0" class="form-control">
-            
+
           </div>
           <div class="col-md-4">
             <label for="text-8204" class="form-label">Tolerance</label>
@@ -134,20 +141,20 @@ if (isset($_GET['culture_id'])) {
           <!--<a href="#" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">Submit</a>-->
 
           <a href="index.php?culture_id=<?= $active_culture->id ?>" class="btn btn-primary">Go Back</a>
-        
+
           <input type="hidden" name="culture_id" value="<?= $active_culture->id ?>">
           <input type="hidden" name="culture_name" value="<?= $active_culture->name ?>">
           <input type="submit" value="Submit" name="submit" class="btn btn-primary">
-          
-          
+
+
         </div>
-        
+
         <!--<div class="u-form-send-message u-form-send-success"> Your form has been successfully submitted :) </div>
         <div class="u-form-send-error u-form-send-message"> Unable to send your data. Please fix errors then try again. </div>
         <input type="hidden" value="" name="recaptchaResponse">-->
-        
+
       </form>
-    </div>
-  </body>
-  
-  </html>
+  </div>
+</body>
+
+</html>

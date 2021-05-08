@@ -43,7 +43,7 @@ if (isset($_GET['logout'])) {
         <?php if (isset($_SESSION['user_email'])) : ?>
 
             <div class="container-fluid py-5"></div>
-            <h2 class="display-1">Welcome <?php echo $_SESSION['user_name']; ?></h2>
+            <h2 class="display-1">Welcome <b><?php echo $_SESSION['user_name']; ?></b></h2>
 
             <?php if ($_SESSION['user_role'] == 'group_researcher') : ?>
                 <!-- Researcher View -->

@@ -1,5 +1,7 @@
 <?php
+session_start();
 include('db/config.php');
+
 //echo var_dump($_POST['culture_id']);
 
 // verifica se existe pelo menos uma checkbox assinalada
@@ -23,8 +25,11 @@ if (isset($_POST['hum']) || isset($_POST['temp']) || isset($_POST['luz'])) {
         array_push($params, "'L', $_POST[max_l], $_POST[min_l], $_POST[tol_l]");
     }
 
-    create_params($params);
-
+    $res=create_params($params);
+    if($res)
+        $success = 'Your form has been successfully submitted :)';
+    else
+        $error = 'Unable to send your data. Please fix errors then try again.';
     //include('index.php');
     //header("location: add_parameters.php");
 
@@ -32,15 +37,18 @@ if (isset($_POST['hum']) || isset($_POST['temp']) || isset($_POST['luz'])) {
 
     // verifica se o formulario ja foi submitted
     if (isset($_POST['submit'])) {
-        echo '<div class="alert alert-warning"> Please select at least one of the checkboxes (Humidity, Temperature, Light) </div>';
+        $warning = 'Please select at least one of the checkboxes (Humidity, Temperature, Light)';
     }
 }
 
 if (isset($_POST['delete_param'])) {
+    
     $checkboxes = $_POST['chk_param'];
 
     $result = delete_culture_params($checkboxes);
     $success = "Parameter deleted";
+
+    header("location: index.php?culture_id=" . $_GET['culture_id']);
 }
 
 
@@ -64,11 +72,7 @@ function create_params($params)
     $results = mysqli_multi_query($conn, $query);
     mysqli_close($conn);
 
-    if ($results) {
-        echo '<div class="alert alert-success"> Your form has been successfully submitted :) </div>';
-    } else {
-        echo '<div class="alert alert-danger"> Unable to send your data. Please fix errors then try again. </div>';
-    }
+    return $results;
 }
 
 
