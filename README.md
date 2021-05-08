@@ -74,12 +74,12 @@ FLUSH PRIVILEGES;
 ```
 - Criação de users e culturas default (como root ou admin)  
 
-|User          |Email          |Name   |Pass |Role             | 
-|--------------|---------------|-------|-----|-----------------| 
-|Administrador |admin1@foo.bar |Admin1 |pass |group_admin      | 
-|Investigador  |res1@foo.bar   |Res1   |pass |group_researcher | 
-|Investigador  |res2@foo.bar   |Res2   |pass |group_researcher | 
-|Técnico Man.  |tech1@foo.bar  |Tech1  |pass |group_technician | 
+|User          |Email          |Name        |Pass |Role             | 
+|--------------|---------------|------------|-----|-----------------| 
+|Administrador |admin1@foo.bar |Admin1      |pass |group_admin      | 
+|Investigador  |res1@foo.bar   |Aristotle   |pass |group_researcher | 
+|Investigador  |res2@foo.bar   |Darwin      |pass |group_researcher | 
+|Técnico Man.  |tech1@foo.bar  |Tech1       |pass |group_technician | 
   
 ⚠️Script de reset à DB já corre estes comandos
 ```mysql
@@ -90,10 +90,10 @@ DELIMITER $$
 SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin'; 
 SET @admin1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @admin1_id);
 
-SET @p0='res1@foo.bar'; SET @p1='Res1'; SET @p2='pass'; SET @p3='researcher'; 
+SET @p0='res1@foo.bar'; SET @p1='Aristotle'; SET @p2='pass'; SET @p3='researcher'; 
 SET @res1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @res1_id);
 
-SET @p0='res2@foo.bar'; SET @p1='Res2'; SET @p2='pass'; SET @p3='researcher'; 
+SET @p0='res2@foo.bar'; SET @p1='Darwin'; SET @p2='pass'; SET @p3='researcher'; 
 SET @res2_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @res2_id);
 
 SET @p0='tech1@foo.bar'; SET @p1='Tech1'; SET @p2='pass'; SET @p3='technician'; 
