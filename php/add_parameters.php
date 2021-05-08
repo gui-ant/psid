@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('add_parameters_handler.php');
+include('parameters_handler.php');
 
 if (!isset($_SESSION['user_name'])) {
   $_SESSION['msg'] = "Inicie sessão";
@@ -12,6 +12,12 @@ if (isset($_GET['logout'])) {
   header("location: auth/login.php");
 }
 
+if (isset($_GET['culture_id'])) {
+  $url = "localhost/psid/php/db/getStoredProcData.php?sp=spGetCultureById&p=" . $_GET['culture_id'] . "&json=true";
+  $res = db_curl_request($url);
+  $active_culture = json_decode($res)[0];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -20,12 +26,13 @@ if (isset($_GET['logout'])) {
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="utf-8">
-  <meta name="keywords" content="Udpate Culture">
+  <meta name="keywords" content="Update Culture">
   <meta name="description" content="">
   <meta name="page_type" content="np-template-header-footer-from-plugin">
   <title>Add Parameters</title>
-  <link rel="stylesheet" href="css/nicepage.css" media="screen">
-  <link rel="stylesheet" href="css/add_parameters.css" media="screen">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+  <link href="css/styles.css" rel="stylesheet" type="text/css" media="screen">
+
   <script class="u-script" type="text/javascript" src="js/jquery.js" defer=""></script>
   <!--<script class="u-script" type="text/javascript" src="nicepage.js" defer=""></script>-->
   <meta name="generator" content="Nicepage 3.9.3, nicepage.com">
@@ -46,105 +53,101 @@ if (isset($_GET['logout'])) {
   <meta property="og:url" content="index.html">
 </head>
 
-<body class="u-body">
-  <section class="u-align-center u-clearfix u-grey-90 u-section-1" id="carousel_49f6">
-    <div class="u-clearfix u-sheet u-sheet-1">
-      <h3 class="u-text u-text-body-alt-color u-text-1">Add parameters to <?php echo $_POST['culture_name'] ?></h3>
-      <h6 class="u-align-center u-text u-text-grey-10 u-text-2">Click the checkboxes of the parameters you want to link together.</h6><br><br><br>
-      <div class="u-form u-form-1">
-
-        <form action="add_parameters.php" method="POST" class="u-clearfix u-form-spacing-12 u-form-vertical u-inner-form" style="padding: 0;" source="custom" name="form">
-
-          <input type="hidden" name="culture_id" value="<?= $_POST['culture_id']; ?>">
-          <input type="hidden" name="culture_name" value="<?= $_POST['culture_name']; ?>">
-          <div class="u-form-checkbox u-form-group u-form-partition-factor-3 u-form-group-2">
-
-            <input type="checkbox" id="name-f2a8" name="hum" value="On" class="u-block-d8e4-33 u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input-rectangle" style="">
-            <label for="name-f2a8" class="u-label u-label-2">Humidity</label>
-
-          </div>
-          <div class="u-form-group u-form-partition-factor-2 u-form-group-3">
-
-            <label for="date-4441" class="u-label u-label-3">Minimum Humidity</label>
-            <input type="number" min="0" placeholder="Enter min tolerated" id="date-4441" name="min_h" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-form-group u-form-partition-factor-2 u-form-group-4">
-
-            <label for="phone-447e" class="u-label u-label-4">Maximum Humidity</label>
-            <input type="number" min="0" placeholder="Enter max tolerated" id="phone-447e" name="max_h" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-form-group u-form-group-5">
-
-            <label for="text-02a9" class="u-label u-label-5">Tolerance</label>
-            <input type="number" min="0" placeholder="Enter a tolerance in seconds (optional)" id="text-02a9" name="tol_h" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-form-checkbox u-form-group u-form-partition-factor-2 u-form-group-6">
-
-            <input type="checkbox" id="checkbox-2df2" name="temp" value="On">
-            <label for="checkbox-2df2" class="u-label u-label-6">Temperature</label>
-
-          </div>
-          <div class="u-form-group u-form-partition-factor-2 u-form-group-7">
-
-            <label for="text-6dba" class="u-label u-label-7">Minimum Temperature</label>
-            <input type="number" min="0" placeholder="Enter min tolerated" id="text-6dba" name="min_t" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-form-group u-form-partition-factor-2 u-form-group-8">
-
-            <label for="text-12ad" class="u-label u-label-8">Maximum Temperature</label>
-            <input type="number" min="0" placeholder="Enter max tolerated" id="text-12ad" name="max_t" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-form-group u-form-group-9">
-
-            <label for="text-960b" class="u-label u-label-9">Tolerance</label>
-            <input type="number" min="0" placeholder="Enter a tolerance in seconds (optional)" id="text-960b" name="tol_t" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-form-checkbox u-form-group u-form-group-10">
-
-            <input type="checkbox" id="checkbox-b369" name="luz" value="On">
-            <label for="checkbox-b369" class="u-label u-label-10">Light</label>
-
-          </div>
-          <div class="u-form-group u-form-partition-factor-2 u-form-group-11">
-
-            <label for="text-ff66" class="u-label u-label-11">Minimum Light</label>
-            <input type="number" min="0" placeholder="Enter min tolerated" id="text-ff66" name="min_l" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-form-group u-form-partition-factor-2 u-form-group-12">
-
-            <label for="text-38c5" class="u-label u-label-12">Maximum Light</label>
-            <input type="number" min="0" placeholder="Enter max tolerated" id="text-38c5" name="max_l" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-form-group u-form-group-13">
-
-            <label for="text-8204" class="u-label u-label-13">Tolerance</label>
-            <input type="number" min="0" placeholder="Enter a tolerance in seconds (optional)" id="text-8204" name="tol_l" value="0" class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle">
-
-          </div>
-          <div class="u-align-center u-form-group u-form-submit u-form-group-14">
-
-            <!--<a href="#" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">Submit</a>-->
-
-            <input type="submit" value="Submit" name="submit" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">
-            <a href="index.php" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">Go Back</a>
-          </div>
-
-          <!--<div class="u-form-send-message u-form-send-success"> Your form has been successfully submitted :) </div>
-            <div class="u-form-send-error u-form-send-message"> Unable to send your data. Please fix errors then try again. </div>
-            <input type="hidden" value="" name="recaptchaResponse">-->
-        </form>
+<body class="bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container"><button type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"><span class="navbar-toggler-icon"></span></button>
+      <div id="navbarResponsive" class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item"></li><a href="index.php" class="nav-link">Home</a>
+          <li class="nav-item"><a href="?logout='1'" class="nav-link">Logout</a></li>
+        </ul>
       </div>
     </div>
-  </section>
+  </nav>
+  <div class="container">
+    <div class="container-fluid py-5"></div>
+    <h2 class="display-1">Add parameters to <?= $active_culture->name ?></h2>
+    <h6 class="section-title text-light text-center">Click the checkboxes of the parameters you want to link together.</h6>
 
-</body>
+    <section class="section-params my-5">
+      <form action="add_parameters.php?culture_id=<?= $active_culture->id ?>" method="POST" style="padding: 0;" source="custom" name="form">
+        
+        <div class="row py-3">
+          <div class="col-12">
+            <input type="checkbox" id="name-f2a8" name="hum" value="On" class="form-check-input">
+            <label for="name-f2a8" class="form-label">Humidity</label>
+          </div>
+          <div class="col-md-4">
+            <label for="date-4441" class="form-label">Minimum Value</label>
+            <input type="number" min="0" placeholder="Enter min tolerated" id="date-4441" name="min_h" value="0" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="phone-447e" class="form-label">Maximum Value</label>
+            <input type="number" min="0" placeholder="Enter max tolerated" id="phone-447e" name="max_h" value="0" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="text-02a9" class="form-label">Tolerance</label>
+            <input type="number" min="0" placeholder="Enter a tolerance in seconds (optional)" id="text-02a9" name="tol_h" value="0" class="form-control">
+          </div>
+        </div>
+        <div class="row py-3">
+          <div class="col-12">
+            <input type="checkbox" id="checkbox-2df2" name="temp" value="On" class="form-check-input">
+            <label for="checkbox-2df2" class="form-label">Temperature</label>
+          </div>
+          <div class="col-md-4">
+            <label for="text-6dba" class="form-label">Minimum Value</label>
+            <input type="number" min="0" placeholder="Enter min tolerated" id="text-6dba" name="min_t" value="0" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="text-12ad" class="form-label">Maximum Value</label>
+            <input type="number" min="0" placeholder="Enter max tolerated" id="text-12ad" name="max_t" value="0" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="text-960b" class="form-label">Tolerance</label>
+            <input type="number" min="0" placeholder="Enter a tolerance in seconds (optional)" id="text-960b" name="tol_t" value="0" class="form-control">
+          </div>
+        </div>
+        <div class="row py-3">
+          <div class="col-12">
+            <input type="checkbox" id="checkbox-b369" name="luz" value="On" class="form-check-input">
+            <label for="checkbox-b369" class="form-label">Light</label>
+          </div>
+          <div class="col-md-4">
+            
+            <label for="text-ff66" class="form-label">Minimum Value</label>
+            <input type="number" min="0" placeholder="Enter min tolerated" id="text-ff66" name="min_l" value="0" class="form-control">
+            
+          </div>
+          <div class="col-md-4">
+            
+            <label for="text-38c5" class="form-label">Maximum Value</label>
+            <input type="number" min="0" placeholder="Enter max tolerated" id="text-38c5" name="max_l" value="0" class="form-control">
+            
+          </div>
+          <div class="col-md-4">
+            <label for="text-8204" class="form-label">Tolerance</label>
+            <input type="number" min="0" placeholder="Enter a tolerance in seconds (optional)" id="text-8204" name="tol_l" value="0" class="form-control">
+          </div>
+        </div>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+          <!--<a href="#" class="u-black u-btn u-btn-rectangle u-btn-submit u-button-style u-btn-1">Submit</a>-->
 
-</html>
+          <a href="index.php?culture_id=<?= $active_culture->id ?>" class="btn btn-primary">Go Back</a>
+        
+          <input type="hidden" name="culture_id" value="<?= $active_culture->id ?>">
+          <input type="hidden" name="culture_name" value="<?= $active_culture->name ?>">
+          <input type="submit" value="Submit" name="submit" class="btn btn-primary">
+          
+          
+        </div>
+        
+        <!--<div class="u-form-send-message u-form-send-success"> Your form has been successfully submitted :) </div>
+        <div class="u-form-send-error u-form-send-message"> Unable to send your data. Please fix errors then try again. </div>
+        <input type="hidden" value="" name="recaptchaResponse">-->
+        
+      </form>
+    </div>
+  </body>
+  
+  </html>
