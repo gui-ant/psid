@@ -45,10 +45,10 @@ use g07_local
 SET @p0='admin1@foo.bar'; SET @p1='Admin1'; SET @p2='pass'; SET @p3='admin'; 
 SET @admin1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @admin1_id);
 
-SET @p0='res1@foo.bar'; SET @p1='Res1'; SET @p2='pass'; SET @p3='researcher'; 
+SET @p0='res1@foo.bar'; SET @p1='Aristotle'; SET @p2='pass'; SET @p3='researcher'; 
 SET @res1_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @res1_id);
 
-SET @p0='res2@foo.bar'; SET @p1='Res2'; SET @p2='pass'; SET @p3='researcher'; 
+SET @p0='res2@foo.bar'; SET @p1='Darwin'; SET @p2='pass'; SET @p3='researcher'; 
 SET @res2_id=-1; CALL spCreateUser(@p0, @p1, @p2, @p3, @res2_id);
 
 SET @p0='tech1@foo.bar'; SET @p1='Tech1'; SET @p2='pass'; SET @p3='technician'; 
