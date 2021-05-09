@@ -22,11 +22,11 @@
                 <?php endif ?>
                 <div class="form-group">
                     <label for="emaiInput" class="form-label">Email</label>
-                    <input type="email" name="email" value="<?= isset($_SESSION['email']) ? $_SESSION['email'] : "" ?>" class="form-control" id="emaiInput" placeholder="Enter your e-mail">
+                    <input type="email" name="email" value="<?= isset($_SESSION['email']) ? $_SESSION['email'] : "" ?>" class="form-control form-input" id="emaiInput" placeholder="Enter your e-mail">
                 </div>
                 <div class="form-group">
                     <label for="passwordInput" class="form-label">Password</label>
-                    <input type="password" name="pass" value="" class="form-control" id="passwordInput" placeholder="Enter your password">
+                    <input type="password" name="pass" value="" class="form-control form-input" id="passwordInput" placeholder="Enter your password">
                 </div>
                 <div class="d-grid col-4 mx-auto">
                     <button type="submit" class="btn btn-lg btn-primary mt-2" name="login_user">Login</button>
