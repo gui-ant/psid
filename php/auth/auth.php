@@ -64,16 +64,15 @@ if (isset($_POST['login_user'])) {
         array_push($errors, "Email ou password incorretos");
     else
         header('location: ../index.php');
-
 }
 
 function login($email, $password)
 {
 
-//    $db = $GLOBALS['db'];
+    //    $db = $GLOBALS['db'];
     $errors = $GLOBALS['errors'];
-//    $email = mysqli_real_escape_string($db, $email);
-//    $password = mysqli_real_escape_string($db, $pass);
+    //    $email = mysqli_real_escape_string($db, $email);
+    //    $password = mysqli_real_escape_string($db, $pass);
 
     if (empty($email)) array_push($errors, "Email é obrigatório");
     if (empty($password)) array_push($errors, "Password é obrigatória");
@@ -81,47 +80,58 @@ function login($email, $password)
     if (count($errors) == 0) {
         //$password = md5($password);
         //$query = "SELECT * FROM users WHERE email='$email' AND pass='$password'";
-		//$GLOBALS['mysql_user'] = $email;
+        //$GLOBALS['mysql_user'] = $email;
         //$GLOBALS['mysql_pass'] = $password;
+
+        //$hashedPwd = password_hash($password, PASSWORD_DEFAULT);
+
         $conn = db_connect($email, $password);
         //$results = mysqli_query($db, $query);
 
-//         if (mysqli_num_rows($results) == 1) {
-//             $row = mysqli_fetch_array($results);
-//             $_SESSION['user_id'] = $row['id'];
-//             $_SESSION['username'] = $row['name'];
-//             $_SESSION['user_role'] = $row['role_id'];
-//             $_SESSION['success'] = "Sessão iniciada";
-//             return true;
-//         } else {
-//             return false;
+        //         if (mysqli_num_rows($results) == 1) {
+        //             $row = mysqli_fetch_array($results);
+        //             $_SESSION['user_id'] = $row['id'];
+        //             $_SESSION['username'] = $row['name'];
+        //             $_SESSION['user_role'] = $row['role_id'];
+        //             $_SESSION['success'] = "Sessão iniciada";
+        //             return true;
+        //         } else {
+        //             return false;
 
         if (!$conn) {
-          die("Connection failed: " .$conn->connect_error);
-          return false;
+            //die("Connection failed: " .$conn->connect_error);
+            return false;
         }
 
-        $query = "SELECT *, CURRENT_ROLE() as role FROM users WHERE email='$email'";
-        $results = mysqli_query($conn, $query);
+        $sql = "SELECT *, CURRENT_ROLE() as role FROM users WHERE email= ?";
+        $stmt = mysqli_stmt_init($conn);
+        if (!mysqli_stmt_prepare($stmt, $sql)) {
+            header("location: /login.php?error=stmtfalhou ");
+            exit();
+        }
+        mysqli_stmt_bind_param($stmt, "s", $email);
+        mysqli_stmt_execute($stmt);
+        $results = mysqli_stmt_get_result($stmt);
+
+        //$results = mysqli_query($conn, $sql);
 
         if (mysqli_num_rows($results) == 1) {
             $row = mysqli_fetch_array($results);
             $_SESSION['user_id'] = $row['id'];
-			$_SESSION['user_email'] = $email;
+            $_SESSION['user_email'] = $email;
             $_SESSION['user_name'] = $row['username'];
             //$_SESSION['user_role'] = $row['role_id'];
             $_SESSION['user_role'] = $row['role'];
-			$_SESSION['user_pass'] = $password;
+            $_SESSION['user_pass'] = $password;
             $_SESSION['success'] = "Sessão iniciada";
-			
-			mysqli_close($conn);
-			
+
+            mysqli_close($conn);
+
             return true;
         } else {
-			
-			mysqli_close($conn);
+
+            mysqli_close($conn);
             return false;
         }
-
     }
 }
