@@ -60,7 +60,7 @@ public class ParamAnalyser {
         int tolerance = param.getTolerance();
         Timestamp headTime = measurements.get(0).getTimestamp();
         for (Measurement measure : measurements) {
-            if (Double.parseDouble(measure.getMeasure()) < param.getValMax() && Double.parseDouble(measure.getMeasure()) > param.getValMin()) {
+            if (Double.parseDouble(measure.getValue()) < param.getValMax() && Double.parseDouble(measure.getValue()) > param.getValMin()) {
                 return false;
             }
 
@@ -92,14 +92,14 @@ public class ParamAnalyser {
         double diff = (param.getValMax() - param.getValMin()) * 0.3;
         double minLim = param.getValMax() - diff;
 
-        double val = Double.parseDouble(measurements.get(0).getMeasure());
+        double val = Double.parseDouble(measurements.get(0).getValue());
 
         if (val > param.getValMax() || val < minLim || measurements.size() < numCycles) {
             return false;
         }
 
         for (int ind = 1; ind < numCycles; ind++) {
-            double newval = Double.parseDouble(measurements.get(ind).getMeasure());
+            double newval = Double.parseDouble(measurements.get(ind).getValue());
             if (newval >= val || newval > param.getValMax() || newval < minLim) {
                 return false;
             }
@@ -113,14 +113,14 @@ public class ParamAnalyser {
         double diff = (param.getValMax() - param.getValMin()) * 0.3;
         double maxLim = param.getValMin() + diff;
 
-        double val = Double.parseDouble(measurements.get(0).getMeasure());
+        double val = Double.parseDouble(measurements.get(0).getValue());
 
         if (val > maxLim || val < param.getValMin() || measurements.size() < numCycles) {
             return false;
         }
 
         for (int ind = 1; ind < numCycles; ind++) {
-            double newval = Double.parseDouble(measurements.get(ind).getMeasure());
+            double newval = Double.parseDouble(measurements.get(ind).getValue());
             if (newval <= val || newval > maxLim || newval < param.getValMin()) {
                 return false;
             }

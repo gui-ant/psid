@@ -10,39 +10,33 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class MongoToSQL {
     private final Connection connection; //local
-    private final SqlSender sender;
+    private final SqlDataHandler sqlDataHandler;
     private final int sleep_time;
     // PreAlertSet (comum a threads e supervisor)
     private PreAlertSet preAlertSet;
     private ParameterSupervisor supervisor;
 
-    public MongoToSQL(Connection connection, SqlSender sender, int sleep_time_seconds) {
+    public MongoToSQL(Connection connection, SqlDataHandler sqlDataHandler, int sleep_time_seconds) {
         this.connection = connection;
-        this.sender = sender;
+        this.sqlDataHandler = sqlDataHandler;
         this.sleep_time = (sleep_time_seconds * 1000);
 
         // criar PreAlertSet e Supervisor
-        this.preAlertSet = new PreAlertSet(sender.getCultureParamsSet());
+        this.preAlertSet = new PreAlertSet(sqlDataHandler.getCultureParamsSet());
         this.supervisor = new ParameterSupervisor(preAlertSet);
         supervisor.start();
-    }
-
-    public List<Sensor> getSensorsInfo() {
-        List<Sensor> s = new ArrayList<>();
-        List<Zone> z = new ArrayList<>();
-        return s;
     }
 
     public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
                 (collectionName, buffer) -> {
-                    new SqlPublisher(connection, buffer, sender, sleep_time, preAlertSet).start();
+                    new AlertsPublisher(connection, buffer, sqlDataHandler, sleep_time, preAlertSet).start();
                 }
         );
     }
 
-    static class SqlPublisher extends Thread {
-        private final SqlSender sender;
+    static class AlertsPublisher extends Thread {
+        private final SqlDataHandler sender;
         private final Connection connection;
         private final LinkedBlockingQueue<Measurement> buffer;
         private final double ERROR_PERCENTAGE = 0.33;
@@ -53,7 +47,7 @@ public class MongoToSQL {
 
         private ReadingStats stats;
 
-        SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time, PreAlertSet preAlertSet) {
+        AlertsPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlDataHandler sender, int sleep_time, PreAlertSet preAlertSet) {
             this.buffer = buffer;
             this.connection = connection;
             this.sender = sender;
@@ -93,7 +87,7 @@ public class MongoToSQL {
                         stats.incrementErrors();
                     }
                     else {
-                        acc += Double.parseDouble(measurement.getMeasure());
+                        acc += Double.parseDouble(measurement.getValue());
                         counter++;
                         lastValidMeas = measurement;
 
@@ -108,7 +102,7 @@ public class MongoToSQL {
 
                     if (counter != 0) {
                         mean_value = acc / counter;
-                        lastValidMeas.setMeasure(Double.toString(mean_value));
+                        lastValidMeas.setValue(Double.toString(mean_value));
                         publish(lastValidMeas, true);
                     }
 
@@ -147,7 +141,7 @@ public class MongoToSQL {
         private boolean isNotValid(Measurement measurement) {
             double min = sender.getSensors().get(measurement.getSensor()).getMinLim();
             double max = sender.getSensors().get(measurement.getSensor()).getMaxLim();
-            double value = Double.parseDouble(measurement.getMeasure());
+            double value = Double.parseDouble(measurement.getValue());
 
             return value < min || value > max;
         }
@@ -156,7 +150,7 @@ public class MongoToSQL {
             sender.send(connection, measurement, isValid);
         }
 
-        private ParamAnalyser createAnalyser(SqlSender sender, int rate) {
+        private ParamAnalyser createAnalyser(SqlDataHandler sender, int rate) {
             ArrayList<CultureParams> list = new ArrayList<>();
             Measurement mea = buffer.peek();
             if (mea == null) {

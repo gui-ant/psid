@@ -1,13 +1,19 @@
 package grp07;
 
+import common.SqlConnector;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-public class SqlSender {
-    private final Connection connCloud;
-    private final Connection connLocal;
+public final class SqlDataHandler {
+    private static final String MYSQL_CLOUD_URI = "";
+    private static final String MYSQL_CLOUD_USER = "";
+    private static final String MYSQL_CLOUD_PASS = "";
+    private static final String MYSQL_LOCAL_URI = "";
+    private static final String MYSQL_LOCAL_USER = "";
+    private static final String MYSQL_LOCAL_PASS = "";
 
     private final Hashtable<Long, User> users = new Hashtable<>();
     private final Hashtable<String, Zone> zones = new Hashtable<>();
@@ -15,32 +21,25 @@ public class SqlSender {
     private final Hashtable<Long, Culture> cultures = new Hashtable<>();// Todas as culturas, com as respetivas parametrizações associadas
     private final Hashtable<Long, List<CultureParams>> cultureParamsSet = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
 
-    public SqlSender(Connection connCloud, Connection connLocal) {
+    private SqlConnector connCloud = null;
+    private SqlConnector connLocal = null;
 
-        this.connCloud = connCloud;
-        this.connLocal = connLocal;
+    public SqlDataHandler() {
+        try {
+            this.connCloud = new SqlConnector(MYSQL_CLOUD_URI, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        try {
+            this.connLocal = new SqlConnector(MYSQL_LOCAL_URI, MYSQL_LOCAL_USER, MYSQL_LOCAL_PASS);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         fetchUsers();
         fetchZones();
         fetchSensors();
         fetchCultures();
         fetchCultureParams();
-    }
-
-    private void fetchUsers() {
-        String query = "SELECT * FROM users";
-        try (Statement st = connLocal.createStatement()) {
-            ResultSet res = st.executeQuery(query);
-
-            while (res.next()) {
-                User u = new User(res.getInt("id"));
-                u.setEmail(res.getString("email"));
-                u.setName(res.getString("username"));
-
-                users.put(u.getId(), u);
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
     }
 
     public Hashtable<Long, List<CultureParams>> getCultureParamsSet() {
@@ -55,6 +54,24 @@ public class SqlSender {
         return zones;
     }
 
+    private void fetchUsers() {
+        String query = "SELECT * FROM users";
+        try (Statement st = connLocal.getConnection().createStatement()) {
+            ResultSet res = st.executeQuery(query);
+
+            while (res.next()) {
+                User u = new User(res.getInt("id"));
+                u.setEmail(res.getString("email"));
+                u.setName(res.getString("username"));
+
+                users.put(u.getId(), u);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+
     private void fetchCultureParams() {
         cultures.forEach((id, culture) -> {
             // Devolve parametrizações por id de cultura
@@ -65,7 +82,7 @@ public class SqlSender {
                     "ON sets.id = rel.set_id " +
                     "WHERE sets.culture_id = " + id;
 
-            try (Statement st = connLocal.createStatement()) {
+            try (Statement st = connLocal.getConnection().createStatement()) {
                 ResultSet res = st.executeQuery(query);
                 if (!res.next()) {
                     // No parameters
@@ -94,7 +111,7 @@ public class SqlSender {
     private void fetchCultures() {
         String query = "SELECT * FROM cultures " +
                 "JOIN users on cultures.manager_id=users.id ";
-        try (Statement st = connLocal.createStatement()) {
+        try (Statement st = connLocal.getConnection().createStatement()) {
             ResultSet res = st.executeQuery(query);
 
             while (res.next()) {
@@ -112,7 +129,7 @@ public class SqlSender {
 
     private void fetchZones() {
         String query = "SELECT * FROM zones";
-        try (Statement st = connCloud.createStatement()) {
+        try (Statement st = connCloud.getConnection().createStatement()) {
             ResultSet res = st.executeQuery(query);
 
             while (res.next()) {
@@ -126,7 +143,7 @@ public class SqlSender {
 
     private void fetchSensors() {
         String query = "SELECT s.*, z.name FROM sensors as s JOIN zones as z on s.zone_id = z.id";
-        try (Statement st = connCloud.createStatement()) {
+        try (Statement st = connCloud.getConnection().createStatement()) {
             ResultSet res = st.executeQuery(query);
 
             while (res.next()) {
@@ -144,42 +161,5 @@ public class SqlSender {
         }
     }
 
-    public synchronized void send(Connection connection, Measurement measurement, boolean isValid) {
 
-        // buscar dados e extrair valores
-
-        System.out.println("To insert: " + measurement);
-        try {
-            String id = measurement.getId().toString();
-            Zone zone = zones.get(measurement.getZone());
-            Sensor sensor = sensors.get(measurement.getSensor());
-            String value = measurement.getMeasure();
-            //Timestamp date = measurement.getTimestamp();
-            Timestamp date = new Timestamp(System.currentTimeMillis());
-
-
-            //enviar para SQL
-            String sql = "INSERT INTO measurements (id, value, sensor_id, zone_id, date, is_correct) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, id);
-            statement.setString(2, value);
-            statement.setInt(3, zone.getId());
-            statement.setInt(4, sensor.getId());
-            statement.setTimestamp(5, date);
-            statement.setBoolean(6, isValid);
-
-
-            int rows = statement.executeUpdate();
-            if (rows > 0) {
-                System.out.println("Inserted value successfully!!!");
-            }
-
-            statement.close();
-
-
-        } catch (Exception e) {
-            System.out.println("Connection failed!!!");
-            e.printStackTrace();
-        }
-    }
 }

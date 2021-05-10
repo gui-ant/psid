@@ -1,9 +1,13 @@
 package grp07;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
 
 import java.sql.Timestamp;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * The Measurement Pojo
@@ -11,14 +15,18 @@ import java.sql.Timestamp;
 public final class Measurement {
 
     private ObjectId id;
+    @JsonProperty(value = "Zona")
     @BsonProperty(value = "Zona")
     private String zone;
+    @JsonProperty(value = "Sensor")
     @BsonProperty(value = "Sensor")
     private String sensor;
+    @JsonProperty(value = "Data")
     @BsonProperty(value = "Data")
     private String date;
+    @JsonProperty(value = "Medicao")
     @BsonProperty(value = "Medicao")
-    private String measure;
+    private String value;
 
     public Measurement() {
     }
@@ -43,8 +51,9 @@ public final class Measurement {
         return sensor;
     }
 
+    @BsonIgnore
     public String getSensorType() {
-        return sensor.substring(0,1);
+        return sensor.substring(0, 1);
     }
 
     public void setSensor(String sensor) {
@@ -55,6 +64,7 @@ public final class Measurement {
         return date.replaceAll("[TZ]", " ").trim();
     }
 
+    @BsonIgnore
     public Timestamp getTimestamp() {
         return java.sql.Timestamp.valueOf(getDate());
     }
@@ -63,12 +73,17 @@ public final class Measurement {
         this.date = date;
     }
 
-    public String getMeasure() {
-        return measure;
+    public String getValue() {
+        return value;
     }
 
-    public void setMeasure(String measure) {
-        this.measure = measure;
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @BsonIgnore
+    public byte[] toByteArray() {
+        return this.toString().getBytes(UTF_8);
     }
 
     @Override
@@ -87,7 +102,7 @@ public final class Measurement {
         result = 31 * result + (getZone() != null ? getZone().hashCode() : 0);
         result = 31 * result + (getSensor() != null ? getSensor().hashCode() : 0);
         result = 31 * result + (getDate() != null ? getDate().hashCode() : 0);
-        result = 31 * result + (getMeasure() != null ? getMeasure().hashCode() : 0);
+        result = 31 * result + (getValue() != null ? getValue().hashCode() : 0);
         return result;
     }
 
@@ -98,7 +113,7 @@ public final class Measurement {
                 ", Zona='" + this.zone + "'" +
                 ", Sensor='" + this.sensor + "'" +
                 ", Data='" + this.date + "'" +
-                ", Medicao='" + this.measure + "'" +
+                ", Medicao='" + this.value + "'" +
                 '}';
     }
 }
