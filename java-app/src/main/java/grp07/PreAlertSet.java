@@ -47,7 +47,7 @@ public class PreAlertSet {
         for (Long id : allParams.keySet()) {
             List<CultureParams> paramSet = allParams.get(id);
             if (sus.containsAll(paramSet)) {
-                // REVER ISSO!!!
+                // TODO - enviar Alerta
                 Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), "wow mano, uma mensagem");
             }
         }

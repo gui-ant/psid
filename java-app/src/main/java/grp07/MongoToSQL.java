@@ -63,7 +63,7 @@ public class MongoToSQL {
             this.preAlertSet = preAlertSet;
             this.analyser = createAnalyser(sender, sleep_time);
 
-            stats = new ReadingStats();
+            this.stats = new ReadingStats();
             ErrorSupervisor es = new ErrorSupervisor(stats, ERROR_PERCENTAGE);
             es.start();
         }
@@ -97,9 +97,6 @@ public class MongoToSQL {
                         counter++;
                         lastValidMeas = measurement;
 
-                       // É AQUI???
-                       analyser.addMeasurement(measurement);
-                       analyser.analyseParameters();
                     }
                     // Confrontar a medição com as parametrizações que existem
                     // para a tipologia de sensor dessa medição (H, T, L)
@@ -109,6 +106,11 @@ public class MongoToSQL {
                     if (counter != 0) {
                         mean_value = acc / counter;
                         lastValidMeas.setMeasure(Double.toString(mean_value));
+
+                        // TODO - É AQUI???
+                        analyser.addMeasurement(lastValidMeas);
+                        analyser.analyseParameters();
+
                         publish(lastValidMeas, true);
                     }
 
@@ -156,6 +158,8 @@ public class MongoToSQL {
             sender.send(connection, measurement, isValid);
         }
 
+        // cria um analisador de parametros, com os parametros filtrados desta thread
+        // TODO - testar!!!
         private ParamAnalyser createAnalyser(SqlSender sender, int rate) {
             ArrayList<CultureParams> list = new ArrayList<>();
             Measurement mea = buffer.peek();
@@ -176,7 +180,7 @@ public class MongoToSQL {
             return an;
         }
 
-
+        //thread que analisa a percentagem de leituras errada, a cada hora
         private class ErrorSupervisor extends Thread {
             private ReadingStats stats;
             private double percentage;
@@ -198,8 +202,10 @@ public class MongoToSQL {
                     }
                     int totalReadings = stats.getTotalReadings();
                     int totalErrors = stats.getTotalErrors();
-                    if (totalErrors/totalReadings >= percentage && totalReadings != 0) {
-                        //ENVIAR ALERTA!!!
+                    if (totalReadings != 0) {
+                        if (totalErrors / totalReadings >= percentage) {
+                            // TODO - ENVIAR ALERTA!!!
+                        }
                     }
                     stats.resetData();
                 }
