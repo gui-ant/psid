@@ -16,7 +16,7 @@ public class ClusterToMySQL {
 
             String[] collectionNames = {
                     "sensort1",
-                    "sensort2",
+//                    "sensort2",
             };
 
             Connection mysqlCloud = DriverManager.getConnection(TARGET_URL_CLOUD, "aluno", "aluno");

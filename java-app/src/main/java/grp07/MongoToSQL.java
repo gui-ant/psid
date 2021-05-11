@@ -90,7 +90,6 @@ public class MongoToSQL {
                         acc += Double.parseDouble(measurement.getValue());
                         counter++;
                         lastValidMeas = measurement;
-
                     }
                     // Confrontar a medição com as parametrizações que existem
                     // para a tipologia de sensor dessa medição (H, T, L)
@@ -142,6 +141,13 @@ public class MongoToSQL {
 
         private boolean isNotValid(Measurement measurement) {
             double min = sender.getSensors().get(measurement.getSensor()).getMinLim();
+
+            Sensor sensor = sender.getSensors().get(measurement.getSensor());
+            System.err.println(sensor.getId());
+            System.err.println(sensor.getZone());
+            System.err.println(sensor.getMinLim());
+            System.err.println(sensor.getMaxLim());
+
             double max = sender.getSensors().get(measurement.getSensor()).getMaxLim();
             double value = Double.parseDouble(measurement.getValue());
 
@@ -161,7 +167,8 @@ public class MongoToSQL {
                 return null;
             }
             Hashtable<Long, List<CultureParams>> cultureParamsSet = sender.getCultureParamsSet();
-            Zone zone = sender.getZones().get(mea.getZone());
+
+            Zone zone = sender.getZones().get(Long.parseLong(String.valueOf(mea.getZone().charAt(1))));
 
             for(List<CultureParams> params : cultureParamsSet.values()) {
                 for(CultureParams param : params) {
@@ -188,8 +195,6 @@ public class MongoToSQL {
             public void run() {
                 while (true) {
                     try {
-                        System.out.println("ErrorSupersivor: antes do sleep");
-                        System.out.println(stats.getTotalReadings());
                         sleep(3600 * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();

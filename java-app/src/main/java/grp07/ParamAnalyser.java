@@ -33,6 +33,9 @@ public class ParamAnalyser {
     }
 
     public void analyseParameters() {
+
+        System.err.println("analyse");
+
         for (CultureParams param : paramList) {
             boolean isSus = isSuspect(param);
             if (isSus) {

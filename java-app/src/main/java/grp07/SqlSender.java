@@ -151,7 +151,8 @@ public class SqlSender {
         System.out.println("To insert: " + measurement);
         try {
             String id = measurement.getId().toString();
-            Zone zone = zones.get(measurement.getZone());
+            //TODO - resolvi isto à pedreiro. Pode ser?
+            Zone zone = zones.get(Long.parseLong(String.valueOf(measurement.getZone().charAt(1))));
             Sensor sensor = sensors.get(measurement.getSensor());
             String value = measurement.getValue();
             //Timestamp date = measurement.getTimestamp();

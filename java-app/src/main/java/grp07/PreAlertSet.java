@@ -126,10 +126,40 @@ public class PreAlertSet {
         todosParams.put(1L, list);
 
         PreAlertSet pas = new PreAlertSet(todosParams);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
+        for (TimeParameterPair p : pas.susParams) {
+            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+        }
+        System.out.println("------------------------------");
+
         //pas.addPreAlert(Timestamp.from(Instant.now()), p2, true);
-        //pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
+        for (TimeParameterPair p : pas.susParams) {
+            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+        }
+        System.out.println("------------------------------");
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         pas.addPreAlert(Timestamp.from(Instant.now()), p3, true);
+        for (TimeParameterPair p : pas.susParams) {
+            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+        }
+        System.out.println("------------------------------");
+
 
 //        try {
 //            Thread.sleep(35000);
@@ -138,15 +168,16 @@ public class PreAlertSet {
 //        }
 
 
-        try {
-            pas.analyse();
-        } catch (InterruptedException e) {
-            System.out.println("ERRO!!!");
-        }
+//        try {
+//            pas.analyse();
+//        } catch (InterruptedException e) {
+//            System.out.println("ERRO!!!");
+//        }
     }
 */
 
-    private static class TimeParameterPair {
+
+    private class TimeParameterPair {
         private final Timestamp time;
         private final CultureParams param;
 
