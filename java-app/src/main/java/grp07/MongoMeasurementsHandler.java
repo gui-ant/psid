@@ -8,8 +8,7 @@ import common.MongoFetcher;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,15 +17,15 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 //  CASO A DB NAO ESTEJA ACESSIVEL!!!!!!!
 
-public class ConnectToMongo extends MongoConnector {
+public class MongoMeasurementsHandler extends MongoConnector {
     private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer = new ConcurrentHashMap<>();
 
-    public ConnectToMongo(String sourceUri) {
+    public MongoMeasurementsHandler(String sourceUri) {
         super(sourceUri);
         System.out.println("Connected to the database successfully");
     }
 
-    public ConnectToMongo(String sourceUri, String sourceDatabase) {
+    public MongoMeasurementsHandler(String sourceUri, String sourceDatabase) {
         this(sourceUri);
         useDatabase(sourceDatabase);
     }
@@ -43,9 +42,12 @@ public class ConnectToMongo extends MongoConnector {
 
     public void startFetching() {
         // Para cada collection lança uma thread
-        collectionsDataBuffer.forEach((collection, buffer) -> {
-            new Thread(new MeasurementFetcher(getMeasureCollection(collection), buffer)).start();
+        HashMap<String, MongoCollection<Measurement>> collections = new HashMap<>();
+        this.getCollectionsBuffer().forEach((name, buffer) -> {
+            collections.put(name, this.getCurrentDB().getCollection(name, Measurement.class));
         });
+
+        new MeasurementFetcher(collections).startFetching();
     }
 
     public void startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
@@ -63,45 +65,44 @@ public class ConnectToMongo extends MongoConnector {
     private class MeasurementFetcher extends MongoFetcher<Measurement> {
         private static final int SLEEP_TIME = 5000;
 
-        public MeasurementFetcher(MongoCollection<Measurement> collection, LinkedBlockingQueue<Measurement> buffer) {
-            super(collection, buffer);
+        public MeasurementFetcher(HashMap<String, MongoCollection<Measurement>> collections) {
+            super(collections);
         }
 
         @Override
-        protected Class<Measurement> getMapperClass() {
-            return Measurement.class;
+        protected void startFetching() {
+            this.getCollections().forEach((name, collection) -> {
+                new Thread(() -> {
+                    Measurement obj = getLastObject(collection);
+
+                    // TODO: Considerar a collection estar vazia,i.e. gerar mes = null
+                    ObjectId lastId = obj.getId();
+                    while (true) {
+                        try {
+                            System.out.println("Fetching " + name + "...");
+
+                            MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
+
+                            // Le os novos dados e adiciona-os ao buffer
+                            while (cursor.hasNext()) {
+                                obj = cursor.next();
+                                lastId = obj.getId();
+                                getCollectionBuffer(name).offer(obj);
+                                System.out.println("Fetched: " + obj.getId());
+                            }
+                            Thread.sleep(SLEEP_TIME);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            });
+
         }
 
         @Override
         protected Measurement getLastObject(MongoCollection<Measurement> collection) {
             return collection.find().sort(new Document("_id", -1)).limit(1).first();
-        }
-
-        @Override
-        public void run() {
-
-            Measurement doc = getLastObject(super.getCollection());
-
-            // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
-            ObjectId lastId = doc.getId();
-            while (true) {
-                try {
-                    System.out.println("Fetching " + getCollectionName(super.getCollection()) + "...");
-
-                    MongoCursor<Measurement> cursor = getCollection().find(Filters.gt("_id", lastId)).iterator();
-
-                    // Le os novos dados e adiciona-os ao buffer
-                    while (cursor.hasNext()) {
-                        doc = cursor.next();
-                        lastId = doc.getId();
-                        getBuffer().offer(doc);
-                        System.out.println("Fetched: " + doc.getId());
-                    }
-                    sleep(SLEEP_TIME);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 

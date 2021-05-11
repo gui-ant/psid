@@ -22,7 +22,7 @@ public class BrokerToMySql {
 
     private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
-    public BrokerToMySql(BrokerConnector brokerUri, SqlConnector sqlConn, String[] collectionNames) {
+    public BrokerToMySql(String brokerUri, SqlConnector sqlConn, String[] collectionNames) {
         this.buffer = new ConcurrentHashMap<>();
         this.data = new SqlDataHandler();
 
@@ -56,10 +56,9 @@ public class BrokerToMySql {
         String mysqlPass = "";
         String[] collectionNames = {"sensort1", "sensort2"};
 
-        brokerConn = new BrokerConnector("tcp://broker.mqttdashboard.com:1883");
         try {
             sqlConn = new SqlConnector(mysqlUri, mysqlUser, mysqlPass);
-            new BrokerToMySql(brokerConn, sqlConn, collectionNames);
+            new BrokerToMySql(brokerUri, sqlConn, collectionNames);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -67,8 +66,8 @@ public class BrokerToMySql {
     }
 
     private static class MeasurementFetcher extends BrokerFetcher<Measurement> {
-        public MeasurementFetcher(BrokerConnector brokerConn, String collection) throws MqttException {
-            super(brokerConn, BrokerToMySql.TOPIC_PREFIX + collection, 0);
+        public MeasurementFetcher(String brokerUri, String collection) throws MqttException {
+            super(brokerUri, BrokerToMySql.TOPIC_PREFIX + collection, 0);
         }
 
         @Override

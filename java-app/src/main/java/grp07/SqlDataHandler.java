@@ -21,6 +21,14 @@ public final class SqlDataHandler {
     private final Hashtable<Long, Culture> cultures = new Hashtable<>();// Todas as culturas, com as respetivas parametrizações associadas
     private final Hashtable<Long, List<CultureParams>> cultureParamsSet = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
 
+    public SqlConnector getConnCloud() {
+        return connCloud;
+    }
+
+    public SqlConnector getConnLocal() {
+        return connLocal;
+    }
+
     private SqlConnector connCloud = null;
     private SqlConnector connLocal = null;
 

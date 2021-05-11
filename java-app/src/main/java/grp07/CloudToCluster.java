@@ -1,6 +1,7 @@
 package grp07;
 
-import grp07.ConnectToMongo;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class CloudToCluster {
     private static final String SOURCE_URI = "mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1";
@@ -9,6 +10,12 @@ public class CloudToCluster {
     private static final String SOURCE_DB = "sid2021";
     private static final String TARGET_DB = "g07";
 
+    private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer = new ConcurrentHashMap<>();
+
+    CloudToCluster() {
+
+    }
+
     public static void main(String[] args) {
 
         String[] collectionNames = {
@@ -16,10 +23,10 @@ public class CloudToCluster {
                 "sensort2",
         };
 
-        ConnectToMongo cloud = new ConnectToMongo(SOURCE_URI, SOURCE_DB);
-        ConnectToMongo cloud2 = new ConnectToMongo(SOURCE_URI, SOURCE_DB);
+        MongoMeasurementsHandler cloud = new MongoMeasurementsHandler(SOURCE_URI, SOURCE_DB);
+        MongoMeasurementsHandler cloud2 = new MongoMeasurementsHandler(SOURCE_URI, SOURCE_DB);
 
-        ConnectToMongo cluster_atlas = new ConnectToMongo(TARGET_URI_ATLAS, TARGET_DB);
+        MongoMeasurementsHandler cluster_atlas = new MongoMeasurementsHandler(TARGET_URI_ATLAS, TARGET_DB);
         //ConnectToMongo cluster_madrugadao = new ConnectToMongo(TARGET_URI_MADRUGADAO, TARGET_DB);
 
         cloud.useCollections(collectionNames); // Se omitido, usa todas as coleções da DB

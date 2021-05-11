@@ -1,6 +1,7 @@
 package grp07;
 
-import java.sql.Connection;
+import common.SqlConnector;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -9,14 +10,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class MongoToSQL {
-    private final Connection connection; //local
+    private final SqlConnector connection; //local
     private final SqlDataHandler sqlDataHandler;
     private final int sleep_time;
     // PreAlertSet (comum a threads e supervisor)
     private PreAlertSet preAlertSet;
     private ParameterSupervisor supervisor;
 
-    public MongoToSQL(Connection connection, SqlDataHandler sqlDataHandler, int sleep_time_seconds) {
+    public MongoToSQL(SqlConnector connection, SqlDataHandler sqlDataHandler, int sleep_time_seconds) {
         this.connection = connection;
         this.sqlDataHandler = sqlDataHandler;
         this.sleep_time = (sleep_time_seconds * 1000);
@@ -37,7 +38,7 @@ public class MongoToSQL {
 
     static class AlertsPublisher extends Thread {
         private final SqlDataHandler sender;
-        private final Connection connection;
+        private final SqlConnector connection;
         private final LinkedBlockingQueue<Measurement> buffer;
         private final double ERROR_PERCENTAGE = 0.33;
         private int sleep_time;
@@ -47,7 +48,7 @@ public class MongoToSQL {
 
         private ReadingStats stats;
 
-        AlertsPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlDataHandler sender, int sleep_time, PreAlertSet preAlertSet) {
+        AlertsPublisher(SqlConnector connection, LinkedBlockingQueue<Measurement> buffer, SqlDataHandler sender, int sleep_time, PreAlertSet preAlertSet) {
             this.buffer = buffer;
             this.connection = connection;
             this.sender = sender;
@@ -147,7 +148,7 @@ public class MongoToSQL {
         }
 
         private void publish(Measurement measurement, boolean isValid) {
-            sender.send(connection, measurement, isValid);
+            //sender.send(connection, measurement, isValid);
         }
 
         private ParamAnalyser createAnalyser(SqlDataHandler sender, int rate) {
