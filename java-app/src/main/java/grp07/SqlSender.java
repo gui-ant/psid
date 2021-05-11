@@ -153,7 +153,7 @@ public class SqlSender {
             String id = measurement.getId().toString();
             Zone zone = zones.get(measurement.getZone());
             Sensor sensor = sensors.get(measurement.getSensor());
-            String value = measurement.getMeasure();
+            String value = measurement.getValue();
             //Timestamp date = measurement.getTimestamp();
             Timestamp date = new Timestamp(System.currentTimeMillis());
 

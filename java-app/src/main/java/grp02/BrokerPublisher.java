@@ -1,6 +1,5 @@
 package grp02;
 
-import grp07.Measurement;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -9,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class BrokerPublisher extends BrokerConnector {
+public class BrokerPublisher<T> extends BrokerConnector {
 
     public BrokerPublisher(String URI, String topic, int qos) throws MqttException {
         super(URI, topic, qos);
@@ -17,22 +16,20 @@ public class BrokerPublisher extends BrokerConnector {
         tryConnect();
     }
 
-    public void startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
+    public void startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<T>> sourceBuffer) {
         sourceBuffer.forEach(
-                (collectionName, buffer) -> {
-                    new ToBroker(client, topic, qos, buffer).start();
-                }
+                (collectionName, buffer) -> new ToBroker<>(client, topic, qos, buffer).start()
         );
     }
 
-    private static class ToBroker extends Thread {
+    private static class ToBroker<T> extends Thread {
 
         private final MqttClient client;
         private final String topic;
         private final int qos;
-        private final LinkedBlockingQueue<Measurement> buffer;
+        private final LinkedBlockingQueue<T> buffer;
 
-        public ToBroker(MqttClient client, String topic, int qos, LinkedBlockingQueue<Measurement> buffer){
+        public ToBroker(MqttClient client, String topic, int qos, LinkedBlockingQueue<T> buffer) {
             this.client = client;
             this.buffer = buffer;
             this.topic = topic;
@@ -43,10 +40,10 @@ public class BrokerPublisher extends BrokerConnector {
         public void run() {
 
             try {
-                while(true) {
+                while (true) {
 
-                    Measurement measurement = buffer.take();
-                    publish(topic, measurement);
+                    T obj = buffer.take();
+                    publish(topic, obj);
 
                 }
 
@@ -55,7 +52,7 @@ public class BrokerPublisher extends BrokerConnector {
             }
         }
 
-        private void publish(String topic, Measurement m) throws MqttException {
+        private void publish(String topic, T m) throws MqttException {
             client.publish(topic,
                     m.toString().getBytes(UTF_8), // does it work tho?
                     qos,

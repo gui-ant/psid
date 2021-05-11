@@ -33,7 +33,7 @@ public final class MyUtils {
         measurement.setZone(info[1]);
         measurement.setSensor(info[2]);
         measurement.setDate(info[3]);
-        measurement.setMeasure(info[4]);
+        measurement.setValue(info[4]);
 
         return measurement;
     }

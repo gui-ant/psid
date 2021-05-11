@@ -26,7 +26,7 @@ public abstract class BrokerConnector {
         System.out.println("Connected successfully");
     }
 
-
-
-
+    public MqttClient getClient() {
+        return client;
+    }
 }

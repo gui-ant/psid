@@ -13,8 +13,8 @@ public class MongoToSQL {
     private final SqlSender sender;
     private final int sleep_time;
     // PreAlertSet (comum a threads e supervisor)
-    private PreAlertSet preAlertSet;
-    private ParameterSupervisor supervisor;
+    private final PreAlertSet preAlertSet;
+    private final ParameterSupervisor supervisor;
 
     public MongoToSQL(Connection connection, SqlSender sender, int sleep_time_seconds) {
         this.connection = connection;
@@ -25,12 +25,6 @@ public class MongoToSQL {
         this.preAlertSet = new PreAlertSet(sender.getCultureParamsSet());
         this.supervisor = new ParameterSupervisor(preAlertSet);
         supervisor.start();
-    }
-
-    public List<Sensor> getSensorsInfo() {
-        List<Sensor> s = new ArrayList<>();
-        List<Zone> z = new ArrayList<>();
-        return s;
     }
 
     public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
@@ -48,10 +42,10 @@ public class MongoToSQL {
         private final double ERROR_PERCENTAGE = 0.33;
         private int sleep_time;
         //analyser individual (de cada thread)
-        private PreAlertSet preAlertSet;
+        private final PreAlertSet preAlertSet;
         private ParamAnalyser analyser;
 
-        private ReadingStats stats;
+        private final ReadingStats stats;
 
         SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time, PreAlertSet preAlertSet) {
             this.buffer = buffer;
@@ -93,7 +87,7 @@ public class MongoToSQL {
                         stats.incrementErrors();
                     }
                     else {
-                        acc += Double.parseDouble(measurement.getMeasure());
+                        acc += Double.parseDouble(measurement.getValue());
                         counter++;
                         lastValidMeas = measurement;
 
@@ -105,7 +99,7 @@ public class MongoToSQL {
 
                     if (counter != 0) {
                         mean_value = acc / counter;
-                        lastValidMeas.setMeasure(Double.toString(mean_value));
+                        lastValidMeas.setValue(Double.toString(mean_value));
 
                         // TODO - É AQUI???
                         analyser.addMeasurement(lastValidMeas);
@@ -149,7 +143,7 @@ public class MongoToSQL {
         private boolean isNotValid(Measurement measurement) {
             double min = sender.getSensors().get(measurement.getSensor()).getMinLim();
             double max = sender.getSensors().get(measurement.getSensor()).getMaxLim();
-            double value = Double.parseDouble(measurement.getMeasure());
+            double value = Double.parseDouble(measurement.getValue());
 
             return value < min || value > max;
         }
@@ -181,9 +175,9 @@ public class MongoToSQL {
         }
 
         //thread que analisa a percentagem de leituras errada, a cada hora
-        private class ErrorSupervisor extends Thread {
-            private ReadingStats stats;
-            private double percentage;
+        private static class ErrorSupervisor extends Thread {
+            private final ReadingStats stats;
+            private final double percentage;
 
             public ErrorSupervisor (ReadingStats stats, double percentage) {
                 this.stats = stats;

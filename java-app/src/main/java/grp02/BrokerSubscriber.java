@@ -1,6 +1,9 @@
 package grp02;
 
-import grp07.Measurement;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -8,39 +11,45 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class BrokerSubscriber extends BrokerConnector {
+public abstract class BrokerSubscriber<T> extends BrokerConnector {
 
-    LinkedBlockingQueue<Measurement> buffer;
+    LinkedBlockingQueue<T> buffer;
 
     public BrokerSubscriber(String URI, String topic, int qos) throws MqttException {
         super(URI, topic, qos);
-        buffer = new LinkedBlockingQueue<Measurement>();
+        buffer = new LinkedBlockingQueue<T>();
 
         client.setCallback(insertInBufferCallback());
         tryConnect();
         client.subscribe(topic, this.qos);
     }
 
-    public LinkedBlockingQueue<Measurement> getBuffer() { return buffer; }
+    public LinkedBlockingQueue<T> getBuffer() {
+        return buffer;
+    }
 
-    private MqttCallback insertInBufferCallback(){
+    private MqttCallback insertInBufferCallback() {
         return new MqttCallback() {
 
             @Override
-            public void connectionLost(Throwable cause) { System.err.println("Connection lost!"); }
+            public void connectionLost(Throwable cause) {
+                System.err.println("Connection lost!");
+            }
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
 
-                String[] message_info = MyUtils.messageIntoArray(message);
-                for (String s: message_info) { System.out.println(s); }
+                System.out.println(BrokerSubscriber.this.topic + ": Message arrived from broker (topic " + topic + "): " + message);
 
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+
+                T object = null;
                 try {
-                    Measurement measurement = MyUtils.buildMeasurement(message_info);
-                    buffer.offer(measurement);
-
-                } catch (IllegalArgumentException e) {
-                    System.err.println("Illegal argument: Array size was incorrect");
+                    object = objectMapper.readValue(message.toString(), getMapperClass());
+                    getBuffer().put(object);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -49,4 +58,6 @@ public class BrokerSubscriber extends BrokerConnector {
             }
         };
     }
+
+    protected abstract Class<T> getMapperClass();
 }
