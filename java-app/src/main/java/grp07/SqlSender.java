@@ -102,7 +102,7 @@ public class SqlSender {
                 c.setName(res.getString("name"));
                 c.setState(res.getBoolean("state"));
                 c.setManager(users.get(res.getLong("manager_id")));
-                c.setZone(zones.get(res.getInt("zone_id")));
+                c.setZone(zones.get(res.getLong("zone_id")));
                 cultures.put(c.getId(), c);
             }
         } catch (SQLException throwables) {
