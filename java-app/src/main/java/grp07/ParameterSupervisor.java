@@ -1,11 +1,7 @@
 package grp07;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.*;
-
 public class ParameterSupervisor extends Thread {
-    private PreAlertSet preAlertSet;
+    private final PreAlertSet preAlertSet;
 
 
     public ParameterSupervisor(PreAlertSet preAlertSet) {

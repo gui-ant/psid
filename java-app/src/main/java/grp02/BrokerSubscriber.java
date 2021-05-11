@@ -17,7 +17,7 @@ public abstract class BrokerSubscriber<T> extends BrokerConnector {
 
     public BrokerSubscriber(String URI, String topic, int qos) throws MqttException {
         super(URI, topic, qos);
-        buffer = new LinkedBlockingQueue<T>();
+        buffer = new LinkedBlockingQueue<>();
 
         client.setCallback(insertInBufferCallback());
         tryConnect();
@@ -44,7 +44,7 @@ public abstract class BrokerSubscriber<T> extends BrokerConnector {
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-                T object = null;
+                T object;
                 try {
                     object = objectMapper.readValue(message.toString(), getMapperClass());
                     getBuffer().put(object);

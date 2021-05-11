@@ -2,19 +2,19 @@ package grp07;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
-
-import static java.lang.Thread.sleep;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 // CADA THREAD TEM UM PARAMANALYSER!!!
 public class ParamAnalyser {
-    private PreAlertSet preAlertCompiler;
+    private final PreAlertSet preAlertCompiler;
     private List<CultureParams> paramList;  //lista de parametros INDIVIDUAIS de um dado sensor
-    private List<Measurement> measurements;
+    private final List<Measurement> measurements;
     private int maxTolerance;
-    private int insertionRate;  //frequencia a que as medidas são geradas
+    private final int insertionRate;  //frequencia a que as medidas são geradas
     //    private int numCycles = 10;
-    private int numCycles = 3;
+    private final int numCycles = 3;
 
     public ParamAnalyser(PreAlertSet preAlertCompiler, ArrayList<CultureParams> paramList, int insertionRate) {
         this.preAlertCompiler = preAlertCompiler;
@@ -77,11 +77,11 @@ public class ParamAnalyser {
         boolean constantFall = constantFall(param);
         Alert alert = null;
         if (constantRise) {
-            String msg = "Subida constante perto dos limites definidos, há " + String.valueOf(numCycles) + " medidas consecutivas";
+            String msg = "Subida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas";
             // alert = ...
         }
         if (constantFall) {
-            String msg = "Descida constante perto dos limites definidos, há " + String.valueOf(numCycles) + " medidas consecutivas";
+            String msg = "Descida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas";
             // alert = ...
         }
         return alert;
@@ -131,13 +131,7 @@ public class ParamAnalyser {
 
     private void trimMeasureList() {
         Timestamp maxThreshold = subtractSecondsThreshold(measurements.get(0).getTimestamp(), maxTolerance, insertionRate);
-        Iterator<Measurement> it = measurements.iterator();
-        while (it.hasNext()) {
-            Measurement m = it.next();
-            if (m.getTimestamp().compareTo(maxThreshold) < 0) {
-                it.remove();
-            }
-        }
+        measurements.removeIf(m -> m.getTimestamp().compareTo(maxThreshold) < 0);
     }
 
     private Timestamp subtractSecondsThreshold(Timestamp initialTime, int tolerance, int rate) {

@@ -1,6 +1,7 @@
 package grp02;
 
 import grp07.ConnectToMongo;
+import grp07.Measurement;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 public class MongoToBroker {
@@ -17,7 +18,7 @@ public class MongoToBroker {
         String[] collectionNames = {"sensort1"};
 
         ConnectToMongo cluster = new ConnectToMongo(SOURCE_URI_ATLAS, SOURCE_DB);
-        BrokerPublisher publisher = new BrokerPublisher(BROKER_URI, TOPIC, QOS);
+        BrokerPublisher<Measurement> publisher = new BrokerPublisher<>(BROKER_URI, TOPIC, QOS);
 
         cluster.useCollections(collectionNames);
         cluster.startFetching();

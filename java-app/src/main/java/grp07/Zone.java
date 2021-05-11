@@ -1,7 +1,7 @@
 package grp07;
 
 public class Zone {
-    private int id;
+    private final int id;
     private double temperature;
     private double humidity;
     private double light;
@@ -39,12 +39,7 @@ public class Zone {
     }
 
     public boolean isEqual(Zone z) {
-        if (id == z.getId() && temperature == z.getTemperature() && humidity == z.getHumidity() && light == z.getLight()) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return id == z.getId() && temperature == z.getTemperature() && humidity == z.getHumidity() && light == z.getLight();
     }
 
 }

@@ -13,8 +13,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class BrokerFetcher<T> extends BrokerConnector {
-    private LinkedBlockingQueue<T> buffer;
-    private String topic;
+    private final LinkedBlockingQueue<T> buffer;
+    private final String topic;
 
     protected abstract Class<T> getMapperClass();
 

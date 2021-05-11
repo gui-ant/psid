@@ -1,7 +1,6 @@
 package common;
 
 import com.mongodb.client.MongoCollection;
-import grp07.Measurement;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,22 +8,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class MongoPublisher<T> {
 
-    private final HashMap<String, MongoCollection<Measurement>> collections;
-    private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
+    private final HashMap<String, MongoCollection<T>> collections;
+    private final ConcurrentHashMap<String, LinkedBlockingQueue<T>> buffer;
 
-    public HashMap<String, MongoCollection<Measurement>> getCollections() {
+    public HashMap<String, MongoCollection<T>> getCollections() {
         return collections;
     }
 
-    public LinkedBlockingQueue<Measurement> getCollectionBuffer(String collection) {
+    public LinkedBlockingQueue<T> getCollectionBuffer(String collection) {
         return getBuffer().get(collection);
     }
 
-    public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
+    public ConcurrentHashMap<String, LinkedBlockingQueue<T>> getBuffer() {
         return buffer;
     }
 
-    public MongoPublisher(HashMap<String, MongoCollection<Measurement>> collections, ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer) {
+    public MongoPublisher(HashMap<String, MongoCollection<T>> collections, ConcurrentHashMap<String, LinkedBlockingQueue<T>> buffer) {
         this.collections = collections;
         this.buffer = buffer;
     }

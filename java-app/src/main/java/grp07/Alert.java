@@ -3,10 +3,10 @@ package grp07;
 import java.sql.Timestamp;
 
 public class Alert {
-    private long id;
-    private long parameterSetId;
-    private Timestamp createdAt;
-    private String msg;
+    private final long id;
+    private final long parameterSetId;
+    private final Timestamp createdAt;
+    private final String msg;
 
     public Alert(long id, long parameterSetId, Timestamp createdAt, String msg) {
         this.id = id;

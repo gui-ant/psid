@@ -2,13 +2,13 @@ package grp07;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
-
-import static java.lang.Thread.sleep;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 // APENAS A THREAD SUPERVISORA "USA" O PREALERTSET
 public class PreAlertSet {
-    private List<TimeParameterPair> susParams;  //esta lista tem os parametros INDIVIDUAIS
+    private final List<TimeParameterPair> susParams;  //esta lista tem os parametros INDIVIDUAIS
     private Hashtable<Long, List<CultureParams>> allParams;  //esta lista tem os parametros COMPOSTOS (ir buscar ao SQLSender)
     private boolean altered;
 
@@ -54,26 +54,14 @@ public class PreAlertSet {
     }
 
     private void deleteParamOcc (CultureParams param) {
-        Iterator<TimeParameterPair> it = susParams.iterator();
-        while (it.hasNext()) {
-            TimeParameterPair pair = it.next();
-            if(pair.getParam().isEqual(param)) {
-                it.remove();
-            }
-        }
+        susParams.removeIf(pair -> pair.getParam().isEqual(param));
     }
 
     // apagar registos com mais de 30 segundos
     private void deleteOldAlerts() {
         Timestamp curr = Timestamp.from(Instant.now());
         curr.setTime(curr.getTime() + (30*1000));
-        Iterator<TimeParameterPair> it = susParams.iterator();
-        while (it.hasNext()) {
-            TimeParameterPair pair = it.next();
-            if(pair.getTime().before(curr)) {
-                it.remove();
-            }
-        }
+        susParams.removeIf(pair -> pair.getTime().before(curr));
     }
 
     private List<CultureParams> susToParameterArray() {
@@ -153,9 +141,9 @@ public class PreAlertSet {
     }
      */
 
-    private class TimeParameterPair {
-        private Timestamp time;
-        private CultureParams param;
+    private static class TimeParameterPair {
+        private final Timestamp time;
+        private final CultureParams param;
 
         public TimeParameterPair(Timestamp time, CultureParams param) {
             this.time = time;
