@@ -61,7 +61,7 @@ public class PreAlertSet {
     private void deleteOldAlerts() {
         Timestamp curr = Timestamp.from(Instant.now());
         curr.setTime(curr.getTime() + (30*1000));
-        susParams.removeIf(pair -> pair.getTime().before(curr));
+        susParams.removeIf(pair -> pair.getTime().after(curr));
     }
 
     private List<CultureParams> susToParameterArray() {
@@ -72,7 +72,7 @@ public class PreAlertSet {
         return arr;
     }
 
-    /*
+/*
     public static void main(String[] args) {
         User u = new User(3);
         u.setEmail("mail");
@@ -129,8 +129,13 @@ public class PreAlertSet {
         pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
         //pas.addPreAlert(Timestamp.from(Instant.now()), p2, true);
         //pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
-        //pas.addPreAlert(Timestamp.from(Instant.now()), p3, true);
+        pas.addPreAlert(Timestamp.from(Instant.now()), p3, true);
 
+//        try {
+//            Thread.sleep(35000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
 
         try {
@@ -139,7 +144,7 @@ public class PreAlertSet {
             System.out.println("ERRO!!!");
         }
     }
-     */
+*/
 
     private static class TimeParameterPair {
         private final Timestamp time;
