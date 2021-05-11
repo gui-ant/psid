@@ -10,7 +10,7 @@ public class SqlSender {
     private final Connection connLocal;
 
     private final Hashtable<Long, User> users = new Hashtable<>();
-    private final Hashtable<String, Zone> zones = new Hashtable<>();
+    private final Hashtable<Long, Zone> zones = new Hashtable<>();
     private final Hashtable<String, Sensor> sensors = new Hashtable<>();
     private final Hashtable<Long, Culture> cultures = new Hashtable<>();// Todas as culturas, com as respetivas parametrizações associadas
     private final Hashtable<Long, List<CultureParams>> cultureParamsSet = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
@@ -51,7 +51,7 @@ public class SqlSender {
         return sensors;
     }
 
-    public Hashtable<String, Zone> getZones() {
+    public Hashtable<Long, Zone> getZones() {
         return zones;
     }
 
@@ -117,7 +117,7 @@ public class SqlSender {
 
             while (res.next()) {
                 Zone z = new Zone(res.getInt("id"));
-                zones.put(res.getString("name"), z);
+                zones.put(res.getLong("id"), z);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
