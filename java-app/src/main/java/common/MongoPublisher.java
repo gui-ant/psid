@@ -1,30 +1,33 @@
 package common;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.result.InsertOneResult;
 import grp07.Measurement;
 
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public abstract class MongoPublisher<T> extends Thread {
-    private final MongoCollection<T> collection;
-    private final LinkedBlockingQueue<T> buffer;
+public abstract class MongoPublisher<T> {
 
-    public MongoPublisher(MongoCollection<T> collection, LinkedBlockingQueue<T> buffer) {
-        this.collection = collection;
+    private final HashMap<String, MongoCollection<Measurement>> collections;
+    private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
+
+    public HashMap<String, MongoCollection<Measurement>> getCollections() {
+        return collections;
+    }
+
+    public LinkedBlockingQueue<Measurement> getCollectionBuffer(String collection) {
+        return getBuffer().get(collection);
+    }
+
+    public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
+        return buffer;
+    }
+
+    public MongoPublisher(HashMap<String, MongoCollection<Measurement>> collections, ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer) {
+        this.collections = collections;
         this.buffer = buffer;
     }
 
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                InsertOneResult res = this.collection.insertOne(buffer.take());
-                System.out.println("Inserted: " + res.getInsertedId());
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    public abstract void startPublishing();
 }

@@ -1,41 +1,41 @@
 package common;
 
 import com.mongodb.client.MongoCollection;
-import grp07.Measurement;
-import org.bson.Document;
 
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public abstract class MongoFetcher<T> extends Thread {
+public abstract class MongoFetcher<T> {
 
-    private final MongoCollection<T> collection;
-
-
-    private final LinkedBlockingQueue<T> buffer;
+    private final HashMap<String, MongoCollection<T>> collections;
+    private final ConcurrentHashMap<String, LinkedBlockingQueue<T>> buffer;
     private static final int SLEEP_TIME = 5000;
 
-    public MongoFetcher(MongoCollection<T> collection, LinkedBlockingQueue<T> buffer) {
-        this.collection = collection;
-        this.buffer = buffer;
+    public MongoFetcher(HashMap<String, MongoCollection<T>> collections) {
+        this.collections = collections;
+        this.buffer = new ConcurrentHashMap<>();
+
+        startFetching();
     }
 
-    protected abstract Class<T> getMapperClass();
+    protected abstract void startFetching();
 
+    protected abstract T getLastObject(MongoCollection<T> collection);
 
-    protected Measurement getLastObject(MongoCollection<Measurement> collection) {
-        return collection.find().sort(new Document("_id", -1)).limit(1).first();
+    public LinkedBlockingQueue<T> getCollectionBuffer(String collection) {
+        return buffer.get(collection);
     }
 
-    public LinkedBlockingQueue<T> getBuffer() {
+    public ConcurrentHashMap<String, LinkedBlockingQueue<T>> getBuffer() {
         return buffer;
     }
 
-    public MongoCollection<T> getCollection() {
-        return collection;
+    public HashMap<String, MongoCollection<T>> getCollections() {
+        return collections;
     }
 
     protected String getCollectionName(MongoCollection<T> collection) {
         return collection.getNamespace().getCollectionName();
     }
-
 }

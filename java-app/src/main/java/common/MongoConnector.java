@@ -14,7 +14,6 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 public class MongoConnector {
     private final MongoClient client;
     private MongoDatabase database;
-
     public MongoConnector(String sourceUri) {
         this.client = MongoClients.create(sourceUri);
     }

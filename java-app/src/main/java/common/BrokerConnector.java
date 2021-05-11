@@ -1,14 +1,8 @@
 package common;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-
 
 public class BrokerConnector {
 
@@ -28,8 +22,7 @@ public class BrokerConnector {
     public void tryConnect() throws MqttException {
         if (!client.isConnected())
             client.connect();
-        System.out.println(client.getClientId());
-        System.out.println("Connected successfully");
+        System.out.println("Client " + client.getClientId() + " connected successfully to broker!");
     }
 
     public MqttClient getClient() {
