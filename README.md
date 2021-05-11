@@ -146,3 +146,17 @@ SHOW GRANTS FOR 'group_researcher'; /* role (researcher) */
 Da dessão ativa:
 SHOW GRANTS;
 ```
+
+<br>
+<hr>
+<br>
+<strong><u>Usar os sensores</u>:</strong>
+<ul>
+ <li>Abrir o MQTT client (http://www.hivemq.com/demos/websocket-client/)</li>
+   <ul>
+    <li>HOST: broker.mqttdashboard.com</li>
+    <li>Add New Topic Subscription: pisid_g07_sensors</li>
+   </ul>
+ <li>double-tap nos .jar que estão nas pastas SimulateSensorXY (dentro de resources)</li>
+ <li>no IntelliJ: no package common, correr o BrokerToMongo</li>
+</ul>
