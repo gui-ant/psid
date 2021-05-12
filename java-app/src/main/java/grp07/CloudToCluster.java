@@ -1,6 +1,17 @@
 package grp07;
 
-public class CloudToCluster {
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.InsertOneResult;
+import common.ClientToClient;
+import org.bson.types.ObjectId;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class CloudToCluster implements ClientToClient {
     private static final String SOURCE_URI_ATLAS = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
     private static final String TARGET_URI_CLUSTER = "mongodb://127.0.0.1:27017";
     //private static final String TARGET_URI_MADRUGADAO = "mongodb://aluno:aluno@madrugadao-sama.ddns.net/g07?authSource=admin&authMechanism=SCRAM-SHA-1";
@@ -13,20 +24,100 @@ public class CloudToCluster {
                 "sensort1",
                 "sensort2",
         };
+        CloudToCluster ctc = new CloudToCluster(collectionNames);
 
-        ConnectToMongo cloud = new ConnectToMongo(SOURCE_URI_ATLAS, SOURCE_DB);
-        ConnectToMongo cloud2 = new ConnectToMongo(SOURCE_URI_ATLAS, SOURCE_DB);
+        ctc.startFetching();
+        ctc.startPublishing();
+    }
 
-        ConnectToMongo cluster_atlas = new ConnectToMongo(TARGET_URI_CLUSTER, TARGET_DB);
-        //ConnectToMongo cluster_madrugadao = new ConnectToMongo(TARGET_URI_MADRUGADAO, TARGET_DB);
 
-        cloud.useCollections(collectionNames); // Se omitido, usa todas as coleções da DB
-        cloud2.useCollections(collectionNames); // Se omitido, usa todas as coleções da DB
+    private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
-        cloud.startFetching();
-        cloud2.startFetching();
+    CloudToCluster(String[] collectionNames) {
+        this.buffer = new ConcurrentHashMap<>();
+        for (String collection : collectionNames)
+            this.buffer.put(collection, new LinkedBlockingQueue<>());
+    }
 
-        cluster_atlas.startPublishing(cloud.getFetchingSource());
-        //cluster_madrugadao.startPublishing(cloud2.getFetchingSource());
+
+    @Override
+    public void startFetching() {
+
+        new MongoFetcher(SOURCE_URI_ATLAS, SOURCE_DB).deal(this.getBuffer());
+    }
+
+    @Override
+    public void startPublishing() {
+        new MongoPublisher(SOURCE_URI_ATLAS, SOURCE_DB).deal(this.getBuffer());
+    }
+
+    @Override
+    public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
+        return this.buffer;
+    }
+
+    private class MongoFetcher extends ConnectToMongo<Measurement> {
+        private static final int SLEEP_TIME = 5000;
+
+        public MongoFetcher(String sourceUri, String db) {
+            super(sourceUri, db);
+        }
+
+        @Override
+        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+            collectionsDataBuffer.forEach((collectionName, measurements) -> {
+                new Thread(() -> {
+                    MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
+                    Measurement doc = getLastObject(collection);
+
+                    // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
+                    ObjectId lastId = doc.getId();
+                    while (true) {
+                        try {
+                            System.out.println("Fetching " + collectionName + "...");
+
+                            MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
+
+                            // Le os novos dados e adiciona-os ao buffer
+                            while (cursor.hasNext()) {
+                                doc = cursor.next();
+                                lastId = doc.getId();
+                                measurements.offer(doc);
+                                System.out.println("Fetched: " + doc.getId());
+                            }
+                            Thread.sleep(SLEEP_TIME);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            });
+        }
+    }
+
+    private class MongoPublisher extends ConnectToMongo<Measurement> {
+
+        public MongoPublisher(String sourceUri, String db) {
+            super(sourceUri, db);
+        }
+
+        @Override
+        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+            collectionsDataBuffer.forEach((name, buffer) -> {
+                MongoCollection<Measurement> collection = getCurrentDb().getCollection(name, Measurement.class);
+                new Thread(() -> {
+                    while (true) {
+                        try {
+
+                            InsertOneResult res = collection.insertOne(buffer.take());
+                            System.out.println("Inserted: " + res.getInsertedId());
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            });
+        }
     }
 }

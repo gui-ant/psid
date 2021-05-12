@@ -149,8 +149,8 @@ public final class MySqlData {
                 Sensor s = new Sensor(res.getInt("id"));
                 Zone z = zones.get(res.getLong("z.id"));
 
-                s.setMinLim(res.getInt("minlim"));
-                s.setMaxLim(res.getInt("maxlim"));
+                s.setMinLim(res.getDouble("minlim"));
+                s.setMaxLim(res.getDouble("maxlim"));
                 s.setZone(z);
 
                 sensors.put(res.getLong("id"), s);

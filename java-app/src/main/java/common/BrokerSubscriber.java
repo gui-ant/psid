@@ -39,7 +39,7 @@ public abstract class BrokerSubscriber<T> extends BrokerConnector {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
 
-                System.out.println(BrokerSubscriber.this.topic + ": Message arrived from broker (topic " + topic + "): " + message);
+                System.out.println("Message arrived from broker (topic " + topic + "): " + message);
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);

@@ -1,9 +1,9 @@
 package grp07;
 
-import common.MySqlPublisher;
+import common.MeasurementMySqlPublisher;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -35,13 +35,12 @@ public class MongoToMySql {
 
     public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
-                (collectionName, buffer) -> {
-                    new SqlPublisher(buffer, sleep_time, preAlertSet).start();
-                }
+                (collectionName, buffer) -> new SqlPublisher(buffer, sleep_time, preAlertSet).start()
         );
     }
 
-    class SqlPublisher extends MySqlPublisher<Measurement> {
+    class SqlPublisher extends MeasurementMySqlPublisher {
+
         private final LinkedBlockingQueue<Measurement> buffer;
         private final double ERROR_PERCENTAGE = 0.33;
         private int sleep_time;
@@ -52,7 +51,7 @@ public class MongoToMySql {
         private final ReadingStats stats;
 
         SqlPublisher(LinkedBlockingQueue<Measurement> buffer, int sleep_time, PreAlertSet preAlertSet) {
-            super(mysqlConn, data, buffer);
+            super(mysqlConn, buffer);
             this.buffer = buffer;
             this.sleep_time = sleep_time;
 
@@ -64,64 +63,6 @@ public class MongoToMySql {
             ErrorSupervisor es = new ErrorSupervisor(stats, ERROR_PERCENTAGE);
             es.start();
         }
-
-        @Override
-        public void run() {
-
-            Measurement lastValidMeas = null;
-
-            while (true) {
-                if (analyser == null) {
-                    analyser = createAnalyser(data, sleep_time);
-                }
-                try {
-                    sleep(sleep_time);
-
-                    emptyBufferRoutine();
-
-                    int counter = 0;
-                    double mean_value, acc = 0;
-
-                    Measurement measurement = buffer.poll();
-                    stats.incrementReadings();
-
-                    if (isNotValid(measurement)) {
-                        publish(measurement, false);
-                        stats.incrementErrors();
-                    } else {
-                        acc += Double.parseDouble(measurement.getValue());
-                        counter++;
-                        lastValidMeas = measurement;
-                    }
-                    // Confrontar a medição com as parametrizações que existem
-                    // para a tipologia de sensor dessa medição (H, T, L)
-                    //
-                    // tipologia de sensor: measurement.getSensorType();
-
-                    if (counter != 0) {
-                        mean_value = acc / counter;
-                        lastValidMeas.setValue(Double.toString(mean_value));
-
-                        // TODO - É AQUI???
-                        analyser.addMeasurement(lastValidMeas);
-                        analyser.analyseParameters();
-
-                        publish(lastValidMeas, true);
-                    }
-
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-
-        @Override
-        protected PreparedStatement getStatement(Measurement object) {
-            return null;
-        }
-
 
         // Por cada vez que vai ao buffer e este está vazio, aumenta o tempo de espera
         // por 1s até um máx de 10s. Quando volta a ter documento, dá reset ao tempo
@@ -144,39 +85,22 @@ public class MongoToMySql {
                 sleep_time -= empty_counter * 1000;
             }
         }
-
-
-        private boolean isNotValid(Measurement measurement) {
-            double min = data.getSensors().get(measurement.getSensor()).getMinLim();
-
-            MySqlData.Sensor sensor = data.getSensors().get(measurement.getSensor());
-            System.err.println(sensor.getId());
-            System.err.println(sensor.getZone());
-            System.err.println(sensor.getMinLim());
-            System.err.println(sensor.getMaxLim());
-
-            double max = data.getSensors().get(measurement.getSensor()).getMaxLim();
-
-            double value = Double.parseDouble(measurement.getValue());
-
-            return value < min || value > max;
-        }
-
+        /*
         private void publish(Measurement measurement, boolean isValid) {
             //sender.send(connection, measurement, isValid);
-        }
+        }*/
 
         // cria um analisador de parametros, com os parametros filtrados desta thread
         // TODO - testar!!!
-        private ParamAnalyser createAnalyser(MySqlData sender, int rate) {
+        private ParamAnalyser createAnalyser(MySqlData data, int rate) {
             ArrayList<MySqlData.CultureParams> list = new ArrayList<>();
             Measurement mea = buffer.peek();
             if (mea == null) {
                 return null;
             }
 
-            Hashtable<Long, List<MySqlData.CultureParams>> cultureParamsSet = sender.getCultureParamsSet();
-            MySqlData.Zone zone = sender.getZones().get(Long.parseLong(String.valueOf(mea.getZone().charAt(1))));
+            Hashtable<Long, List<MySqlData.CultureParams>> cultureParamsSet = data.getCultureParamsSet();
+            MySqlData.Zone zone = data.getZones().get(Long.parseLong(String.valueOf(mea.getZone().charAt(1))));
 
             for (List<MySqlData.CultureParams> params : cultureParamsSet.values()) {
                 for (MySqlData.CultureParams param : params) {
@@ -187,6 +111,53 @@ public class MongoToMySql {
             }
             ParamAnalyser an = new ParamAnalyser(preAlertSet, list, rate);
             return an;
+        }
+
+        @Override
+        protected synchronized void handle(Measurement measurement) {
+
+            Measurement lastValidMeas = null;
+
+            if (analyser == null) {
+                analyser = createAnalyser(data, sleep_time);
+            }
+            try {
+                Thread.sleep(sleep_time);
+
+                //emptyBufferRoutine();
+
+                int counter = 0;
+                double mean_value, acc = 0;
+
+                stats.incrementReadings();
+
+                if (!isValid(measurement)) {
+                    publish(measurement);
+                    stats.incrementErrors();
+                } else {
+                    acc += Double.parseDouble(measurement.getValue());
+                    counter++;
+                    lastValidMeas = measurement;
+                }
+                // Confrontar a medição com as parametrizações que existem
+                // para a tipologia de sensor dessa medição (H, T, L)
+                //
+                // tipologia de sensor: measurement.getSensorType();
+
+                if (counter != 0) {
+                    mean_value = acc / counter;
+                    lastValidMeas.setValue(Double.toString(mean_value));
+
+                    // TODO - É AQUI???
+                    analyser.addMeasurement(lastValidMeas);
+                    analyser.analyseParameters();
+
+                    publish(measurement);
+                }
+            } catch (InterruptedException | SQLException e) {
+                e.printStackTrace();
+            }
+
         }
 
         //thread que analisa a percentagem de leituras errada, a cada hora

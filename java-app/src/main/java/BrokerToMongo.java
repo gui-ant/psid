@@ -1,8 +1,9 @@
-package common;
-
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 
+import common.BrokerFetcher;
+import common.MongoConnector;
+import common.MongoPublisher;
 import grp07.Measurement;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -11,7 +12,16 @@ import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Envia dados do broker para o cluster do Atlas (Cloud inicial)
+ * Para gerar dados no broker, correr os SimulateSensor.jar nas pastas respetivas a cada Sensor (src/main/resources/)
+ */
+
 public class BrokerToMongo {
+    private static final String TARGET_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
+    private static final String TARGET_DB = "g07";
+
+    private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
     private static final String TOPIC = "pisid_g07_sensors";
     private static final int QOS = 0;
 
@@ -81,13 +91,12 @@ public class BrokerToMongo {
     }
 
     public static void main(String[] args) {
-        String brokerUri = "tcp://broker.mqttdashboard.com:1883";
-        MongoConnector m = new MongoConnector("mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority");
+        MongoConnector m = new MongoConnector(TARGET_URI);
+        m.useDatabase(TARGET_DB);
 
-        m.useDatabase("g07");
         String[] collectionNames = {"sensort1", "sensort2"};
 
-        new BrokerToMongo(brokerUri, m, collectionNames);
+        new BrokerToMongo(BROKER_URI, m, collectionNames);
 
     }
 }

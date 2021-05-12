@@ -34,12 +34,7 @@ public abstract class MySqlPublisher<T> extends Thread {
                 T obj = buffer.take();
                 System.out.println("To insert: " + obj);
 
-                PreparedStatement stmt = getStatement(obj);
-
-                if (stmt.execute())
-                    System.out.println("Inserted value successfully!!!");
-
-                stmt.close();
+                handle(obj);
 
             } catch (Exception e) {
                 System.out.println("Connection failed!!!");
@@ -48,6 +43,8 @@ public abstract class MySqlPublisher<T> extends Thread {
         }
 
     }
+
+    protected abstract void handle(T object);
 
     protected abstract PreparedStatement getStatement(T object);
 }
