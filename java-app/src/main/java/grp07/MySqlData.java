@@ -26,11 +26,11 @@ public final class MySqlData {
 
     public MySqlData() {
         try {
-            Connection connCloud = DriverManager.getConnection(MYSQL_CLOUD_URI, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
+//            Connection connCloud = DriverManager.getConnection(MYSQL_CLOUD_URI, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
             Connection connLocal = DriverManager.getConnection(MYSQL_LOCAL_URI, MYSQL_LOCAL_USER, MYSQL_LOCAL_PASS);
 
-            fetchZones(connCloud);
-            fetchSensors(connCloud);
+//            fetchZones(connCloud);
+//            fetchSensors(connCloud);
 
             fetchUsers(connLocal);
             fetchCultures(connLocal);
@@ -114,6 +114,18 @@ public final class MySqlData {
                 throwables.printStackTrace();
             }
         });
+
+        for (Long k : cultures.keySet()) {
+            Culture c = cultures.get(k);
+            System.err.println("Cultura: id - " + c.getId());
+            System.err.println("Cultura: name - " + c.getName());
+            System.err.println("Cultura: zone - " + c.getZone());
+            System.err.println("Cultura: parametros - " + c.getParameters());
+            System.err.println("Cultura: manager - " + c.getManager());
+            System.err.println("Cultura: estado - " + c.isState());
+            System.err.println("----------------------------------------");
+        }
+
     }
 
     private void fetchCultures(Connection connLocal) {
@@ -136,6 +148,13 @@ public final class MySqlData {
 
 //        for (Long k : cultures.keySet()) {
 //            Culture c = cultures.get(k);
+//            System.err.println("Cultura: id - " + c.getId());
+//            System.err.println("Cultura: name - " + c.getName());
+//            System.err.println("Cultura: zone - " + c.getZone());
+//            System.err.println("Cultura: parametros - " + c.getParameters());
+//            System.err.println("Cultura: manager - " + c.getManager());
+//            System.err.println("Cultura: estado - " + c.isState());
+//            System.err.println("----------------------------------------");
 //        }
 
     }
@@ -182,13 +201,14 @@ public final class MySqlData {
             throwables.printStackTrace();
         }
 
-//        for (Long k : sensors.keySet()) {
-//            Sensor s = sensors.get(k);
-//            System.err.println("sensor: id " + s.getId());
-//            System.err.println("sensor: zone " + s.getZone());
-//            System.err.println("sensor: min " + s.getMinLim());
-//            System.err.println("sensor: max " + s.getMaxLim());
-//        }
+        for (Long k : sensors.keySet()) {
+            Sensor s = sensors.get(k);
+            System.err.println("sensor: id " + s.getId());
+            System.err.println("sensor: zone " + s.getZone().getId());
+            System.err.println("sensor: min " + s.getMinLim());
+            System.err.println("sensor: max " + s.getMaxLim());
+            System.err.println("----------------------");
+        }
 
     }
 
