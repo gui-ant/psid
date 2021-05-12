@@ -18,7 +18,7 @@ public final class MySqlData {
     private final Hashtable<Long, Zone> zones = new Hashtable<>();
     private final Hashtable<Long, Sensor> sensors = new Hashtable<>();
     private final Hashtable<Long, Culture> cultures = new Hashtable<>();// Todas as culturas, com as respetivas parametrizações associadas
-    private final Hashtable<Long, List<CultureParams>> cultureParamsSet = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
+    private final Hashtable<Long, CultureParams> cultureParams = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
 
     public static MySqlData get() {
         return new MySqlData();
@@ -26,11 +26,11 @@ public final class MySqlData {
 
     public MySqlData() {
         try {
-            Connection connCloud = DriverManager.getConnection(MYSQL_CLOUD_URI, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
+            //Connection connCloud = DriverManager.getConnection(MYSQL_CLOUD_URI, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
             Connection connLocal = DriverManager.getConnection(MYSQL_LOCAL_URI, MYSQL_LOCAL_USER, MYSQL_LOCAL_PASS);
 
-            fetchZones(connCloud);
-            fetchSensors(connCloud);
+            //fetchZones(connCloud);
+            //fetchSensors(connCloud);
 
             fetchUsers(connLocal);
             fetchCultures(connLocal);
@@ -41,8 +41,8 @@ public final class MySqlData {
         }
     }
 
-    public Hashtable<Long, List<CultureParams>> getCultureParamsSet() {
-        return cultureParamsSet;
+    public Hashtable<Long, CultureParams> getCultureParamsSet() {
+        return cultureParams;
     }
 
     public Hashtable<Long, Sensor> getSensors() {
@@ -74,32 +74,38 @@ public final class MySqlData {
     private void fetchCultureParams(Connection connLocal) {
         cultures.forEach((id, culture) -> {
             // Devolve parametrizações por id de cultura
-            String query = "SELECT sets.id as id, sensor_type, valmax, valmin, tolerance " +
+            String query = "SELECT params.id as param_id, sets.id as set_id, sets.culture_id, sensor_type, valmax, valmin, tolerance " +
                     "FROM rel_culture_params_set AS rel " +
                     "JOIN culture_params AS params ON params.id = rel.culture_param_id " +
                     "JOIN culture_params_sets AS sets " +
                     "ON sets.id = rel.set_id " +
                     "WHERE sets.culture_id = " + id;
 
+            Hashtable<Long, List<CultureParams>> cultureParamsSets = new Hashtable<>();
+
+
             try (Statement st = connLocal.createStatement()) {
                 ResultSet res = st.executeQuery(query);
-                if (!res.next()) {
-                    // No parameters
-                } else {
-                    if (!cultureParamsSet.containsKey(res.getInt("id")))
-                        cultureParamsSet.put(res.getLong("id"), new ArrayList<>());
+                if (res.next()) {
 
-                    List<CultureParams> cultureParams = cultureParamsSet.get(res.getLong("id"));
+
                     do {
-                        CultureParams params = new CultureParams();
-                        params.setSensorType(res.getString("sensor_type"));
-                        params.setValMax(res.getDouble("valmax"));
-                        params.setValMin(res.getDouble("valmin"));
-                        params.setTolerance(res.getInt("tolerance"));
-                        params.setCulture(culture);
-                        cultureParams.add(params);
-                        culture.setParameters(cultureParams);
+                        if (!cultureParamsSets.containsKey(res.getLong("set_id")))
+                            cultureParamsSets.put(res.getLong("set_id"), new ArrayList<>());
+
+                        CultureParams p = new CultureParams();
+                        p.setSensorType(res.getString("sensor_type"));
+                        p.setValMax(res.getDouble("valmax"));
+                        p.setValMin(res.getDouble("valmin"));
+                        p.setTolerance(res.getInt("tolerance"));
+                        p.setCulture(culture);
+
+                        cultureParams.put(res.getLong("param_id"), p);
+                        cultureParamsSets.get(res.getLong("set_id")).add(p);
+
                     } while (res.next());
+                    culture.setParameters(cultureParamsSets);
+
                 }
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
@@ -133,6 +139,9 @@ public final class MySqlData {
 
             while (res.next()) {
                 Zone z = new Zone(res.getInt("id"));
+                z.setHumidity(res.getDouble("humidity"));
+                z.setLight(res.getDouble("light"));
+                z.setTemperature(res.getDouble("temperature"));
                 zones.put(res.getLong("id"), z);
             }
         } catch (SQLException throwables) {
@@ -152,7 +161,7 @@ public final class MySqlData {
                 s.setMinLim(res.getDouble("minlim"));
                 s.setMaxLim(res.getDouble("maxlim"));
                 s.setZone(z);
-
+                z.getSensors().add(s);
                 sensors.put(res.getLong("id"), s);
             }
         } catch (SQLException throwables) {
@@ -237,11 +246,7 @@ public final class MySqlData {
         }
 
         public boolean isEqual(User u) {
-            if (id == u.getId() && email.equals(u.getEmail()) && name.equals(u.getName()) && role == u.getRole()) {
-                return true;
-            } else {
-                return false;
-            }
+            return id == u.getId() && email.equals(u.getEmail()) && name.equals(u.getName()) && role == u.getRole();
         }
 
 
@@ -256,6 +261,8 @@ public final class MySqlData {
         private double temperature;
         private double humidity;
         private double light;
+
+        private final ArrayList<Sensor> sensors = new ArrayList<>();
 
         public Zone(int id) {
             this.id = id;
@@ -293,6 +300,9 @@ public final class MySqlData {
             return id == z.getId() && temperature == z.getTemperature() && humidity == z.getHumidity() && light == z.getLight();
         }
 
+        public ArrayList<Sensor> getSensors() {
+            return sensors;
+        }
     }
 
     public static final class CultureParams {
@@ -360,19 +370,15 @@ public final class MySqlData {
         private User manager;
         private boolean state;
 
-        private List<CultureParams> parameters;
-
-        public Culture(Long id) {
-            this.id = id;
-            this.parameters = new ArrayList<>();
-        }
-
-        public List<CultureParams> getParameters() {
+        public Hashtable<Long, List<CultureParams>> getParameters() {
             return parameters;
         }
 
-        public void setParameters(List<CultureParams> parameters) {
-            this.parameters = parameters;
+        private Hashtable<Long, List<CultureParams>> parameters;
+
+        public Culture(Long id) {
+            this.id = id;
+            this.parameters = new Hashtable<>();
         }
 
         public String getName() {
@@ -412,11 +418,11 @@ public final class MySqlData {
         }
 
         public boolean isEqual(Culture cul) {
-            if (id == cul.getId() && name.equals(cul.getName()) && zone.isEqual(cul.getZone()) && manager.isEqual(cul.getManager()) && state == cul.isState()) {
-                return true;
-            } else {
-                return false;
-            }
+            return id.equals(cul.getId()) && name.equals(cul.getName()) && zone.isEqual(cul.getZone()) && manager.isEqual(cul.getManager()) && state == cul.isState();
+        }
+
+        public void setParameters(Hashtable<Long, List<CultureParams>> cultureParamsSets) {
+            this.parameters = cultureParamsSets;
         }
     }
 }

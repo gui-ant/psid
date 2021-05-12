@@ -153,21 +153,22 @@ public class MongoToMySql {
                 return null;
             }
 
-            Hashtable<Long, List<MySqlData.CultureParams>> cultureParamsSet = data.getCultureParamsSet();
+            Hashtable<Long, MySqlData.CultureParams> cultureParamsSet = data.getCultureParamsSet();
             MySqlData.Zone zone = data.getZones().get(Long.parseLong(String.valueOf(mea.getZone().charAt(1))));
 
-            for (List<MySqlData.CultureParams> params : cultureParamsSet.values()) {
-                for (MySqlData.CultureParams param : params) {
-                    if (param.getSensorType().equals(mea.getSensorType()) && param.getCulture().getZone().equals(zone)) {
-                        list.add(param);
-                    }
+            cultureParamsSet.forEach((id, param) -> {
+                if (param.getSensorType().equals(mea.getSensorType()) && param.getCulture().getZone().equals(zone)) {
+                    list.add(param);
                 }
-            }
+            });
+
             ParamAnalyser an = new ParamAnalyser(preAlertSet, list, rate);
             return an;
         }
 
-        /** Ignorar esté método para já */
+        /**
+         * Ignorar esté método para já
+         */
         @Override
         protected synchronized void handle(Measurement measurement) {
         }
