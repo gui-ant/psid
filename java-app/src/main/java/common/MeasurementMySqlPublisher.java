@@ -65,8 +65,10 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
         double min = sensor.getMinLim();
         double max = sensor.getMaxLim();
         double value = Double.parseDouble(measurement.getValue());
+        System.out.println(measurement);
+        System.out.println("Parâmetros Sensor -> minLin: " + min + ", maxLim: " + max + ", valid: " + (value > min && value < max));
 
-        return value < min && value > max;
+        return value > min && value < max;
     }
 
     ;

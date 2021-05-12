@@ -50,6 +50,7 @@ public class ParamAnalyser {
     }
 
     private boolean isSuspect(MySqlData.CultureParams param) {
+        System.err.println("ParamAnalyser: dentro do isSuspect");
         //controlar subidas/descidas constantes em parametros sem tolerancia
         if (param.getTolerance() == 0) {
             // TODO - ele lança ALERTA, ou passa o alerta para o PreAlertCompiler para ser logo enviado para o MySQL???
@@ -78,10 +79,12 @@ public class ParamAnalyser {
         boolean constantFall = constantFall(param);
         Alert alert = null;
         if (constantRise) {
+            System.err.println("CONSTANT RISE!!!");
             String msg = "Subida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas";
             // alert = ...
         }
         if (constantFall) {
+            System.err.println("CONSTANT FALL!!!");
             String msg = "Descida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas";
             // alert = ...
         }

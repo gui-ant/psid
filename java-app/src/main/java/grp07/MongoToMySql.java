@@ -64,6 +64,60 @@ public class MongoToMySql {
             es.start();
         }
 
+        @Override
+        public void run() {
+
+            Measurement lastValidMeas = null;
+
+            while (true) {
+                if (analyser == null) {
+                    analyser = createAnalyser(data, sleep_time);
+                }
+                try {
+                    sleep(sleep_time);
+
+                    emptyBufferRoutine();
+
+                    int counter = 0;
+                    double mean_value, acc = 0;
+
+                    Measurement measurement = buffer.poll();
+                    stats.incrementReadings();
+
+                    if (isValid(measurement)) {
+                        publish(measurement);
+                        stats.incrementErrors();
+                    } else {
+                        acc += Double.parseDouble(measurement.getValue());
+                        counter++;
+                        lastValidMeas = measurement;
+                    }
+                    // Confrontar a medição com as parametrizações que existem
+                    // para a tipologia de sensor dessa medição (H, T, L)
+                    //
+                    // tipologia de sensor: measurement.getSensorType();
+
+                    if (counter != 0) {
+                        mean_value = acc / counter;
+                        lastValidMeas.setValue(Double.toString(mean_value));
+
+                        // TODO - É AQUI???
+                        if (analyser != null) {
+                            analyser.addMeasurement(lastValidMeas);
+                            analyser.analyseParameters();
+                        }
+
+                        publish(lastValidMeas);
+                    }
+
+
+                } catch (InterruptedException | SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
         // Por cada vez que vai ao buffer e este está vazio, aumenta o tempo de espera
         // por 1s até um máx de 10s. Quando volta a ter documento, dá reset ao tempo
         // para o valor inserido pelo utilizador.
@@ -85,8 +139,8 @@ public class MongoToMySql {
                 sleep_time -= empty_counter * 1000;
             }
         }
-        /*
-        private void publish(Measurement measurement, boolean isValid) {
+
+        /*private void publish(Measurement measurement, boolean isValid) {
             //sender.send(connection, measurement, isValid);
         }*/
 
@@ -113,51 +167,9 @@ public class MongoToMySql {
             return an;
         }
 
+        /** Ignorar esté método para já */
         @Override
         protected synchronized void handle(Measurement measurement) {
-
-            Measurement lastValidMeas = null;
-
-            if (analyser == null) {
-                analyser = createAnalyser(data, sleep_time);
-            }
-            try {
-                Thread.sleep(sleep_time);
-
-                //emptyBufferRoutine();
-
-                int counter = 0;
-                double mean_value, acc = 0;
-
-                stats.incrementReadings();
-
-                if (!isValid(measurement)) {
-                    publish(measurement);
-                    stats.incrementErrors();
-                } else {
-                    acc += Double.parseDouble(measurement.getValue());
-                    counter++;
-                    lastValidMeas = measurement;
-                }
-                // Confrontar a medição com as parametrizações que existem
-                // para a tipologia de sensor dessa medição (H, T, L)
-                //
-                // tipologia de sensor: measurement.getSensorType();
-
-                if (counter != 0) {
-                    mean_value = acc / counter;
-                    lastValidMeas.setValue(Double.toString(mean_value));
-
-                    // TODO - É AQUI???
-                    analyser.addMeasurement(lastValidMeas);
-                    analyser.analyseParameters();
-
-                    publish(measurement);
-                }
-            } catch (InterruptedException | SQLException e) {
-                e.printStackTrace();
-            }
-
         }
 
         //thread que analisa a percentagem de leituras errada, a cada hora
