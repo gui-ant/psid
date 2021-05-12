@@ -68,6 +68,15 @@ public final class MySqlData {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+//        for (Long k : users.keySet()) {
+//            User u = users.get(k);
+//            System.err.println("User id " + u.getId());
+//            System.err.println("User name " + u.getName());
+//            System.err.println("User mail " + u.getEmail());
+//            System.err.println("User  role" + u.getRole());
+//            System.err.println("----------------------------");
+//        }
     }
 
 
@@ -124,6 +133,11 @@ public final class MySqlData {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+//        for (Long k : cultures.keySet()) {
+//            Culture c = cultures.get(k);
+//        }
+
     }
 
     private void fetchZones(Connection connCloud) {
@@ -138,6 +152,15 @@ public final class MySqlData {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+//        for (Long k : zones.keySet()) {
+//            Zone z = zones.get(k);
+//            System.err.println("id: " + z.getId());
+//            System.err.println("humidity: " + z.getHumidity());
+//            System.err.println("light: " + z.getLight());
+//            System.err.println("temperature: " + z.getTemperature());
+//        }
+
     }
 
     private void fetchSensors(Connection connCloud) {
@@ -158,6 +181,15 @@ public final class MySqlData {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+//        for (Long k : sensors.keySet()) {
+//            Sensor s = sensors.get(k);
+//            System.err.println("sensor: id " + s.getId());
+//            System.err.println("sensor: zone " + s.getZone());
+//            System.err.println("sensor: min " + s.getMinLim());
+//            System.err.println("sensor: max " + s.getMaxLim());
+//        }
+
     }
 
 

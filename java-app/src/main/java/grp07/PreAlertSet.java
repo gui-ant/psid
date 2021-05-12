@@ -25,6 +25,7 @@ public class PreAlertSet {
 
     //populado por cada Thread de sensor
     public synchronized void addPreAlert (Timestamp insertion, MySqlData.CultureParams param, boolean isAlert) {
+        System.err.println("PreAlertSet: alerta adicionado!");
         deleteParamOcc(param);
         if (isAlert) {
             susParams.add(new TimeParameterPair(insertion, param));
@@ -74,55 +75,55 @@ public class PreAlertSet {
 
 /*
     public static void main(String[] args) {
-        User u = new User(3);
+        MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
         u.setName("name");
         u.setRole(2);
 
-        Zone z = new Zone(6);
+        MySqlData.Zone z = new MySqlData.Zone(6);
         z.setTemperature(20);
         z.setHumidity(21);
         z.setLight(22);
 
-        Culture c = new Culture(5L);
+        MySqlData.Culture c = new MySqlData.Culture(5L);
         c.setName("cultura");
         c.setZone(z);
         c.setManager(u);
         c.setState(true);
 
-        CultureParams p1 = new CultureParams();
+        MySqlData.CultureParams p1 = new MySqlData.CultureParams();
         p1.setSensorType("h");
         p1.setValMax(5);
         p1.setValMin(2);
         p1.setTolerance(1);
         p1.setCulture(c);
 
-        CultureParams p11 = new CultureParams();
+        MySqlData.CultureParams p11 = new MySqlData.CultureParams();
         p11.setSensorType("h");
         p11.setValMax(5);
         p11.setValMin(2);
         p11.setTolerance(15);
         p11.setCulture(c);
 
-        CultureParams p2 = new CultureParams();
+        MySqlData.CultureParams p2 = new MySqlData.CultureParams();
         p2.setSensorType("t");
         p2.setValMax(10);
         p2.setValMin(5);
         p2.setTolerance(15);
         p2.setCulture(c);
 
-        CultureParams p3 = new CultureParams();
+        MySqlData.CultureParams p3 = new MySqlData.CultureParams();
         p3.setSensorType("l");
         p3.setValMax(50);
         p3.setValMin(49);
         p3.setTolerance(15);
         p3.setCulture(c);
 
-        List<CultureParams> list = new ArrayList<>();
+        List<MySqlData.CultureParams> list = new ArrayList<>();
         list.add(p1);
         list.add(p3);
 
-        Hashtable<Long, List<CultureParams>> todosParams = new Hashtable<>();
+        Hashtable<Long, List<MySqlData.CultureParams>> todosParams = new Hashtable<>();
         todosParams.put(1L, list);
 
         PreAlertSet pas = new PreAlertSet(todosParams);
