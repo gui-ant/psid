@@ -19,9 +19,15 @@ public class MongoConnector {
         this.client = MongoClients.create(sourceUri);
     }
 
+    public MongoConnector(String sourceUri, String db) {
+        this.client = MongoClients.create(sourceUri);
+        useDatabase(db);
+    }
+
     public void useDatabase(String db) {
-        CodecRegistry pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+        CodecRegistry defaultCodecRegistry = MongoClientSettings.getDefaultCodecRegistry();
+        CodecRegistry providersCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
+        CodecRegistry pojoCodecRegistry = fromRegistries(defaultCodecRegistry, providersCodecRegistry);
 
         this.database = client.getDatabase(db).withCodecRegistry(pojoCodecRegistry);
     }
@@ -30,7 +36,7 @@ public class MongoConnector {
         return client;
     }
 
-    public MongoDatabase getCurrentDB() {
+    public MongoDatabase getCurrentDb() {
         return database;
     }
 }

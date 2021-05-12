@@ -1,6 +1,5 @@
 package grp07;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -9,15 +8,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class MongoToSQL {
-    private final Connection connection; //local
-    private final SqlSender sender;
+    private final MySqlData sender;
     private final int sleep_time;
     // PreAlertSet (comum a threads e supervisor)
     private final PreAlertSet preAlertSet;
     private final ParameterSupervisor supervisor;
 
-    public MongoToSQL(Connection connection, SqlSender sender, int sleep_time_seconds) {
-        this.connection = connection;
+    public MongoToSQL(MySqlData sender, int sleep_time_seconds) {
+
         this.sender = sender;
         this.sleep_time = (sleep_time_seconds * 1000);
 
@@ -30,14 +28,13 @@ public class MongoToSQL {
     public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
                 (collectionName, buffer) -> {
-                    new SqlPublisher(connection, buffer, sender, sleep_time, preAlertSet).start();
+                    new SqlPublisher(buffer, sender, sleep_time, preAlertSet).start();
                 }
         );
     }
 
     static class SqlPublisher extends Thread {
-        private final SqlSender sender;
-        private final Connection connection;
+        private final MySqlData sender;
         private final LinkedBlockingQueue<Measurement> buffer;
         private final double ERROR_PERCENTAGE = 0.33;
         private int sleep_time;
@@ -47,9 +44,8 @@ public class MongoToSQL {
 
         private final ReadingStats stats;
 
-        SqlPublisher(Connection connection, LinkedBlockingQueue<Measurement> buffer, SqlSender sender, int sleep_time, PreAlertSet preAlertSet) {
+        SqlPublisher(LinkedBlockingQueue<Measurement> buffer, MySqlData sender, int sleep_time, PreAlertSet preAlertSet) {
             this.buffer = buffer;
-            this.connection = connection;
             this.sender = sender;
             this.sleep_time = sleep_time;
 
@@ -149,22 +145,22 @@ public class MongoToSQL {
         }
 
         private void publish(Measurement measurement, boolean isValid) {
-            sender.send(connection, measurement, isValid);
+            //sender.send(connection, measurement, isValid);
         }
 
         // cria um analisador de parametros, com os parametros filtrados desta thread
         // TODO - testar!!!
-        private ParamAnalyser createAnalyser(SqlSender sender, int rate) {
-            ArrayList<CultureParams> list = new ArrayList<>();
+        private ParamAnalyser createAnalyser(MySqlData sender, int rate) {
+            ArrayList<MySqlData.CultureParams> list = new ArrayList<>();
             Measurement mea = buffer.peek();
             if (mea == null) {
                 return null;
             }
-            Hashtable<Long, List<CultureParams>> cultureParamsSet = sender.getCultureParamsSet();
-            Zone zone = sender.getZones().get(mea.getZone());
+            Hashtable<Long, List<MySqlData.CultureParams>> cultureParamsSet = sender.getCultureParamsSet();
+            MySqlData.Zone zone = sender.getZones().get(mea.getZone());
 
-            for(List<CultureParams> params : cultureParamsSet.values()) {
-                for(CultureParams param : params) {
+            for(List<MySqlData.CultureParams> params : cultureParamsSet.values()) {
+                for(MySqlData.CultureParams param : params) {
                     if(param.getSensorType().equals(mea.getSensorType()) && param.getCulture().getZone().equals(zone)) {
                         list.add(param);
                     }

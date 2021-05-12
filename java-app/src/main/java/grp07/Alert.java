@@ -2,7 +2,7 @@ package grp07;
 
 import java.sql.Timestamp;
 
-public class Alert {
+public final class Alert {
     private final long id;
     private final long parameterSetId;
     private final Timestamp createdAt;

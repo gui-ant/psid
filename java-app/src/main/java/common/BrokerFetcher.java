@@ -4,7 +4,6 @@ package common;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import grp02.BrokerConnector;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -42,7 +41,7 @@ public abstract class BrokerFetcher<T> extends BrokerConnector {
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
 
-                System.out.println(BrokerFetcher.this.topic + ": Message arrived from broker (topic " + topic + "): " + mqttMessage);
+                System.out.println("Message arrived from broker (topic " + topic + "): " + mqttMessage);
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);

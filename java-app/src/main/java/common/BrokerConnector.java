@@ -1,4 +1,4 @@
-package grp02;
+package common;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;

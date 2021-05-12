@@ -9,22 +9,22 @@ import java.util.List;
 // APENAS A THREAD SUPERVISORA "USA" O PREALERTSET
 public class PreAlertSet {
     private final List<TimeParameterPair> susParams;  //esta lista tem os parametros INDIVIDUAIS
-    private Hashtable<Long, List<CultureParams>> allParams;  //esta lista tem os parametros COMPOSTOS (ir buscar ao SQLSender)
+    private Hashtable<Long, List<MySqlData.CultureParams>> allParams;  //esta lista tem os parametros COMPOSTOS (ir buscar ao SQLSender)
     private boolean altered;
 
-    public PreAlertSet (Hashtable<Long, List<CultureParams>> allParams) {
+    public PreAlertSet (Hashtable<Long, List<MySqlData.CultureParams>> allParams) {
         this.allParams = allParams;
         this.susParams = new ArrayList<>();
         this.altered = true;
     }
 
     //alterado por SQLSender
-    public void setAllParams (Hashtable<Long, List<CultureParams>> allParams) {
+    public void setAllParams (Hashtable<Long, List<MySqlData.CultureParams>> allParams) {
         this.allParams = allParams;
     }
 
     //populado por cada Thread de sensor
-    public synchronized void addPreAlert (Timestamp insertion, CultureParams param, boolean isAlert) {
+    public synchronized void addPreAlert (Timestamp insertion, MySqlData.CultureParams param, boolean isAlert) {
         deleteParamOcc(param);
         if (isAlert) {
             susParams.add(new TimeParameterPair(insertion, param));
@@ -43,9 +43,9 @@ public class PreAlertSet {
         altered = false;
         deleteOldAlerts();
 
-        ArrayList<CultureParams> sus = (ArrayList<CultureParams>) susToParameterArray();
+        ArrayList<MySqlData.CultureParams> sus = (ArrayList<MySqlData.CultureParams>) susToParameterArray();
         for (Long id : allParams.keySet()) {
-            List<CultureParams> paramSet = allParams.get(id);
+            List<MySqlData.CultureParams> paramSet = allParams.get(id);
             if (sus.containsAll(paramSet)) {
                 // TODO - enviar Alerta
                 Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), "wow mano, uma mensagem");
@@ -53,7 +53,7 @@ public class PreAlertSet {
         }
     }
 
-    private void deleteParamOcc (CultureParams param) {
+    private void deleteParamOcc (MySqlData.CultureParams param) {
         susParams.removeIf(pair -> pair.getParam().isEqual(param));
     }
 
@@ -64,8 +64,8 @@ public class PreAlertSet {
         susParams.removeIf(pair -> pair.getTime().before(curr));
     }
 
-    private List<CultureParams> susToParameterArray() {
-        List<CultureParams> arr = new ArrayList<>();
+    private List<MySqlData.CultureParams> susToParameterArray() {
+        List<MySqlData.CultureParams> arr = new ArrayList<>();
         for (TimeParameterPair pair : susParams) {
             arr.add(pair.getParam());
         }
@@ -143,9 +143,9 @@ public class PreAlertSet {
 
     private static class TimeParameterPair {
         private final Timestamp time;
-        private final CultureParams param;
+        private final MySqlData.CultureParams param;
 
-        public TimeParameterPair(Timestamp time, CultureParams param) {
+        public TimeParameterPair(Timestamp time, MySqlData.CultureParams param) {
             this.time = time;
             this.param = param;
         }
@@ -154,7 +154,7 @@ public class PreAlertSet {
             return time;
         }
 
-        public CultureParams getParam() {
+        public MySqlData.CultureParams getParam() {
             return param;
         }
     }

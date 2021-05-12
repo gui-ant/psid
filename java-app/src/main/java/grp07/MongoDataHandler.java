@@ -4,6 +4,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
+import common.MongoConnector;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -21,20 +22,13 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 //  CASO A DB NAO ESTEJA ACESSIVEL!!!!!!!
 
 
-public class ConnectToMongo {
-    private final MongoClient client;
-    private MongoDatabase database;
+public class ConnectToMongo extends MongoConnector {
 
     private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer = new ConcurrentHashMap<>();
 
-    public ConnectToMongo(String sourceUri) {
-        this.client = MongoClients.create(sourceUri);
+    public ConnectToMongo(String sourceUri, String db) {
+        super(sourceUri, db);
         System.out.println("Connected to the database successfully");
-    }
-
-    public ConnectToMongo(String sourceUri, String sourceDatabase) {
-        this(sourceUri);
-        useDatabase(sourceDatabase);
     }
 
     private Measurement getLastObject(MongoCollection<Measurement> collection) {

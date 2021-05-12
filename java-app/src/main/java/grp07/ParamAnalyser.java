@@ -9,14 +9,14 @@ import java.util.List;
 // CADA THREAD TEM UM PARAMANALYSER!!!
 public class ParamAnalyser {
     private final PreAlertSet preAlertCompiler;
-    private List<CultureParams> paramList;  //lista de parametros INDIVIDUAIS de um dado sensor
+    private List<MySqlData.CultureParams> paramList;  //lista de parametros INDIVIDUAIS de um dado sensor
     private final List<Measurement> measurements;
     private int maxTolerance;
     private final int insertionRate;  //frequencia a que as medidas são geradas
     //    private int numCycles = 10;
     private final int numCycles = 3;
 
-    public ParamAnalyser(PreAlertSet preAlertCompiler, ArrayList<CultureParams> paramList, int insertionRate) {
+    public ParamAnalyser(PreAlertSet preAlertCompiler, ArrayList<MySqlData.CultureParams> paramList, int insertionRate) {
         this.preAlertCompiler = preAlertCompiler;
         this.paramList = paramList;
         this.measurements = new LinkedList<>();
@@ -28,12 +28,12 @@ public class ParamAnalyser {
         this.measurements.add(0, measure);
     }
 
-    public void setParamList(ArrayList<CultureParams> paramList) {
+    public void setParamList(ArrayList<MySqlData.CultureParams> paramList) {
         this.paramList = paramList;
     }
 
     public void analyseParameters() {
-        for (CultureParams param : paramList) {
+        for (MySqlData.CultureParams param : paramList) {
             boolean isSus = isSuspect(param);
             if (isSus) {
                 preAlertCompiler.addPreAlert(Timestamp.from(Instant.now()), param, true);
@@ -48,7 +48,7 @@ public class ParamAnalyser {
         trimMeasureList();
     }
 
-    private boolean isSuspect(CultureParams param) {
+    private boolean isSuspect(MySqlData.CultureParams param) {
         //controlar subidas/descidas constantes em parametros sem tolerancia
         if (param.getTolerance() == 0) {
             // TODO - ele lança ALERTA, ou passa o alerta para o PreAlertCompiler para ser logo enviado para o MySQL???
@@ -72,7 +72,7 @@ public class ParamAnalyser {
         return true;
     }
 
-    private Alert zeroToleranceAnalyser(CultureParams param) {
+    private Alert zeroToleranceAnalyser(MySqlData.CultureParams param) {
         boolean constantRise = constantRise(param);
         boolean constantFall = constantFall(param);
         Alert alert = null;
@@ -87,7 +87,7 @@ public class ParamAnalyser {
         return alert;
     }
 
-    private boolean constantRise(CultureParams param) {
+    private boolean constantRise(MySqlData.CultureParams param) {
         //sempre a descer, dentro de limites, durante 7 medidas
         double diff = (param.getValMax() - param.getValMin()) * 0.3;
         double minLim = param.getValMax() - diff;
@@ -108,7 +108,7 @@ public class ParamAnalyser {
         return true;
     }
 
-    private boolean constantFall(CultureParams param) {
+    private boolean constantFall(MySqlData.CultureParams param) {
         //sempre a subir, dentro de limites, durante 7 medidas
         double diff = (param.getValMax() - param.getValMin()) * 0.3;
         double maxLim = param.getValMin() + diff;
