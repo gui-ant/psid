@@ -16,7 +16,7 @@ public final class MySqlData {
 
     private final Hashtable<Long, User> users = new Hashtable<>();
     private final Hashtable<Long, Zone> zones = new Hashtable<>();
-    private final Hashtable<String, Sensor> sensors = new Hashtable<>();
+    private final Hashtable<Long, Sensor> sensors = new Hashtable<>();
     private final Hashtable<Long, Culture> cultures = new Hashtable<>();// Todas as culturas, com as respetivas parametrizações associadas
     private final Hashtable<Long, List<CultureParams>> cultureParamsSet = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
 
@@ -45,7 +45,7 @@ public final class MySqlData {
         return cultureParamsSet;
     }
 
-    public Hashtable<String, Sensor> getSensors() {
+    public Hashtable<Long, Sensor> getSensors() {
         return sensors;
     }
 
@@ -141,19 +141,19 @@ public final class MySqlData {
     }
 
     private void fetchSensors(Connection connCloud) {
-        String query = "SELECT s.*, z.name FROM sensors as s JOIN zones as z on s.zone_id = z.id";
+        String query = "SELECT s.*, z.id FROM sensors as s JOIN zones as z on s.zone_id = z.id";
         try (Statement st = connCloud.createStatement()) {
             ResultSet res = st.executeQuery(query);
 
             while (res.next()) {
                 Sensor s = new Sensor(res.getInt("id"));
-                Zone z = zones.get(res.getString("z.name"));
+                Zone z = zones.get(res.getLong("z.id"));
 
                 s.setMinLim(res.getInt("minlim"));
                 s.setMaxLim(res.getInt("maxlim"));
                 s.setZone(z);
 
-                sensors.put(res.getString("name"), s);
+                sensors.put(res.getLong("id"), s);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
