@@ -147,7 +147,6 @@ public class MongoToMySql {
 
 
         private boolean isNotValid(Measurement measurement) {
-
             double min = data.getSensors().get(measurement.getSensor()).getMinLim();
 
             MySqlData.Sensor sensor = data.getSensors().get(measurement.getSensor());
