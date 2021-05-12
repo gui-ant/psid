@@ -103,8 +103,10 @@ public class MongoToMySql {
                         lastValidMeas.setValue(Double.toString(mean_value));
 
                         // TODO - É AQUI???
-                        analyser.addMeasurement(lastValidMeas);
-                        analyser.analyseParameters();
+                        if (analyser != null) {
+                            analyser.addMeasurement(lastValidMeas);
+                            analyser.analyseParameters();
+                        }
 
                         publish(lastValidMeas, true);
                     }
@@ -147,19 +149,22 @@ public class MongoToMySql {
 
 
         private boolean isNotValid(Measurement measurement) {
-            double min = data.getSensors().get(measurement.getSensor()).getMinLim();
+            MySqlData.Sensor sensor = data.getSensors().get(Long.parseLong(String.valueOf(measurement.getSensor().charAt(1))));
 
-            MySqlData.Sensor sensor = data.getSensors().get(measurement.getSensor());
-            System.err.println(sensor.getId());
-            System.err.println(sensor.getZone());
-            System.err.println(sensor.getMinLim());
-            System.err.println(sensor.getMaxLim());
-
-            double max = data.getSensors().get(measurement.getSensor()).getMaxLim();
-
+            double min = sensor.getMinLim();
+            double max = sensor.getMaxLim();
             double value = Double.parseDouble(measurement.getValue());
 
+//            System.err.println(sensor.getId());
+//            System.err.println(sensor.getZone());
+//            System.err.println(sensor.getMinLim());
+//            System.err.println(sensor.getMaxLim());
+//            System.err.println(value);
+
+
+//            TODO - TESTE!!!! Voltar a por como estava!!!
             return value < min || value > max;
+//                return false;
         }
 
         private void publish(Measurement measurement, boolean isValid) {
