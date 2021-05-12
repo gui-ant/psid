@@ -16,7 +16,7 @@ public class ClusterToMySQL {
 
             String[] collectionNames = {
                     "sensort1",
-                    "sensort2",
+//                    "sensort2",
             };
 
             Connection mysqlCloud = DriverManager.getConnection(TARGET_URL_CLOUD, "aluno", "aluno");
@@ -24,7 +24,7 @@ public class ClusterToMySQL {
 
 
             ConnectToMongo sourceCluster = new ConnectToMongo(SOURCE_URI, SOURCE_DB);
-            MongoToSQL targetMySql = new MongoToSQL(mysqlLocal, new SqlSender(mysqlCloud,mysqlLocal), CADENCE_SECONDS);
+            MongoToMySql targetMySql = new MongoToMySql(mysqlLocal, MySqlData.get(), CADENCE_SECONDS);
 
             sourceCluster.useCollections(collectionNames);
 

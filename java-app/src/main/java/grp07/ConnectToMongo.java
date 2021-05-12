@@ -1,22 +1,17 @@
 package grp07;
 
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.*;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
 import common.MongoConnector;
 import org.bson.Document;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 
 //  CASO A DB NAO ESTEJA ACESSIVEL!!!!!!!
@@ -45,15 +40,6 @@ public class ConnectToMongo extends MongoConnector {
             collectionsDataBuffer.put(col, new LinkedBlockingQueue<>());
     }
 
-
-    public void useDatabase(String db) {
-        CodecRegistry pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-
-        this.database = client.getDatabase(db).withCodecRegistry(pojoCodecRegistry);
-        useAllCollections();
-    }
-
     public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getFetchingSource() {
         return collectionsDataBuffer;
     }
@@ -61,7 +47,7 @@ public class ConnectToMongo extends MongoConnector {
     // Considera todas as coleções da database
     public void useAllCollections() {
         List<String> collectionNames = new ArrayList<>();
-        for (String collection : database.listCollectionNames())
+        for (String collection : getCurrentDb().listCollectionNames())
             collectionNames.add(collection);
 
         String[] arr = new String[collectionNames.size()];
@@ -84,7 +70,7 @@ public class ConnectToMongo extends MongoConnector {
     }
 
     private MongoCollection<Measurement> getMeasureCollection(String collectionName) {
-        return database.getCollection(collectionName, Measurement.class);
+        return getCurrentDb().getCollection(collectionName, Measurement.class);
     }
 
     class MeasureFetcher extends Thread {

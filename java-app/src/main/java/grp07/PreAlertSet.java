@@ -61,7 +61,7 @@ public class PreAlertSet {
     private void deleteOldAlerts() {
         Timestamp curr = Timestamp.from(Instant.now());
         curr.setTime(curr.getTime() + (30*1000));
-        susParams.removeIf(pair -> pair.getTime().before(curr));
+        susParams.removeIf(pair -> pair.getTime().after(curr));
     }
 
     private List<MySqlData.CultureParams> susToParameterArray() {
@@ -72,7 +72,7 @@ public class PreAlertSet {
         return arr;
     }
 
-    /*
+/*
     public static void main(String[] args) {
         User u = new User(3);
         u.setEmail("mail");
@@ -126,22 +126,58 @@ public class PreAlertSet {
         todosParams.put(1L, list);
 
         PreAlertSet pas = new PreAlertSet(todosParams);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
+        for (TimeParameterPair p : pas.susParams) {
+            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+        }
+        System.out.println("------------------------------");
+
         //pas.addPreAlert(Timestamp.from(Instant.now()), p2, true);
-        //pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
-        //pas.addPreAlert(Timestamp.from(Instant.now()), p3, true);
-
-
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
+        for (TimeParameterPair p : pas.susParams) {
+            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+        }
+        System.out.println("------------------------------");
 
         try {
-            pas.analyse();
+            Thread.sleep(500);
         } catch (InterruptedException e) {
-            System.out.println("ERRO!!!");
+            e.printStackTrace();
         }
-    }
-     */
+        pas.addPreAlert(Timestamp.from(Instant.now()), p3, true);
+        for (TimeParameterPair p : pas.susParams) {
+            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+        }
+        System.out.println("------------------------------");
 
-    private static class TimeParameterPair {
+
+//        try {
+//            Thread.sleep(35000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+
+//        try {
+//            pas.analyse();
+//        } catch (InterruptedException e) {
+//            System.out.println("ERRO!!!");
+//        }
+    }
+*/
+
+
+    private class TimeParameterPair {
         private final Timestamp time;
         private final MySqlData.CultureParams param;
 

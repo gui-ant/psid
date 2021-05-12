@@ -8,14 +8,23 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class MySqlPublisher<T> extends Thread {
 
+
     private final Connection connection;
-    private final MySqlData sender;
+    private final MySqlData data;
     private final LinkedBlockingQueue<T> buffer;
 
-    public MySqlPublisher(Connection connection, MySqlData sender, LinkedBlockingQueue<T> buffer) {
+    public MySqlPublisher(Connection connection, MySqlData data, LinkedBlockingQueue<T> buffer) {
         this.connection = connection;
-        this.sender = sender;
+        this.data = data;
         this.buffer = buffer;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public MySqlData getData() {
+        return data;
     }
 
     @Override

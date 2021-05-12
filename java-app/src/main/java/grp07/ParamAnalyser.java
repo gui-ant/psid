@@ -33,6 +33,7 @@ public class ParamAnalyser {
     }
 
     public void analyseParameters() {
+        System.err.println("analyse");
         for (MySqlData.CultureParams param : paramList) {
             boolean isSus = isSuspect(param);
             if (isSus) {

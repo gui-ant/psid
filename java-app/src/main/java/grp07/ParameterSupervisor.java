@@ -1,5 +1,11 @@
 package grp07;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
 public class ParameterSupervisor extends Thread {
     private final PreAlertSet preAlertSet;
 
@@ -12,7 +18,6 @@ public class ParameterSupervisor extends Thread {
         System.out.println("Supervisor started");
         while (true) {
             try {
-//                System.out.println("Supervisor dentro do while/try");
                 preAlertSet.analyse();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -20,7 +25,7 @@ public class ParameterSupervisor extends Thread {
         }
     }
 
-    /*
+/*
     public static void main(String[] args) {
         User u = new User(3);
         u.setEmail("mail");
@@ -67,5 +72,5 @@ public class ParameterSupervisor extends Thread {
         }
 
     }
-     */
+*/
 }

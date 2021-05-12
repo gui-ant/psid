@@ -1,5 +1,9 @@
 package grp07;
 
+import common.MySqlPublisher;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -7,20 +11,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class MongoToSQL {
-    private final MySqlData sender;
+public class MongoToMySql {
+
+    private final Connection mysqlConn;
+    private final MySqlData data;
+
     private final int sleep_time;
     // PreAlertSet (comum a threads e supervisor)
     private final PreAlertSet preAlertSet;
     private final ParameterSupervisor supervisor;
 
-    public MongoToSQL(MySqlData sender, int sleep_time_seconds) {
 
-        this.sender = sender;
+    public MongoToMySql(Connection mysqlConn, MySqlData data, int sleep_time_seconds) {
+        this.mysqlConn = mysqlConn;
+        this.data = data;
         this.sleep_time = (sleep_time_seconds * 1000);
 
         // criar PreAlertSet e Supervisor
-        this.preAlertSet = new PreAlertSet(sender.getCultureParamsSet());
+        this.preAlertSet = new PreAlertSet(data.getCultureParamsSet());
         this.supervisor = new ParameterSupervisor(preAlertSet);
         supervisor.start();
     }
@@ -28,13 +36,12 @@ public class MongoToSQL {
     public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
                 (collectionName, buffer) -> {
-                    new SqlPublisher(buffer, sender, sleep_time, preAlertSet).start();
+                    new SqlPublisher(buffer, sleep_time, preAlertSet).start();
                 }
         );
     }
 
-    static class SqlPublisher extends Thread {
-        private final MySqlData sender;
+    class SqlPublisher extends MySqlPublisher<Measurement> {
         private final LinkedBlockingQueue<Measurement> buffer;
         private final double ERROR_PERCENTAGE = 0.33;
         private int sleep_time;
@@ -44,14 +51,14 @@ public class MongoToSQL {
 
         private final ReadingStats stats;
 
-        SqlPublisher(LinkedBlockingQueue<Measurement> buffer, MySqlData sender, int sleep_time, PreAlertSet preAlertSet) {
+        SqlPublisher(LinkedBlockingQueue<Measurement> buffer, int sleep_time, PreAlertSet preAlertSet) {
+            super(mysqlConn, data, buffer);
             this.buffer = buffer;
-            this.sender = sender;
             this.sleep_time = sleep_time;
 
             //this.analyser = new ParamAnalyser(preAlertSet, null, sleep_time);
             this.preAlertSet = preAlertSet;
-            this.analyser = createAnalyser(sender, sleep_time);
+            this.analyser = createAnalyser(data, sleep_time);
 
             this.stats = new ReadingStats();
             ErrorSupervisor es = new ErrorSupervisor(stats, ERROR_PERCENTAGE);
@@ -65,7 +72,7 @@ public class MongoToSQL {
 
             while (true) {
                 if (analyser == null) {
-                    analyser = createAnalyser(sender, sleep_time);
+                    analyser = createAnalyser(data, sleep_time);
                 }
                 try {
                     sleep(sleep_time);
@@ -81,12 +88,10 @@ public class MongoToSQL {
                     if (isNotValid(measurement)) {
                         publish(measurement, false);
                         stats.incrementErrors();
-                    }
-                    else {
+                    } else {
                         acc += Double.parseDouble(measurement.getValue());
                         counter++;
                         lastValidMeas = measurement;
-
                     }
                     // Confrontar a medição com as parametrizações que existem
                     // para a tipologia de sensor dessa medição (H, T, L)
@@ -110,6 +115,11 @@ public class MongoToSQL {
                 }
             }
 
+        }
+
+        @Override
+        protected PreparedStatement getStatement(Measurement object) {
+            return null;
         }
 
 
@@ -137,8 +147,17 @@ public class MongoToSQL {
 
 
         private boolean isNotValid(Measurement measurement) {
-            double min = sender.getSensors().get(measurement.getSensor()).getMinLim();
-            double max = sender.getSensors().get(measurement.getSensor()).getMaxLim();
+
+            double min = data.getSensors().get(measurement.getSensor()).getMinLim();
+
+            MySqlData.Sensor sensor = data.getSensors().get(measurement.getSensor());
+            System.err.println(sensor.getId());
+            System.err.println(sensor.getZone());
+            System.err.println(sensor.getMinLim());
+            System.err.println(sensor.getMaxLim());
+
+            double max = data.getSensors().get(measurement.getSensor()).getMaxLim();
+
             double value = Double.parseDouble(measurement.getValue());
 
             return value < min || value > max;
@@ -156,12 +175,13 @@ public class MongoToSQL {
             if (mea == null) {
                 return null;
             }
-            Hashtable<Long, List<MySqlData.CultureParams>> cultureParamsSet = sender.getCultureParamsSet();
-            MySqlData.Zone zone = sender.getZones().get(mea.getZone());
 
-            for(List<MySqlData.CultureParams> params : cultureParamsSet.values()) {
-                for(MySqlData.CultureParams param : params) {
-                    if(param.getSensorType().equals(mea.getSensorType()) && param.getCulture().getZone().equals(zone)) {
+            Hashtable<Long, List<MySqlData.CultureParams>> cultureParamsSet = sender.getCultureParamsSet();
+            MySqlData.Zone zone = sender.getZones().get(Long.parseLong(String.valueOf(mea.getZone().charAt(1))));
+
+            for (List<MySqlData.CultureParams> params : cultureParamsSet.values()) {
+                for (MySqlData.CultureParams param : params) {
+                    if (param.getSensorType().equals(mea.getSensorType()) && param.getCulture().getZone().equals(zone)) {
                         list.add(param);
                     }
                 }
@@ -171,11 +191,11 @@ public class MongoToSQL {
         }
 
         //thread que analisa a percentagem de leituras errada, a cada hora
-        private static class ErrorSupervisor extends Thread {
+        private class ErrorSupervisor extends Thread {
             private final ReadingStats stats;
             private final double percentage;
 
-            public ErrorSupervisor (ReadingStats stats, double percentage) {
+            public ErrorSupervisor(ReadingStats stats, double percentage) {
                 this.stats = stats;
                 this.percentage = percentage;
                 System.out.println("ErrorSupervisor ligado!!!");
@@ -184,8 +204,6 @@ public class MongoToSQL {
             public void run() {
                 while (true) {
                     try {
-                        System.out.println("ErrorSupersivor: antes do sleep");
-                        System.out.println(stats.getTotalReadings());
                         sleep(3600 * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();

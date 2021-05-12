@@ -25,7 +25,7 @@ public class BrokerToMongo {
         HashMap<String, MongoCollection<Measurement>> collections = new HashMap<>();
 
         for (String collection : collectionNames) {
-            collections.put(collection, mongoConn.getCurrentDB().getCollection(collection, Measurement.class));
+            collections.put(collection, mongoConn.getCurrentDb().getCollection(collection, Measurement.class));
             buffer.put(collection, new LinkedBlockingQueue<>());
         }
 
