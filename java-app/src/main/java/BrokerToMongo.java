@@ -1,13 +1,13 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 
-import common.BrokerFetcher;
-import common.MongoConnector;
-import common.MongoPublisher;
+import common.BrokerHandler;
+import grp07.MongoHandler;
 import grp07.Measurement;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,78 +25,89 @@ public class BrokerToMongo {
     private static final String TOPIC = "pisid_g07_sensors";
     private static final int QOS = 0;
 
-    private BrokerFetcher<Measurement> measurementFetcher = null;
-    private MongoPublisher<Measurement> measurementPublisher = null;
+    public static void main(String[] args) {
 
-    private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
-
-    public BrokerToMongo(String brokerUri, MongoConnector mongoConn, String[] collectionNames) {
-        this.buffer = new ConcurrentHashMap<>();
-        HashMap<String, MongoCollection<Measurement>> collections = new HashMap<>();
-
-        for (String collection : collectionNames) {
-            collections.put(collection, mongoConn.getCurrentDb().getCollection(collection, Measurement.class));
-            buffer.put(collection, new LinkedBlockingQueue<>());
-        }
+        String[] collectionNames = {"sensort1", "sensort2"};
 
         try {
-            measurementFetcher = new MeasurementFetcher(brokerUri, TOPIC, QOS);
+
+            MeasurementFetcher fetcher = new MeasurementFetcher(BROKER_URI, TOPIC, QOS);
+            MeasurementPublisher publisher = new MeasurementPublisher(TARGET_URI, TARGET_DB);
+
+            for (String collection : collectionNames)
+                fetcher.getBuffer().put(collection, new LinkedBlockingQueue<>());
+
+            publisher.deal(fetcher.getBuffer());
+
         } catch (MqttException e) {
             e.printStackTrace();
         }
-        measurementPublisher = new MeasurementPublisher(collections, measurementFetcher.getBuffer());
-        measurementPublisher.startPublishing();
     }
 
-    public class MeasurementPublisher extends MongoPublisher<Measurement> {
-        private LinkedBlockingQueue<Measurement> buffer;
+    public static class MeasurementPublisher extends MongoHandler<Measurement> {
 
-        public MeasurementPublisher(HashMap<String, MongoCollection<Measurement>> collections, LinkedBlockingQueue<Measurement> buffer) {
-            super(collections, new ConcurrentHashMap<>());
-            this.buffer = buffer;
+        public MeasurementPublisher(String sourceUri, String db) {
+            super(sourceUri, db);
         }
 
         @Override
-        public void startPublishing() {
-            new Thread(() -> {
-                while (true) {
-                    try {
-                        Measurement m = buffer.take();
+        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+            collectionsDataBuffer.forEach((collectionName, collectionBuffer) -> {
+                new Thread(() -> {
+                    while (true) {
+                        try {
+                            Measurement m = collectionBuffer.take();
 
-                        String collectionName = "sensor" + m.getSensor().toLowerCase(Locale.ROOT);
-                        MongoCollection<Measurement> collection = getCollections().get(collectionName);
+                            MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
+                            InsertOneResult res = collection.insertOne(m);
 
-                        InsertOneResult res = collection.insertOne(m);
-
-                        System.out.println("Published: " + m);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                            System.out.println("Published: " + m);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }).start();
-        }
+                }).start();
+            });
 
+        }
     }
 
-    public class MeasurementFetcher extends BrokerFetcher<Measurement> {
+    public static class MeasurementFetcher extends BrokerHandler<Measurement> {
+        private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer = new ConcurrentHashMap<>();
 
         public MeasurementFetcher(String uri, String topic, int qos) throws MqttException {
             super(uri, topic, qos);
         }
 
         @Override
-        protected Class<Measurement> getMapperClass() {
-            return Measurement.class;
+        protected Measurement getMappedObject(ObjectMapper objectMapper, String message) {
+            try {
+                return objectMapper.readValue(message, Measurement.class);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onObjectArrived(Measurement object, String topic) {
+            try {
+                /**
+                 * Só acrescenta ao buffer, se já existir a key corresponente na HashMap, i.e. se se pretende considerar a leitura desse sensor.
+                 * Esta validação depende do parâmetro "collecionNames" passado no construtor
+                 */
+                String mongoCollectionName = "sensor" + object.getSensor().toLowerCase(Locale.ROOT);
+                if (buffer.containsKey(mongoCollectionName))
+                    buffer.get(mongoCollectionName).put(object);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        protected ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
+            return this.buffer;
         }
     }
 
-    public static void main(String[] args) {
-        MongoConnector m = new MongoConnector(TARGET_URI);
-        m.useDatabase(TARGET_DB);
 
-        String[] collectionNames = {"sensort1", "sensort2"};
-
-        new BrokerToMongo(BROKER_URI, m, collectionNames);
-
-    }
 }

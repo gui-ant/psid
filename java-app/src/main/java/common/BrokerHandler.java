@@ -2,26 +2,20 @@ package common;
 
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-public abstract class BrokerFetcher<T> extends BrokerConnector {
-    private final LinkedBlockingQueue<T> buffer;
+public abstract class BrokerHandler<T> extends BrokerConnector {
     private final String topic;
 
-    protected abstract Class<T> getMapperClass();
-
-    public BrokerFetcher(String uri, String topic, int qos) throws MqttException {
+    public BrokerHandler(String uri, String topic, int qos) throws MqttException {
         super(uri, topic, qos);
         this.topic = topic;
-        this.buffer = new LinkedBlockingQueue<>();
-
         try {
             super.tryConnect();
             super.getClient().subscribe(this.topic, qos);
@@ -40,18 +34,12 @@ public abstract class BrokerFetcher<T> extends BrokerConnector {
 
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
-
                 System.out.println("Message arrived from broker (topic " + topic + "): " + mqttMessage);
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-                try {
-                    T object = objectMapper.readValue(mqttMessage.toString(), getMapperClass());
-                    getBuffer().put(object);
-                } catch (JsonProcessingException | InterruptedException e) {
-                    e.printStackTrace();
-                }
+                onObjectArrived(getMappedObject(objectMapper, mqttMessage.toString()), topic);
             }
 
             @Override
@@ -61,8 +49,11 @@ public abstract class BrokerFetcher<T> extends BrokerConnector {
         };
     }
 
+    protected abstract T getMappedObject(ObjectMapper objectMapper, String message);
 
-    public LinkedBlockingQueue<T> getBuffer() {
-        return buffer;
+    protected abstract void onObjectArrived(T objectMapper, String topic);
+
+    protected void publish(T m) throws MqttException {
+        client.publish(this.topic, m.toString().getBytes(UTF_8), this.qos, false);
     }
 }

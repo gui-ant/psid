@@ -2,8 +2,8 @@ package grp02;
 
 import common.BrokerPublisher;
 import common.ClientToClient;
-import grp07.ConnectToMongo;
 import grp07.Measurement;
+import grp07.MongoHandler;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +38,7 @@ public class MongoToBroker implements ClientToClient<Measurement> {
 
     @Override
     public void startFetching() {
-        new ConnectToMongo<Measurement>(SOURCE_URI_ATLAS, SOURCE_DB) {
+        new MongoHandler<Measurement>(SOURCE_URI_ATLAS, SOURCE_DB) {
             @Override
             protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
 

@@ -3,7 +3,7 @@ package grp02;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 import common.ClientToClient;
-import grp07.ConnectToMongo;
+import grp07.MongoHandler;
 import grp07.Measurement;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,7 +59,7 @@ public class ConnectionMongoReplics implements ClientToClient<Measurement> {
         return this.buffer;
     }
 
-    private static class MeasurementsFetcher extends ConnectToMongo<Measurement> {
+    private static class MeasurementsFetcher extends MongoHandler<Measurement> {
         public MeasurementsFetcher(String uri, String db) {
             super(uri, db);
         }
@@ -78,7 +78,7 @@ public class ConnectionMongoReplics implements ClientToClient<Measurement> {
         }
     }
 
-    private static class MeasurementsPublisher extends ConnectToMongo<Measurement> {
+    private static class MeasurementsPublisher extends MongoHandler<Measurement> {
 
         public MeasurementsPublisher(String uri, String db) {
             super(uri, db);

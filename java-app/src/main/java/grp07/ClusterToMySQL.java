@@ -1,7 +1,9 @@
 package grp07;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
 import common.ClientToClient;
-import common.MongoFetcher;
 import org.bson.types.ObjectId;
 
 import java.sql.Connection;
@@ -62,19 +64,45 @@ public class ClusterToMySQL implements ClientToClient<Measurement> {
         return this.buffer;
     }
 
-    private static class MeasurementMongoFetcher extends MongoFetcher<Measurement> {
+    private static class MeasurementMongoFetcher extends MongoHandler<Measurement> {
+        private static final long SLEEP_TIME = 5000;
+
         public MeasurementMongoFetcher(String uri, String db) {
             super(uri, db);
         }
 
         @Override
-        protected ObjectId getObjectId(Measurement doc) {
-            return doc.getId();
-        }
+        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+            collectionsDataBuffer.forEach((collectionName, buffer) ->
+                    new Thread(() -> {
 
-        @Override
-        protected Class<Measurement> getMapperClass() {
-            return Measurement.class;
+                        MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
+
+                        Measurement doc = getLastObject(collection);
+
+                        // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
+                        ObjectId lastId = doc.getId();
+
+                        while (true) {
+                            try {
+                                System.out.println("Fetching " + getCollectionName(collection) + "...");
+
+                                MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
+
+                                // Le os novos dados e adiciona-os ao buffer
+                                while (cursor.hasNext()) {
+                                    doc = cursor.next();
+                                    lastId = doc.getId();
+                                    buffer.offer(doc);
+                                    System.out.println("Fetched: " + doc.getId());
+                                }
+                                Thread.sleep(SLEEP_TIME);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start()
+            );
         }
     }
 }

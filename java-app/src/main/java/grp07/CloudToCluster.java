@@ -1,6 +1,5 @@
 package grp07;
 
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
@@ -56,7 +55,7 @@ public class CloudToCluster implements ClientToClient {
         return this.buffer;
     }
 
-    private class MongoFetcher extends ConnectToMongo<Measurement> {
+    private class MongoFetcher extends MongoHandler<Measurement> {
         private static final int SLEEP_TIME = 5000;
 
         public MongoFetcher(String sourceUri, String db) {
@@ -95,7 +94,7 @@ public class CloudToCluster implements ClientToClient {
         }
     }
 
-    private class MongoPublisher extends ConnectToMongo<Measurement> {
+    private class MongoPublisher extends MongoHandler<Measurement> {
 
         public MongoPublisher(String sourceUri, String db) {
             super(sourceUri, db);
