@@ -82,7 +82,7 @@ public class MedicoesActivity extends AppCompatActivity {
     }
 
     private void updateMedicoes(){
-        db.clearMedicoes();
+        db.clearMeasurements();
         HashMap<String, String> params = new HashMap<>();
         params.put("username", username);
         params.put("password", password);
@@ -99,7 +99,7 @@ public class MedicoesActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         leitura = -1000.0;
                     }
-                    db.insertMedicao(hora, leitura);
+                    db.insertMeasurement(hora, leitura);
                 }
             }
         } catch (JSONException e) {

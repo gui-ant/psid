@@ -93,7 +93,7 @@ public class AlertasActivity extends AppCompatActivity {
     }
 
     private void getAlertas() {
-        db.clearAlertas();
+        db.clearAlerts();
         HashMap<String, String> params = new HashMap<>();
         params.put("username", username);
         params.put("password", password);
@@ -129,7 +129,7 @@ public class AlertasActivity extends AppCompatActivity {
                         idCultura = 0;
                     }
                     String horaEscrita = c.getString("HoraEscrita");
-                    db.insertAlerta(zona, sensor, hora, leitura, tipoAlerta, cultura, mensagem, idUtilizador, idCultura, horaEscrita);
+                    db.insertAlert(zona, sensor, hora, leitura, tipoAlerta, cultura, mensagem, idUtilizador, idCultura, horaEscrita);
                 }
             }
         }catch (JSONException e){
