@@ -68,6 +68,15 @@ public final class MySqlData {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+//        for (Long k : users.keySet()) {
+//            User u = users.get(k);
+//            System.err.println("User id " + u.getId());
+//            System.err.println("User name " + u.getName());
+//            System.err.println("User mail " + u.getEmail());
+//            System.err.println("User  role" + u.getRole());
+//            System.err.println("----------------------------");
+//        }
     }
 
 
@@ -111,6 +120,20 @@ public final class MySqlData {
                 throwables.printStackTrace();
             }
         });
+
+//        for (Long k : cultureParamsSet.keySet()) {
+//            List<CultureParams> pl = cultureParamsSet.get(k);
+//            for (CultureParams p : pl) {
+//                System.err.println("Parametro: tipo - " + p.getSensorType());
+//                System.err.println("Parametro: max - " + p.getValMax());
+//                System.err.println("Parametro: min - " + p.getValMin());
+//                System.err.println("Parametro: cultura - " + p.getCulture());
+//                System.err.println("Parametro: tolerance - " + p.getTolerance());
+//                System.err.println("----------------------------------------");
+//            }
+//            System.err.println("***********************************************");
+//        }
+
     }
 
     private void fetchCultures(Connection connLocal) {
@@ -130,6 +153,18 @@ public final class MySqlData {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+//        for (Long k : cultures.keySet()) {
+//            Culture c = cultures.get(k);
+//            System.err.println("Cultura: id - " + c.getId());
+//            System.err.println("Cultura: name - " + c.getName());
+//            System.err.println("Cultura: zone - " + c.getZone());
+//            System.err.println("Cultura: parametros - " + c.getParameters());
+//            System.err.println("Cultura: manager - " + c.getManager());
+//            System.err.println("Cultura: estado - " + c.isState());
+//            System.err.println("----------------------------------------");
+//        }
+
     }
 
     private void fetchZones(Connection connCloud) {
@@ -147,6 +182,15 @@ public final class MySqlData {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+//        for (Long k : zones.keySet()) {
+//            Zone z = zones.get(k);
+//            System.err.println("zona id: " + z.getId());
+//            System.err.println("zona humidity: " + z.getHumidity());
+//            System.err.println("zona light: " + z.getLight());
+//            System.err.println("zona temperature: " + z.getTemperature());
+//        }
+
     }
 
     private void fetchSensors(Connection connCloud) {
@@ -167,6 +211,16 @@ public final class MySqlData {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+//        for (Long k : sensors.keySet()) {
+//            Sensor s = sensors.get(k);
+//            System.err.println("sensor: id " + s.getId());
+//            System.err.println("sensor: zone " + s.getZone().getId());
+//            System.err.println("sensor: min " + s.getMinLim());
+//            System.err.println("sensor: max " + s.getMaxLim());
+//            System.err.println("----------------------");
+//        }
+
     }
 
 

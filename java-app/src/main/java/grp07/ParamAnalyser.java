@@ -3,6 +3,7 @@ package grp07;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class ParamAnalyser {
     }
 
     public void analyseParameters() {
-        System.err.println("analyse");
+//        System.err.println("analyse");
         for (MySqlData.CultureParams param : paramList) {
             boolean isSus = isSuspect(param);
             if (isSus) {
@@ -50,7 +51,7 @@ public class ParamAnalyser {
     }
 
     private boolean isSuspect(MySqlData.CultureParams param) {
-        System.err.println("ParamAnalyser: dentro do isSuspect");
+//        System.err.println("ParamAnalyser: dentro do isSuspect");
         //controlar subidas/descidas constantes em parametros sem tolerancia
         if (param.getTolerance() == 0) {
             // TODO - ele lança ALERTA, ou passa o alerta para o PreAlertCompiler para ser logo enviado para o MySQL???
@@ -79,12 +80,12 @@ public class ParamAnalyser {
         boolean constantFall = constantFall(param);
         Alert alert = null;
         if (constantRise) {
-            System.err.println("CONSTANT RISE!!!");
+//            System.err.println("CONSTANT RISE!!!");
             String msg = "Subida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas";
             // alert = ...
         }
         if (constantFall) {
-            System.err.println("CONSTANT FALL!!!");
+//            System.err.println("CONSTANT FALL!!!");
             String msg = "Descida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas";
             // alert = ...
         }
@@ -144,25 +145,25 @@ public class ParamAnalyser {
         return newTime;
     }
 
-    /*
+/*
     public static void main (String[] args) {
-        User u = new User(3);
+        MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
         u.setName("name");
         u.setRole(2);
 
-        Zone z = new Zone(6);
+        MySqlData.Zone z = new MySqlData.Zone(6);
         z.setTemperature(20);
         z.setHumidity(21);
         z.setLight(22);
 
-        Culture c = new Culture(5L);
+        MySqlData.Culture c = new MySqlData.Culture(5L);
         c.setName("cultura");
         c.setZone(z);
         c.setManager(u);
         c.setState(true);
 
-        CultureParams p1 = new CultureParams();
+        MySqlData.CultureParams p1 = new MySqlData.CultureParams();
         p1.setSensorType("h");
         p1.setValMax(5);
         p1.setValMin(2);
@@ -173,31 +174,31 @@ public class ParamAnalyser {
         mea1.setZone("z1");
         mea1.setSensor("t");
         mea1.setDate("2021-05-02 00:06:30");
-        mea1.setMeasure("2.1");
+        mea1.setValue("2.1");
 
         Measurement mea2 = new Measurement();
         mea2.setZone("z1");
         mea2.setSensor("t");
         mea2.setDate("2021-05-02 00:06:31");
-        mea2.setMeasure("2.8");
+        mea2.setValue("2.8");
 
         Measurement mea3 = new Measurement();
         mea3.setZone("z1");
         mea3.setSensor("t");
         mea3.setDate("2021-05-02 00:06:32");
-        mea3.setMeasure("2.7");
+        mea3.setValue("2.7");
 
         Measurement mea4 = new Measurement();
         mea4.setZone("z1");
         mea4.setSensor("t");
         mea4.setDate("2021-05-02 00:06:33");
-        mea4.setMeasure("2.6");
+        mea4.setValue("2.6");
 
-        ArrayList<CultureParams> paramList = new ArrayList<>();
+        ArrayList<MySqlData.CultureParams> paramList = new ArrayList<>();
         paramList.add(p1);
 //        paramList.add(p2);
 
-        Hashtable<Long, List<CultureParams>> todosParams = new Hashtable<>();
+        Hashtable<Long, List<MySqlData.CultureParams>> todosParams = new Hashtable<>();
         todosParams.put(1L, paramList);
 
         PreAlertSet pas = new PreAlertSet(todosParams);
@@ -211,5 +212,5 @@ public class ParamAnalyser {
 
         pa.analyseParameters();
     }
-     */
+*/
 }
