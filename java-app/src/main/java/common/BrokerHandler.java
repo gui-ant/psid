@@ -35,11 +35,7 @@ public abstract class BrokerHandler<T> extends BrokerConnector {
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
                 System.out.println("Message arrived from broker (topic " + topic + "): " + mqttMessage);
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-
-                onObjectArrived(getMappedObject(objectMapper, mqttMessage.toString()), topic);
+                onObjectArrived(getMappedObject(mqttMessage.toString()), topic);
             }
 
             @Override
@@ -49,7 +45,7 @@ public abstract class BrokerHandler<T> extends BrokerConnector {
         };
     }
 
-    protected abstract T getMappedObject(ObjectMapper objectMapper, String message);
+    protected abstract T getMappedObject(String message);
 
     protected abstract void onObjectArrived(T objectMapper, String topic);
 

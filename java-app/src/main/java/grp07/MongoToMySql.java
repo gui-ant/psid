@@ -39,7 +39,7 @@ public class MongoToMySql {
         );
     }
 
-    class SqlPublisher extends MeasurementMySqlPublisher {
+    public class SqlPublisher extends MeasurementMySqlPublisher {
 
         private final LinkedBlockingQueue<Measurement> buffer;
         private final double ERROR_PERCENTAGE = 0.33;
@@ -50,7 +50,7 @@ public class MongoToMySql {
 
         private final ReadingStats stats;
 
-        SqlPublisher(LinkedBlockingQueue<Measurement> buffer, int sleep_time, PreAlertSet preAlertSet) {
+        public SqlPublisher(LinkedBlockingQueue<Measurement> buffer, int sleep_time, PreAlertSet preAlertSet) {
             super(mysqlConn, buffer);
             this.buffer = buffer;
             this.sleep_time = sleep_time;

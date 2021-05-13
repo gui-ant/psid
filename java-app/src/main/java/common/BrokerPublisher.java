@@ -1,6 +1,5 @@
 package common;
 
-import common.BrokerConnector;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -17,7 +16,8 @@ public class BrokerPublisher<T> extends BrokerConnector {
         tryConnect();
     }
 
-    public void startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<T>> sourceBuffer) {
+    public void
+    startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<T>> sourceBuffer) {
         sourceBuffer.forEach(
                 (collectionName, buffer) -> new ToBroker<>(client, topic, qos, buffer).start()
         );

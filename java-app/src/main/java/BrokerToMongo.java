@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
@@ -18,11 +19,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 public class BrokerToMongo {
+    private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
+    private static final String TOPIC = "pisid_g07_sensors";
+
     private static final String TARGET_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
     private static final String TARGET_DB = "g07";
 
-    private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
-    private static final String TOPIC = "pisid_g07_sensors";
     private static final int QOS = 0;
 
     public static void main(String[] args) {
@@ -80,9 +82,13 @@ public class BrokerToMongo {
         }
 
         @Override
-        protected Measurement getMappedObject(ObjectMapper objectMapper, String message) {
+        protected Measurement getMappedObject(String message) {
             try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+
                 return objectMapper.readValue(message, Measurement.class);
+
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }

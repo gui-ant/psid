@@ -35,7 +35,7 @@ public final class MySqlData {
             fetchUsers(connLocal);
             fetchCultures(connLocal);
             fetchCultureParams(connLocal);
-
+            System.out.println("asd");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

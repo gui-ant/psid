@@ -47,7 +47,7 @@ public class CloudToCluster implements ClientToClient {
 
     @Override
     public void startPublishing() {
-        new MongoPublisher(SOURCE_URI_ATLAS, SOURCE_DB).deal(this.getBuffer());
+        new MongoPublisher(TARGET_URI_CLUSTER, TARGET_DB).deal(this.getBuffer());
     }
 
     @Override
@@ -115,7 +115,7 @@ public class CloudToCluster implements ClientToClient {
                             e.printStackTrace();
                         }
                     }
-                });
+                }).start();
             });
         }
     }
