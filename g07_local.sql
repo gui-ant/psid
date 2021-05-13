@@ -135,6 +135,34 @@ END IF;
 
 END$$
 
+DROP PROCEDURE IF EXISTS `spDeleteUser`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spDeleteUser`(IN `p_user_id` INT(10))
+    NO SQL
+BEGIN
+SET @user_email := '';
+
+SELECT u.email INTO @user_email FROM users u WHERE u.id=p_user_id;
+
+SET @user_concat:=CONCAT("'",@user_email ,"'@'%'");
+SET @qry:=CONCAT("DROP USER ", @user_concat);
+PREPARE stmt FROM @qry;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+DELETE from users WHERE id = p_user_id;
+
+END$$
+
+DROP PROCEDURE IF EXISTS `spGetUsersByRole`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spGetUsersByRole`(IN `p_role` ENUM('admin','researcher','technician') CHARSET latin1)
+
+BEGIN
+SET @role := CONCAT("'group_", p_role, "'");
+SET @qry := CONCAT("select user from mysql.roles_mapping
+where role=" , @role, " AND user<>'root'");
+PREPARE stmt FROM @qry; EXECUTE stmt;
+END$$
+
 DROP PROCEDURE IF EXISTS `spCreateUser`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spCreateUser` (IN `p_email` VARCHAR(50) CHARSET latin1, IN `p_name` VARCHAR(100) CHARSET latin1, IN `p_pass` VARCHAR(64) CHARSET latin1, IN `p_role` ENUM('admin','researcher','technician') CHARSET latin1, OUT `out_user_id` INT)  BEGIN
 IF NOT isEmail(p_email) THEN
