@@ -26,11 +26,11 @@ public final class MySqlData {
 
     public MySqlData() {
         try {
-            //Connection connCloud = DriverManager.getConnection(MYSQL_CLOUD_URI, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
+            Connection connCloud = DriverManager.getConnection(MYSQL_CLOUD_URI, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
             Connection connLocal = DriverManager.getConnection(MYSQL_LOCAL_URI, MYSQL_LOCAL_USER, MYSQL_LOCAL_PASS);
 
-            //fetchZones(connCloud);
-            //fetchSensors(connCloud);
+            fetchZones(connCloud);
+            fetchSensors(connCloud);
 
             fetchUsers(connLocal);
             fetchCultures(connLocal);
