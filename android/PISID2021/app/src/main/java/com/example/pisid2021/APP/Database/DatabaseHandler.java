@@ -28,24 +28,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void insertMedicao(String hora, double leitura) {
         ContentValues values = new ContentValues();
-        values.put(DatabaseConfig.Medicao.COLUMN_NAME_HORA, hora);
-        values.put(DatabaseConfig.Medicao.COLUMN_NAME_LEITURA, leitura);
-        getWritableDatabase().insert(DatabaseConfig.Medicao.TABLE_NAME,null, values);
+        values.put(DatabaseConfig.Measurement.COLUMN_DATE, hora);
+        values.put(DatabaseConfig.Measurement.COLUMN_VALUE, leitura);
+        getWritableDatabase().insert(DatabaseConfig.Measurement.TABLE_NAME,null, values);
     }
 
     public void insertAlerta(String zona, String sensor, String hora, double leitura, String tipoAlerta, String cultura, String mensagem, int idUtilizador, int idCultura, String horaEscrita) {
         ContentValues values = new ContentValues();
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_ZONA, zona);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_SENSOR, sensor);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_HORA, hora);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_LEITURA, leitura);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_TIPO_ALERTA, tipoAlerta);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_CULTURA, cultura);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_MENSAGEM, mensagem);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_ID_UTILIZADOR, idUtilizador);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_ID_CULTURA, idCultura);
-        values.put(DatabaseConfig.Alerta.COLUMN_NAME_HORA_ESCRITA, horaEscrita);
-        getWritableDatabase().insert(DatabaseConfig.Alerta.TABLE_NAME,null, values);
+        values.put(DatabaseConfig.Alert.COLUMN_ZONE, zona);
+        values.put(DatabaseConfig.Alert.COLUMN_SENSOR, sensor);
+        values.put(DatabaseConfig.Alert.COLUMN_DATE, hora);
+        values.put(DatabaseConfig.Alert.COLUMN_NAME_LEITURA, leitura);
+        values.put(DatabaseConfig.Alert.COLUMN_NAME_TIPO_ALERTA, tipoAlerta);
+        values.put(DatabaseConfig.Alert.COLUMN_NAME_CULTURA, cultura);
+        values.put(DatabaseConfig.Alert.COLUMN_NAME_MENSAGEM, mensagem);
+        values.put(DatabaseConfig.Alert.COLUMN_NAME_ID_UTILIZADOR, idUtilizador);
+        values.put(DatabaseConfig.Alert.COLUMN_NAME_ID_CULTURA, idCultura);
+        values.put(DatabaseConfig.Alert.COLUMN_NAME_HORA_ESCRITA, horaEscrita);
+        getWritableDatabase().insert(DatabaseConfig.Alert.TABLE_NAME,null, values);
     }
 
     public void clearAlertas() { getWritableDatabase().execSQL(config.SQL_DELETE_ALERTA_DATA); }

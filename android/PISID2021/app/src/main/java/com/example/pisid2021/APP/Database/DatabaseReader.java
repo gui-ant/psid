@@ -12,26 +12,26 @@ public class DatabaseReader {
 
     public Cursor readMedicoes(){
         Cursor cursor = db.query(
-                DatabaseConfig.Medicao.TABLE_NAME,
+                DatabaseConfig.Measurement.TABLE_NAME,
                 null,
                 null,
                 null,
                 null,
                 null,
-                DatabaseConfig.Medicao.COLUMN_NAME_HORA + " ASC"
+                DatabaseConfig.Measurement.COLUMN_DATE + " ASC"
         );
         return cursor;
     }
 
     public Cursor readAlertas(){
         Cursor cursor = db.query(
-                DatabaseConfig.Alerta.TABLE_NAME,
+                DatabaseConfig.Alert.TABLE_NAME,
                 null,
                 null,
                 null,
                 null,
                 null,
-                DatabaseConfig.Alerta.COLUMN_NAME_HORA + " DESC"
+                DatabaseConfig.Alert.COLUMN_DATE + " DESC"
         );
         return cursor;
     }
