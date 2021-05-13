@@ -46,15 +46,10 @@ public abstract class BrokerFetcher<T> extends BrokerConnector {
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-                T object = null;
                 try {
-                    object = objectMapper.readValue(mqttMessage.toString(), getMapperClass());
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-                try {
+                    T object = objectMapper.readValue(mqttMessage.toString(), getMapperClass());
                     getBuffer().put(object);
-                } catch (InterruptedException e) {
+                } catch (JsonProcessingException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }
