@@ -38,7 +38,7 @@ public class MedicoesActivity extends AppCompatActivity {
     private static final String username= UserLogin.getInstance().getUsername();
     private static final String password = UserLogin.getInstance().getPassword();
 
-    String getMedicoes = "http://" + IP + ":" + PORT + "/scripts/getMedicoesTemperatura.php";
+    String getMedicoes = "http://" + IP + ":" + PORT + "/psid/android/scripts/getMedicoesTemperatura.php";
     DatabaseHandler db = new DatabaseHandler(this);
 
     Handler h = new Handler();

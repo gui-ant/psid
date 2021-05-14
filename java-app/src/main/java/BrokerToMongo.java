@@ -75,6 +75,7 @@ public class BrokerToMongo {
     }
 
     public static class MeasurementFetcher extends BrokerHandler<Measurement> {
+
         private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer = new ConcurrentHashMap<>();
 
         public MeasurementFetcher(String uri, String topic, int qos) throws MqttException {
@@ -103,8 +104,9 @@ public class BrokerToMongo {
                  * Esta validação depende do parâmetro "collecionNames" passado no construtor
                  */
                 String mongoCollectionName = "sensor" + object.getSensor().toLowerCase(Locale.ROOT);
-                if (buffer.containsKey(mongoCollectionName))
+                if (buffer.containsKey(mongoCollectionName)) {
                     buffer.get(mongoCollectionName).put(object);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

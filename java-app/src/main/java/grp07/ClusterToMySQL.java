@@ -23,6 +23,7 @@ public class ClusterToMySQL implements ClientToClient<Measurement> {
 
     public ClusterToMySQL(String[] collectionNames) {
         this.buffer = new ConcurrentHashMap<>();
+
         for (String collection : collectionNames)
             this.buffer.put(collection, new LinkedBlockingQueue<>());
     }
@@ -32,7 +33,7 @@ public class ClusterToMySQL implements ClientToClient<Measurement> {
 
         String[] collectionNames = {
                 "sensort1",
-                "sensort2",
+                //"sensort2",
         };
         ClusterToMySQL ctm = new ClusterToMySQL(collectionNames);
         ctm.startFetching();
@@ -73,35 +74,35 @@ public class ClusterToMySQL implements ClientToClient<Measurement> {
 
         @Override
         protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
-            collectionsDataBuffer.forEach((collectionName, buffer) ->
-                    new Thread(() -> {
+            collectionsDataBuffer.forEach((collectionName, buffer) -> {
 
-                        MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
+                        new Thread(() -> {
+                            MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
 
-                        Measurement doc = getLastObject(collection);
+                            Measurement doc = getLastObject(collection); // ultimo da colletion
+                                // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
+                                ObjectId lastId = doc.getId();
+                            while (true) {
 
-                        // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
-                        ObjectId lastId = doc.getId();
+                                try {
+                                    System.out.println("Fetching " + getCollectionName(collection) + "...");
 
-                        while (true) {
-                            try {
-                                System.out.println("Fetching " + getCollectionName(collection) + "...");
+                                    MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
 
-                                MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
-
-                                // Le os novos dados e adiciona-os ao buffer
-                                while (cursor.hasNext()) {
-                                    doc = cursor.next();
-                                    lastId = doc.getId();
-                                    buffer.offer(doc);
-                                    System.out.println("Fetched: " + doc.getId());
+                                    // Le os novos dados e adiciona-os ao buffer
+                                    while (cursor.hasNext()) {
+                                        doc = cursor.next();
+                                        lastId = doc.getId();
+                                        buffer.offer(doc);
+                                        System.out.println("Fetched: " + doc);
+                                    }
+                                    Thread.sleep(SLEEP_TIME);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
                                 }
-                                Thread.sleep(SLEEP_TIME);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
                             }
-                        }
-                    }).start()
+                        }).start();
+                    }
             );
         }
     }

@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void loginClick(View v) {
-        String validateLogin = "http://" + ip.getText() + ":" + port.getText() + "/scripts/validateLogin.php";
+        String validateLogin = "http://" + ip.getText() + ":" + port.getText() + "/psid/android/scripts/validateLogin.php";
 
         HashMap<String, String> params = new HashMap<>();
         params.put("username", username.getText().toString());
