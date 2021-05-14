@@ -81,10 +81,10 @@ public class MongoToMySql {
                     int counter = 0;
                     double mean_value, acc = 0;
 
-                    Measurement measurement = buffer.poll();
+                    Measurement measurement = buffer.take();
                     stats.incrementReadings();
 
-                    if (isValid(measurement)) {
+                    if (!isValid(measurement)) {
                         publish(measurement);
                         stats.incrementErrors();
                     } else {
