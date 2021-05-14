@@ -1,13 +1,20 @@
 package grp07;
 
-import java.sql.Timestamp;
+import common.MySqlPublisher;
+
+import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 // APENAS A THREAD SUPERVISORA "USA" O PREALERTSET
 public class PreAlertSet {
+    private static final String MYSQL_URI = "jdbc:mysql://localhost:3306/g07_local";
+    private static final String MYSQL_USER = "root";
+    private static final String MYSQL_PASS = "";
+
     private final List<TimeParameterPair> susParams;  //esta lista tem os parametros INDIVIDUAIS
     private Hashtable<Long, MySqlData.CultureParams> allParams;  //esta lista tem os parametros COMPOSTOS (ir buscar ao SQLSender)
     private boolean altered;
@@ -24,7 +31,7 @@ public class PreAlertSet {
     }
 
     //populado por cada Thread de sensor
-    public synchronized void addPreAlert (Timestamp insertion, MySqlData.CultureParams param, boolean isAlert) {
+    public synchronized void addPreAlert(Timestamp insertion, MySqlData.CultureParams param, boolean isAlert) {
         System.err.println("PreAlertSet: alerta adicionado!");
         deleteParamOcc(param);
         if (isAlert) {
@@ -48,8 +55,21 @@ public class PreAlertSet {
         for (Long id : allParams.keySet()) {
             List<MySqlData.CultureParams> paramSet = List.copyOf(allParams.values());
             if (sus.containsAll(paramSet)) {
-                // TODO - enviar Alerta
+
                 Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), "wow mano, uma mensagem");
+                try {
+                    Connection mysql = DriverManager.getConnection(MYSQL_URI, MYSQL_USER, MYSQL_PASS);
+                    String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
+
+                    PreparedStatement statement = mysql.prepareStatement(sql);
+                    statement.setLong(1, alert.getParameterSetId());
+                    statement.setTimestamp(2, alert.getCreatedAt());
+                    statement.setString(3, alert.getMsg());
+                    statement.execute();
+
+                } catch (SQLException throwables) {
+                    System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 5 min.");
+                }
             }
         }
     }
@@ -72,6 +92,7 @@ public class PreAlertSet {
         }
         return arr;
     }
+
 
 /*
     public static void main(String[] args) {

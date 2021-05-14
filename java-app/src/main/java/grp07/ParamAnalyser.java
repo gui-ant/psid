@@ -10,6 +10,8 @@ import java.util.List;
 // CADA THREAD TEM UM PARAMANALYSER!!!
 public class ParamAnalyser {
     private final PreAlertSet preAlertCompiler;
+
+
     private List<MySqlData.CultureParams> paramList;  //lista de parametros INDIVIDUAIS de um dado sensor
     private final List<Measurement> measurements;
     private int maxTolerance;
@@ -57,6 +59,7 @@ public class ParamAnalyser {
             // TODO - ele lança ALERTA, ou passa o alerta para o PreAlertCompiler para ser logo enviado para o MySQL???
             Alert alert = zeroToleranceAnalyser(param);
             if (alert != null) {
+
                 // ENVIAR ALERTA!!!
             }
         }
@@ -143,6 +146,10 @@ public class ParamAnalyser {
         Timestamp newTime = initialTime;
         newTime.setTime(initialTime.getTime() - (tolerance + 3 * rate) * 1000);
         return newTime;
+    }
+
+    public List<MySqlData.CultureParams> getParamList() {
+        return paramList;
     }
 
 /*

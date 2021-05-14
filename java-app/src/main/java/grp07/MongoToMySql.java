@@ -1,8 +1,10 @@
 package grp07;
 
 import common.MeasurementMySqlPublisher;
+import common.MySqlPublisher;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -163,6 +165,7 @@ public class MongoToMySql {
             });
 
             ParamAnalyser an = new ParamAnalyser(preAlertSet, list, rate);
+
             return an;
         }
 
@@ -196,11 +199,29 @@ public class MongoToMySql {
                     if (totalReadings != 0) {
                         if (totalErrors / totalReadings >= percentage) {
                             // TODO - ENVIAR ALERTA!!!
+
                         }
                     }
                     stats.resetData();
                 }
             }
+        }
+    }
+
+    class AlertPublisher extends MySqlPublisher<Alert> {
+        public AlertPublisher(Connection connection, MySqlData data, LinkedBlockingQueue<Alert> buffer) {
+            super(connection, data, buffer);
+        }
+
+        @Override
+        protected void handle(Alert object) {
+
+        }
+
+        @Override
+        protected PreparedStatement getStatement(Alert object) {
+
+            return null;
         }
     }
 }

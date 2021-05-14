@@ -41,7 +41,6 @@ public abstract class MySqlPublisher<T> extends Thread {
                 e.printStackTrace();
             }
         }
-
     }
 
     protected abstract void handle(T object);
