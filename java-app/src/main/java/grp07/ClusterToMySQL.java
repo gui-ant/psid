@@ -44,14 +44,12 @@ public class ClusterToMySQL {
                 }
 
             case MQTT:
-                new grp02.MongoToBroker(collectionNames).startPublishing(BROKER_URI, BROKER_TOPIC, BROKER_QOS);
+                new grp02.MongoToBroker(collectionNames);
                 new grp02.ConnectionSQL();
         }
     }
 
     public static void main(String[] args) {
-
-
         String[] collectionNames = {
                 "sensort1",
                 //"sensort2",

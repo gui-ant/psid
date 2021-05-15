@@ -17,6 +17,7 @@ public class MongoConnector {
 
     public MongoConnector(String sourceUri) {
         this.client = MongoClients.create(sourceUri);
+
     }
 
     public MongoConnector(String sourceUri, String db) {
