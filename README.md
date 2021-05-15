@@ -8,7 +8,7 @@ Link ZOOM Slot 5: https://videoconf-colibri.zoom.us/j/87585381703
 - [Perguntas para reuniões](https://docs.google.com/document/d/1m1g19S2wEBp_5jOAlmTetTr329ICJ58XwlmQ7cQJcI4/edit?usp=sharing)<br/>
 - [Link para a ficha de grupo](https://drive.google.com/file/d/1HMAvvbRs9QXDj8qZwiOb9Uf7KmsjCt36/view?usp=sharing)<br>
 
-[Esquema java](java-app/app-scheme.png)
+[Esquema java](app-scheme.svg)
  
 **Java**:
 1. Abrir o projeto no Intellij (só pasta java)
