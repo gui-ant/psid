@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-05-15T14:56:11.619Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="yjHk8NdYihMYV9vE8a8B" version="14.6.13" type="github">
+<mxfile host="app.diagrams.net" modified="2021-05-15T14:57:53.579Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="RRLfMzZL5iscFf__qX7U" version="14.6.13" type="github">
   <diagram id="prtHgNgQTEPvFCAcTncT" name="Page-1">
     <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
@@ -132,21 +132,21 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="iG1FyST4VSw2gSxUDnyD-21" value="&lt;br&gt;&lt;br&gt;MongoToMySql.SqlPublisher&lt;br&gt;(Análise medições)" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=10;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+        <mxCell id="iG1FyST4VSw2gSxUDnyD-21" value="&lt;br&gt;&lt;br&gt;&lt;br&gt;grp07.MongoToMySql&lt;br&gt;grp07.SqlPublisher&lt;br&gt;(Análise medições)" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=10;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
           <mxGeometry x="720" y="600" width="210.73" height="135.63" as="geometry" />
         </mxCell>
         <mxCell id="iG1FyST4VSw2gSxUDnyD-29" value="MySqlData" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=10;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
           <mxGeometry x="780.36" y="625" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="iG1FyST4VSw2gSxUDnyD-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=none;endFill=0;exitX=0;exitY=0;exitDx=40;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="iG1FyST4VSw2gSxUDnyD-29" target="mG7DTUGrjtM77zd7hEEh-37">
+        <mxCell id="iG1FyST4VSw2gSxUDnyD-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=classic;endFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0;entryDx=40;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="mG7DTUGrjtM77zd7hEEh-37" target="iG1FyST4VSw2gSxUDnyD-29">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="820" y="413" />
               <mxPoint x="820" y="359" />
+              <mxPoint x="820" y="413" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="iG1FyST4VSw2gSxUDnyD-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;dashed=1;" edge="1" parent="1" source="mG7DTUGrjtM77zd7hEEh-38" target="iG1FyST4VSw2gSxUDnyD-29">
+        <mxCell id="iG1FyST4VSw2gSxUDnyD-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;dashed=1;" edge="1" parent="1" source="mG7DTUGrjtM77zd7hEEh-38" target="iG1FyST4VSw2gSxUDnyD-29">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
