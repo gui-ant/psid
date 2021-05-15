@@ -20,7 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BrokerToMongo {
     private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
-    private static final String TOPIC = "pisid_g07_sensors";
+    private static final String TOPIC = "pisid_g07_simulators";
 
     private static final String TARGET_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
     private static final String TARGET_DB = "g07";

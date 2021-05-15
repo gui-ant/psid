@@ -10,11 +10,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ConnectionMongoReplics {
 
-    private static final String SOURCE_URI = "mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1";
-    private static final String SOURCE_DB = "sid2021";
-
-    private static final String TARGET_URI_ATLAS = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String TARGET_DB = "g07";
+    private static final String MONGO_CLOUD_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
+    private static final String MONGO_CLOUD_DB = "g07";
+    private static final String MONGO_LOCAL_URI = "mongodb://127.0.0.1:27017";
+    private static final String MONGO_LOCAL_DB = "g07";
 
     private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
@@ -26,8 +25,8 @@ public class ConnectionMongoReplics {
         new Thread(() -> {
             while (true) {
                 try {
-                    new MeasurementsFetcher(SOURCE_URI, SOURCE_DB).deal(this.buffer);
-                    new MeasurementsPublisher(TARGET_URI_ATLAS, TARGET_DB).deal(this.buffer);
+                    new MeasurementsFetcher(MONGO_CLOUD_URI, MONGO_CLOUD_DB).deal(this.buffer);
+                    new MeasurementsPublisher(MONGO_LOCAL_URI, MONGO_LOCAL_DB).deal(this.buffer);
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

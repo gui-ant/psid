@@ -20,12 +20,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MongoToBroker {
 
-    private static final String SOURCE_URI_ATLAS = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String SOURCE_DB = "g07";
+    private static final String MONGO_LOCAL_URI = "mongodb://127.0.0.1:27017";
+    private static final String MONGO_LOCAL_DB = "g07";
 
     private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
-    private static final String TOPIC = "pisid_g07_sensors_cenas";// nome na especificação
-    private static final int QOS = 0;
+    private static final String BROKER_TOPIC = "pisid_g07_sensors";
+    private static final int BROKER_QOS = 0;
 
     private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
@@ -34,12 +34,12 @@ public class MongoToBroker {
         for (String collection : collectionNames)
             this.buffer.put(collection, new LinkedBlockingQueue<>());
 
-        ConnectToMongo cluster = new ConnectToMongo(SOURCE_URI_ATLAS, SOURCE_DB);
+        ConnectToMongo cluster = new ConnectToMongo(MONGO_LOCAL_URI, MONGO_LOCAL_DB);
         cluster.useCollections(collectionNames);
         cluster.deal(this.buffer);
 
         try {
-            new BrokerPublisher(BROKER_URI, TOPIC, QOS).startPublishing(cluster.getFetchingSource());
+            new BrokerPublisher(BROKER_URI, BROKER_TOPIC, BROKER_QOS).startPublishing(cluster.getFetchingSource());
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -85,7 +85,7 @@ public class MongoToBroker {
         public void
         startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
             sourceBuffer.forEach(
-                    (collectionName, buffer) -> new ToBroker(client, TOPIC, qos, buffer).start()
+                    (collectionName, buffer) -> new ToBroker(client, BROKER_TOPIC, qos, buffer).start()
             );
         }
 

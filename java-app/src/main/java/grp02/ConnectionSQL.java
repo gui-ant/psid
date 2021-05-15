@@ -19,16 +19,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ConnectionSQL {
 
     private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
-    private static final String TOPIC = "pisid_g07_sensors";// nome na especificação
-    private static final int QOS = 0;
+    private static final String BROKER_TOPIC = "pisid_g07_sensors";
+    private static final int BROKER_QOS = 0;
 
-    private static final String MYSQL_URL_LOCAL = "jdbc:mysql://194.210.86.10:3306/aluno_g07_local";
+    private static final String MYSQL_LOCAL_URI = "jdbc:mysql://localhost:3306/g07_local";
 
     public static void main(String[] args) throws MqttException, SQLException {
 
-        BrokerSubscriber subscriber = new BrokerSubscriber(BROKER_URI, TOPIC, QOS);
+        BrokerSubscriber subscriber = new BrokerSubscriber(BROKER_URI, BROKER_TOPIC, BROKER_QOS);
 
-        final Connection mysql_local = DriverManager.getConnection(MYSQL_URL_LOCAL, "root", "");
+        final Connection mysql_local = DriverManager.getConnection(MYSQL_LOCAL_URI, "root", "");
         MySqlData sender = new MySqlData();
 
         SQL_Publisher publisher = new SQL_Publisher(mysql_local, sender, subscriber.getBuffer());

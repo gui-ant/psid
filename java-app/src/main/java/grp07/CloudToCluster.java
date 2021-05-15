@@ -10,11 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class CloudToCluster {
-    private static final String SOURCE_URI_ATLAS = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String TARGET_URI_CLUSTER = "mongodb://127.0.0.1:27017";
-    //private static final String TARGET_URI_MADRUGADAO = "mongodb://aluno:aluno@madrugadao-sama.ddns.net/g07?authSource=admin&authMechanism=SCRAM-SHA-1";
-    private static final String SOURCE_DB = "g07";
-    private static final String TARGET_DB = "g07";
+    private static final String MONGO_CLOUD_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
+    private static final String MONGO_CLOUD_DB = "g07";
+    private static final String MONGO_LOCAL_URI = "mongodb://127.0.0.1:27017";
+    private static final String MONGO_LOCAL_DB = "g07";
+    //private static final String MONGO_LOCAL_URI = "mongodb://aluno:aluno@madrugadao-sama.ddns.net/g07?authSource=admin&authMechanism=SCRAM-SHA-1";
 
     private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
@@ -33,8 +33,8 @@ public class CloudToCluster {
         for (String collectionName : collectionNames)
             this.buffer.put(collectionName, new LinkedBlockingQueue<>());
 
-        new MongoCloudFetcher(SOURCE_URI_ATLAS, SOURCE_DB).deal(this.getBuffer());
-        new MongoClusterPublisher(TARGET_URI_CLUSTER, TARGET_DB).deal(this.getBuffer());
+        new MongoCloudFetcher(MONGO_CLOUD_URI, MONGO_CLOUD_DB).deal(this.getBuffer());
+        new MongoClusterPublisher(MONGO_LOCAL_URI, MONGO_LOCAL_DB).deal(this.getBuffer());
     }
 
     public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {

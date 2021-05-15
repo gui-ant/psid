@@ -13,15 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClusterToMySQL {
-    private static final String SOURCE_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String SOURCE_DB = "g07";
+    private static final String MONGO_LOCAL_URI = "mongodb://127.0.0.1:27017";
+    private static final String MONGO_LOCAL_DB = "g07";
     // private static final String TARGET_URL_CLOUD = "jdbc:mysql://194.210.86.10:3306/aluno_g07_cloud";
-    private static final String TARGET_URL_LOCAL = "jdbc:mysql://localhost:3306/g07_local";
+    private static final String MYSQL_LOCAL_URI = "jdbc:mysql://localhost:3306/g07_local";
     private static final int CADENCE_SECONDS = 5;
-
-    private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
-    private static final String BROKER_TOPIC = "pisid_g07_sensors"; //
-    private static final int BROKER_QOS = 0;
 
     private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
@@ -33,10 +29,10 @@ public class ClusterToMySQL {
 
         switch (method) {
             case DIRECT:
-                new MeasurementMongoFetcher(SOURCE_URI, SOURCE_DB).deal(this.buffer);
+                new MeasurementMongoFetcher(MONGO_LOCAL_URI, MONGO_LOCAL_DB).deal(this.buffer);
                 try {
 
-                    Connection mysqlConn = DriverManager.getConnection(TARGET_URL_LOCAL, "root", "");
+                    Connection mysqlConn = DriverManager.getConnection(MYSQL_LOCAL_URI, "root", "");
                     new MongoToMySql(mysqlConn, MySqlData.get(), CADENCE_SECONDS).serveSQL(this.buffer);
 
                 } catch (SQLException throwables) {
@@ -54,7 +50,8 @@ public class ClusterToMySQL {
                 "sensort1",
                 //"sensort2",
         };
-        MigrationMethod method = MigrationMethod.getByValue(args[0]);
+        //MigrationMethod method = MigrationMethod.getByValue(args[0]);
+        MigrationMethod method = MigrationMethod.DIRECT;
         new ClusterToMySQL(method, collectionNames);
     }
 
