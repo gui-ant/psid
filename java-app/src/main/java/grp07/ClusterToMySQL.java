@@ -3,7 +3,7 @@ package grp07;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
-import common.ClientToClient;
+import common.MigrationMethod;
 import org.bson.types.ObjectId;
 
 import java.sql.Connection;
@@ -12,20 +12,41 @@ import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ClusterToMySQL implements ClientToClient<Measurement> {
+public class ClusterToMySQL {
     private static final String SOURCE_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
     private static final String SOURCE_DB = "g07";
     // private static final String TARGET_URL_CLOUD = "jdbc:mysql://194.210.86.10:3306/aluno_g07_cloud";
     private static final String TARGET_URL_LOCAL = "jdbc:mysql://localhost:3306/g07_local";
     private static final int CADENCE_SECONDS = 5;
 
+    private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
+    private static final String BROKER_TOPIC = "pisid_g07_sensors"; //
+    private static final int BROKER_QOS = 0;
+
     private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
-    public ClusterToMySQL(String[] collectionNames) {
+    public ClusterToMySQL(MigrationMethod method, String[] collectionNames) {
         this.buffer = new ConcurrentHashMap<>();
 
         for (String collection : collectionNames)
             this.buffer.put(collection, new LinkedBlockingQueue<>());
+
+        switch (method) {
+            case DIRECT:
+                new MeasurementMongoFetcher(SOURCE_URI, SOURCE_DB).deal(this.buffer);
+                try {
+
+                    Connection mysqlConn = DriverManager.getConnection(TARGET_URL_LOCAL, "root", "");
+                    new MongoToMySql(mysqlConn, MySqlData.get(), CADENCE_SECONDS).serveSQL(this.buffer);
+
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+
+            case MQTT:
+                new grp02.MongoToBroker(collectionNames).startPublishing(BROKER_URI, BROKER_TOPIC, BROKER_QOS);
+                new grp02.ConnectionSQL();
+        }
     }
 
     public static void main(String[] args) {
@@ -35,34 +56,8 @@ public class ClusterToMySQL implements ClientToClient<Measurement> {
                 "sensort1",
                 //"sensort2",
         };
-        ClusterToMySQL ctm = new ClusterToMySQL(collectionNames);
-        ctm.startFetching();
-        ctm.startPublishing();
-    }
-
-    @Override
-    public void startFetching() {
-
-        MeasurementMongoFetcher fetcher = new MeasurementMongoFetcher(SOURCE_URI, SOURCE_DB);
-        fetcher.deal(getBuffer());
-
-    }
-
-    @Override
-    public void startPublishing() {
-        try {
-
-            Connection mysqlConn = DriverManager.getConnection(TARGET_URL_LOCAL, "root", "");
-            new MongoToMySql(mysqlConn, MySqlData.get(), CADENCE_SECONDS).serveSQL(this.buffer);
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-    }
-
-    @Override
-    public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
-        return this.buffer;
+        MigrationMethod method = MigrationMethod.getByValue(args[0]);
+        new ClusterToMySQL(method, collectionNames);
     }
 
     private static class MeasurementMongoFetcher extends MongoHandler<Measurement> {
@@ -80,8 +75,8 @@ public class ClusterToMySQL implements ClientToClient<Measurement> {
                             MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
 
                             Measurement doc = getLastObject(collection); // ultimo da colletion
-                                // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
-                                ObjectId lastId = doc.getId();
+                            // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
+                            ObjectId lastId = doc.getId();
                             while (true) {
 
                                 try {

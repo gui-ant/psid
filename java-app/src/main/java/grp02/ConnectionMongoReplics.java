@@ -2,14 +2,13 @@ package grp02;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
-import common.ClientToClient;
 import grp07.MongoHandler;
 import grp07.Measurement;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ConnectionMongoReplics implements ClientToClient<Measurement> {
+public class ConnectionMongoReplics {
 
     private static final String SOURCE_URI = "mongodb://aluno:aluno@194.210.86.10/?authSource=admin&authMechanism=SCRAM-SHA-1";
     private static final String SOURCE_DB = "sid2021";
@@ -23,19 +22,12 @@ public class ConnectionMongoReplics implements ClientToClient<Measurement> {
         this.buffer = new ConcurrentHashMap<>();
         for (String collectionName : collectionNames)
             this.buffer.put(collectionName, new LinkedBlockingQueue<>());
-    }
-
-    public static void main(String[] args) {
-
-        String[] collectionNames = {"sensort1"};
-
-        ConnectionMongoReplics cmr = new ConnectionMongoReplics(collectionNames);
 
         new Thread(() -> {
             while (true) {
                 try {
-                    cmr.startFetching();
-                    cmr.startPublishing();
+                    new MeasurementsFetcher(SOURCE_URI, SOURCE_DB).deal(this.buffer);
+                    new MeasurementsPublisher(TARGET_URI_ATLAS, TARGET_DB).deal(this.buffer);
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -44,19 +36,10 @@ public class ConnectionMongoReplics implements ClientToClient<Measurement> {
         }).start();
     }
 
-    @Override
-    public void startFetching() {
-        new MeasurementsFetcher(SOURCE_URI, SOURCE_DB).deal(this.buffer);
-    }
+    public static void main(String[] args) {
 
-    @Override
-    public void startPublishing() {
-        new MeasurementsPublisher(TARGET_URI_ATLAS, TARGET_DB).deal(this.buffer);
-    }
-
-    @Override
-    public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
-        return this.buffer;
+        String[] collectionNames = {"sensort1"};
+        new ConnectionMongoReplics(collectionNames);
     }
 
     private static class MeasurementsFetcher extends MongoHandler<Measurement> {
