@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-05-16T15:46:30.975Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="-f1n1qzHxNN0haOScL1w" version="14.6.13" type="github">
+<mxfile host="app.diagrams.net" modified="2021-05-16T15:47:22.999Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="5Nc-VI-94glcK0UhuER9" version="14.6.13" type="github">
   <diagram id="prtHgNgQTEPvFCAcTncT" name="Page-1">
     <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
@@ -19,7 +19,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="mG7DTUGrjtM77zd7hEEh-1" value="Broker&lt;br&gt;Topic: pisid_g07_&lt;b&gt;simulators&lt;/b&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;dashed=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-          <mxGeometry x="261.4622033898305" y="22.92" width="338.54237288135596" height="176.04166666666669" as="geometry" />
+          <mxGeometry x="261.46" y="22.92" width="248.54" height="176.04" as="geometry" />
         </mxCell>
         <mxCell id="mG7DTUGrjtM77zd7hEEh-2" value="SimulateSensor.jar" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;dashed=1;size=10;" parent="1" vertex="1">
           <mxGeometry x="31.82" y="50.001666666666665" width="162.50033898305085" height="40.625" as="geometry" />
@@ -66,7 +66,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="iG1FyST4VSw2gSxUDnyD-8" value="Broker&lt;br&gt;Topic: pisid_g07_&lt;b&gt;sensors&lt;/b&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
-          <mxGeometry x="390.36" y="300" width="240" height="145" as="geometry" />
+          <mxGeometry x="390.36" y="320" width="240" height="125" as="geometry" />
         </mxCell>
         <mxCell id="iG1FyST4VSw2gSxUDnyD-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=none;endFill=0;" parent="1" source="iG1FyST4VSw2gSxUDnyD-9" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -99,7 +99,7 @@
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="350" y="512" />
-              <mxPoint x="350" y="358" />
+              <mxPoint x="350" y="370" />
             </Array>
           </mxGeometry>
         </mxCell>
