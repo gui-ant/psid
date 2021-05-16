@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-05-16T15:47:22.999Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="5Nc-VI-94glcK0UhuER9" version="14.6.13" type="github">
+<mxfile host="app.diagrams.net" modified="2021-05-16T15:47:38.578Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="mna5xINZ8ypSN_pcGPIw" version="14.6.13" type="github">
   <diagram id="prtHgNgQTEPvFCAcTncT" name="Page-1">
     <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
@@ -13,8 +13,8 @@
         <mxCell id="9lxMoNS6_Zflg6dV7JQC-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitDx=0;exitDy=0;exitPerimeter=0;entryDx=0;entryDy=23.776435185185186;entryPerimeter=0;curved=1;exitX=0.875;exitY=0.5;entryX=0;entryY=0;" parent="1" source="mG7DTUGrjtM77zd7hEEh-1" target="9lxMoNS6_Zflg6dV7JQC-1" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="620" y="111" />
-              <mxPoint x="620" y="84" />
+              <mxPoint x="560" y="111" />
+              <mxPoint x="560" y="84" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -144,7 +144,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="9lxMoNS6_Zflg6dV7JQC-1" value="BrokerToMongo" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=10;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="670" y="60.001640888888915" width="210" height="57.55287037037037" as="geometry" />
+          <mxGeometry x="634" y="60.001640888888915" width="210" height="57.55287037037037" as="geometry" />
         </mxCell>
         <mxCell id="mG7DTUGrjtM77zd7hEEh-11" value="MongoDB Cloud&lt;br&gt;(Atlas temporariamente)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;" parent="1" vertex="1">
           <mxGeometry x="940" y="138.01911097435894" width="210" height="108.33481481481482" as="geometry" />
