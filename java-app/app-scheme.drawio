@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-05-16T15:18:40.980Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="68WCmQrGcbLlt0m_HGdT" version="14.6.13" type="github">
+<mxfile host="app.diagrams.net" modified="2021-05-16T15:20:36.029Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="9rret5hCV_El32epEl7O" version="14.6.13" type="github">
   <diagram id="prtHgNgQTEPvFCAcTncT" name="Page-1">
     <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
@@ -15,7 +15,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="mG7DTUGrjtM77zd7hEEh-1" value="Broker&lt;br&gt;Topic: pisid_g07_&lt;b&gt;simulators&lt;/b&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+        <mxCell id="mG7DTUGrjtM77zd7hEEh-1" value="Broker&lt;br&gt;Topic: pisid_g07_&lt;b&gt;simulators&lt;/b&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;dashed=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
           <mxGeometry x="261.4622033898305" y="22.92" width="338.54237288135596" height="176.04166666666669" as="geometry" />
         </mxCell>
         <mxCell id="mG7DTUGrjtM77zd7hEEh-2" value="SimulateSensor.jar" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;dashed=1;size=10;" parent="1" vertex="1">
@@ -65,7 +65,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="iG1FyST4VSw2gSxUDnyD-8" value="Broker&lt;br&gt;Topic: pisid_g07_&lt;b&gt;sensors&lt;/b&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+        <mxCell id="iG1FyST4VSw2gSxUDnyD-8" value="Broker&lt;br&gt;Topic: pisid_g07_&lt;b&gt;sensors&lt;/b&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="390.36" y="300" width="240" height="145" as="geometry" />
         </mxCell>
         <mxCell id="iG1FyST4VSw2gSxUDnyD-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=none;endFill=0;" parent="1" source="iG1FyST4VSw2gSxUDnyD-9" edge="1">
@@ -134,13 +134,13 @@
         <mxCell id="9lxMoNS6_Zflg6dV7JQC-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="9lxMoNS6_Zflg6dV7JQC-1" target="mG7DTUGrjtM77zd7hEEh-11" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="9lxMoNS6_Zflg6dV7JQC-1" value="BrokerToMongo" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=10;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#000000;" parent="1" vertex="1">
+        <mxCell id="9lxMoNS6_Zflg6dV7JQC-1" value="BrokerToMongo" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=10;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;" parent="1" vertex="1">
           <mxGeometry x="670" y="60.001640888888915" width="210" height="57.55287037037037" as="geometry" />
         </mxCell>
-        <mxCell id="mG7DTUGrjtM77zd7hEEh-11" value="MongoDB Cloud&lt;br&gt;(Atlas temporariamente)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+        <mxCell id="mG7DTUGrjtM77zd7hEEh-11" value="MongoDB Cloud&lt;br&gt;(Atlas temporariamente)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;" parent="1" vertex="1">
           <mxGeometry x="670" y="157.55911097435893" width="210" height="108.33481481481482" as="geometry" />
         </mxCell>
-        <mxCell id="mG7DTUGrjtM77zd7hEEh-24" value="MongoDB Local" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+        <mxCell id="mG7DTUGrjtM77zd7hEEh-24" value="MongoDB Local" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="40" y="469.9951851851852" width="210" height="108.33481481481482" as="geometry" />
         </mxCell>
         <mxCell id="mG7DTUGrjtM77zd7hEEh-32" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="mG7DTUGrjtM77zd7hEEh-27" edge="1" target="mG7DTUGrjtM77zd7hEEh-24">
