@@ -165,16 +165,26 @@ SHOW GRANTS;
 <hr>
 <br>
 <strong><u>Conteudo dos .conf das replicas</u>:</strong>
+<br>
 db1.conf
+<br>
 storage:
+<br>
   dbPath: /home/rep/rpl1/data/
+  <br>
   journal:
+  <br>
     enabled: true
+    <br>
 
 systemLog:
+<br>
   destination: file
+  <br>
   logAppend: true
+  <br>
   path: /home/rep/rpl1/logs/mongo.log
+  <br>
 
 net:
   port: 28017
