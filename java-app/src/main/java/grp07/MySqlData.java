@@ -18,7 +18,8 @@ public final class MySqlData {
     private final Hashtable<Long, Zone> zones = new Hashtable<>();
     private final Hashtable<Long, Sensor> sensors = new Hashtable<>();
     private final Hashtable<Long, Culture> cultures = new Hashtable<>();// Todas as culturas, com as respetivas parametrizações associadas
-    private final Hashtable<Long, CultureParams> cultureParams = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
+    private final Hashtable<Long, CultureParams> cultureParams = new Hashtable<>(); // todas as paramatrizações com culturas associadas (sem ser em sets)
+    private final Hashtable<Long, List<CultureParams>> cultureParamSet = new Hashtable<>(); // Sets de todas as paramatrizações com culturas associadas
 
     public static MySqlData get() {
         return new MySqlData();
@@ -36,13 +37,27 @@ public final class MySqlData {
             fetchCultures(connLocal);
             fetchCultureParams(connLocal);
 
+            setParamSet();
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
 
-    public Hashtable<Long, CultureParams> getCultureParamsSet() {
-        return cultureParams;
+    public Hashtable<Long, List<CultureParams>> getCultureParamsSet() {
+        return cultureParamSet;
+    }
+
+    private void setParamSet() {
+        for (CultureParams p : cultureParams.values()) {
+            Long setId = p.getSetId();
+            List<CultureParams> list = cultureParamSet.get(setId);
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            list.add(p);
+            cultureParamSet.put(setId, list);
+        }
     }
 
     public Hashtable<Long, Sensor> getSensors() {
@@ -98,10 +113,11 @@ public final class MySqlData {
                         p.setValMax(res.getDouble("valmax"));
                         p.setValMin(res.getDouble("valmin"));
                         p.setTolerance(res.getInt("tolerance"));
+                        p.setSetId(res.getLong("set_id"));
                         p.setCulture(culture);
 
                         cultureParams.put(res.getLong("param_id"), p);
-                        cultureParamsSets.get(res.getLong("set_id")).add(p);
+                        cultureParamsSets.get(p.getSetId()).add(p);
 
                     } while (res.next());
                     culture.setParameters(cultureParamsSets);
@@ -311,6 +327,15 @@ public final class MySqlData {
         private double valMin;
         private int tolerance;
         private Culture culture;
+        private Long setId;
+
+        public void setSetId(Long setId) {
+            this.setId = setId;
+        }
+
+        public Long getSetId() {
+            return this.setId;
+        }
 
         public Culture getCulture() {
             return culture;
