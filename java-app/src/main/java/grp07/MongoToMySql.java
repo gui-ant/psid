@@ -2,8 +2,8 @@ package grp07;
 
 import common.MeasurementMySqlPublisher;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -12,6 +12,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class MongoToMySql {
+    private static final String MYSQL_URI = "jdbc:mysql://localhost:3306/g07_local";
+    private static final String MYSQL_USER = "root";
+    private static final String MYSQL_PASS = "";
 
     private final Connection mysqlConn;
     private final MySqlData data;
@@ -82,6 +85,10 @@ public class MongoToMySql {
 
                     Measurement measurement = buffer.take();
                     stats.incrementReadings();
+                    if (stats.getSensor() == "" || stats.getZone() == "") {
+                        stats.setSensor(measurement.getSensor());
+                        stats.setZone(measurement.getZone());
+                    }
 
                     if (!isValid(measurement)) {
                         publish(measurement);
@@ -176,7 +183,7 @@ public class MongoToMySql {
 
         //thread que analisa a percentagem de leituras errada, a cada hora
         private class ErrorSupervisor extends Thread {
-            private final ReadingStats stats;
+            private ReadingStats stats;
             private final double percentage;
 
             public ErrorSupervisor(ReadingStats stats, double percentage) {
@@ -198,6 +205,26 @@ public class MongoToMySql {
                         if (totalErrors / totalReadings >= percentage) {
                             // TODO - ENVIAR ALERTA!!!
 
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Atencao, ao sensor " + stats.getSensor() + " da zona " + stats.getZone() + "!");
+                            sb.append(" O sensor apresenta uma percentagem de erros superior a " + percentage*100 + "%.");
+                            Long id = GenerateAlertId.percentageAlertId(stats.getSensor(), stats.getZone());
+
+                            Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), sb.toString());
+
+                            try {
+                                Connection mysql = DriverManager.getConnection(MYSQL_URI, MYSQL_USER, MYSQL_PASS);
+                                String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
+
+                                PreparedStatement statement = mysql.prepareStatement(sql);
+                                statement.setLong(1, alert.getParameterSetId());
+                                statement.setTimestamp(2, alert.getCreatedAt());
+                                statement.setString(3, alert.getMsg());
+                                statement.execute();
+
+                            } catch (SQLException throwables) {
+                                System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 15 min.");
+                            }
                         }
                     }
                     stats.resetData();

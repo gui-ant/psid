@@ -30,7 +30,7 @@ public class PreAlertSet {
 
     //populado por cada Thread de sensor
     public synchronized void addPreAlert (Timestamp insertion, MySqlData.CultureParams param, boolean isAlert) {
-        System.err.println("PreAlertSet: alerta adicionado!");
+//        System.err.println("PreAlertSet: alerta adicionado!");
         deleteParamOcc(param);
         if (isAlert) {
             susParams.add(new TimeParameterPair(insertion, param));
@@ -54,7 +54,7 @@ public class PreAlertSet {
             List<MySqlData.CultureParams> paramSet = allParams.get(id);
             if (sus.containsAll(paramSet)) {
                 // TODO - enviar Alerta
-                String msg = "";
+                String msg = buildAlertMessage(paramSet);
                 Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), msg);
 
                 try {
@@ -68,10 +68,22 @@ public class PreAlertSet {
                     statement.execute();
 
                 } catch (SQLException throwables) {
-                    System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 5 min.");
+                    System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 15 min.");
                 }
             }
         }
+    }
+
+    private String buildAlertMessage(List<MySqlData.CultureParams> singleSet) {
+        MySqlData.Culture culture = singleSet.get(0).getCulture();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Atencao à cultura " + culture.getName() + ", na zona " + culture.getZone().getId() + "! O(s) sensor(es) ");
+        for (MySqlData.CultureParams p : singleSet) {
+            sb.append(p.getSensorType() + " ");
+        }
+        sb.append("apresentam valores fora dos limites definidos.");
+
+        return sb.toString();
     }
 
     private void deleteParamOcc (MySqlData.CultureParams param) {
