@@ -1,5 +1,7 @@
 package grp07;
 
+import common.IniConfig;
+
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -8,8 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 // CADA THREAD TEM UM PARAMANALYSER!!!
-public class ParamAnalyser {
-    private static final String MYSQL_URI = "jdbc:mysql://localhost:3306/g07_local";
+public class ParamAnalyser extends IniConfig {
     private static final String MYSQL_USER = "root";
     private static final String MYSQL_PASS = "";
 
@@ -22,6 +23,7 @@ public class ParamAnalyser {
     private final int numCycles = 3;
 
     public ParamAnalyser(PreAlertSet preAlertCompiler, ArrayList<MySqlData.CultureParams> paramList, long insertionRate) {
+        super("config.ini");
         this.preAlertCompiler = preAlertCompiler;
         this.paramList = paramList;
         this.measurements = new LinkedList<>();
@@ -61,7 +63,7 @@ public class ParamAnalyser {
             Alert alert = zeroToleranceAnalyser(param);
             if (alert != null) {
                 try {
-                    Connection mysql = DriverManager.getConnection(MYSQL_URI, MYSQL_USER, MYSQL_PASS);
+                    Connection mysql = DriverManager.getConnection(getConfig("mysql","local_uri"), MYSQL_USER, MYSQL_PASS);
                     String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
 
                     PreparedStatement statement = mysql.prepareStatement(sql);

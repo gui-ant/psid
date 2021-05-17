@@ -1,5 +1,6 @@
 package grp07;
 
+import common.IniConfig;
 import common.MeasurementMySqlPublisher;
 
 import java.sql.*;
@@ -11,8 +12,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class MongoToMySql {
-    private static final String MYSQL_URI = "jdbc:mysql://localhost:3306/g07_local";
+public class MongoToMySql extends IniConfig {
     private static final String MYSQL_USER = "root";
     private static final String MYSQL_PASS = "";
 
@@ -25,6 +25,7 @@ public class MongoToMySql {
 
 
     public MongoToMySql(Connection mysqlConn, MySqlData data, long sleepTimeSeconds) {
+        super("config.ini");
         this.mysqlConn = mysqlConn;
         this.data = data;
         this.sleepTime = (sleepTimeSeconds * 1000);
@@ -213,7 +214,7 @@ public class MongoToMySql {
                             Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), sb.toString());
 
                             try {
-                                Connection mysql = DriverManager.getConnection(MYSQL_URI, MYSQL_USER, MYSQL_PASS);
+                                Connection mysql = DriverManager.getConnection(getConfig("mysql","local_uri"), MYSQL_USER, MYSQL_PASS);
                                 String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
 
                                 PreparedStatement statement = mysql.prepareStatement(sql);

@@ -3,7 +3,6 @@ package grp07;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.result.InsertOneResult;
 import common.IniConfig;
 import org.bson.types.ObjectId;
 
@@ -91,7 +90,7 @@ public class CloudToCluster extends IniConfig {
                     while (true) {
                         try {
                             Measurement m = buffer.take();
-                            InsertOneResult res = collection.insertOne(m);
+                            collection.insertOne(m);
                             System.out.println("Inserted:\t" + m);
 
                         } catch (InterruptedException e) {

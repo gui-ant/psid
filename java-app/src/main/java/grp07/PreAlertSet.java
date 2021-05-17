@@ -1,5 +1,7 @@
 package grp07;
 
+import common.IniConfig;
+
 import java.sql.*;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -8,8 +10,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 // APENAS A THREAD SUPERVISORA "USA" O PREALERTSET
-public class PreAlertSet {
-    private static final String MYSQL_URI = "jdbc:mysql://localhost:3306/g07_local";
+public class PreAlertSet extends IniConfig {
     private static final String MYSQL_USER = "root";
     private static final String MYSQL_PASS = "";
 
@@ -18,6 +19,7 @@ public class PreAlertSet {
     private boolean altered;
 
     public PreAlertSet (Hashtable<Long, List<MySqlData.CultureParams>> allParams) {
+        super("config.ini");
         this.allParams = allParams;
         this.susParams = new ArrayList<>();
         this.altered = true;
@@ -58,7 +60,7 @@ public class PreAlertSet {
                 Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), msg);
 
                 try {
-                    Connection mysql = DriverManager.getConnection(MYSQL_URI, MYSQL_USER, MYSQL_PASS);
+                    Connection mysql = DriverManager.getConnection(getConfig("mysql","cloud_uri"), MYSQL_USER, MYSQL_PASS);
                     String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
 
                     PreparedStatement statement = mysql.prepareStatement(sql);
