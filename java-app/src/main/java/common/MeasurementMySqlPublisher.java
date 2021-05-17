@@ -21,7 +21,6 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
         if (rows > 0) {
             System.out.println("Inserted value successfully!!!");
         }
-
         p.close();
     }
 

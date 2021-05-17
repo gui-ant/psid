@@ -21,10 +21,10 @@ public class MongoToMySql {
     private final PreAlertSet preAlertSet;
 
 
-    public MongoToMySql(Connection mysqlConn, MySqlData data, long sleepTimeSeconds) {
+    public MongoToMySql(Connection mysqlConn, MySqlData data, long sleepTime) {
         this.mysqlConn = mysqlConn;
         this.data = data;
-        this.sleepTime = (sleepTimeSeconds * 1000);
+        this.sleepTime = sleepTime;
 
         // criar PreAlertSet e Supervisor
         this.preAlertSet = new PreAlertSet(data.getCultureParamsSet());
@@ -33,8 +33,10 @@ public class MongoToMySql {
     }
 
     public void serveSQL(HashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
+
         sourceBuffer.forEach(
-                (collectionName, buffer) -> new SqlPublisher(buffer, sleepTime, preAlertSet).start()
+                (collectionName, buffer) ->
+                        new SqlPublisher(buffer, sleepTime, preAlertSet).start()
         );
     }
 

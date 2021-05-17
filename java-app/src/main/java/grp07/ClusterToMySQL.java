@@ -15,6 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClusterToMySQL extends IniConfig {
 
+        HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
     public ClusterToMySQL(MigrationMethod method, String iniFile) {
         super(iniFile);
 
@@ -24,20 +25,20 @@ public class ClusterToMySQL extends IniConfig {
 
         String mysqlLocalUri = getConfig("mysql", "local_uri");
 
-        long sleepTime = Long.parseLong(getConfig("cluster_to_mysql", "sleep_time"));
-
-        HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
+        long sleepTime = Long.valueOf(getConfig("cluster_to_mysql", "sleep_time"));
 
         for (String collection : collectionNames)
             buffer.put(collection, new LinkedBlockingQueue<>());
 
         switch (method) {
             case DIRECT:
-                new MeasurementMongoFetcher(mongoLocalUri, mongoLocalDb, sleepTime).deal(buffer);
+                MeasurementMongoFetcher m = new MeasurementMongoFetcher(mongoLocalUri, mongoLocalDb, sleepTime);
+                m.deal(buffer);
                 try {
 
                     Connection mysqlConn = DriverManager.getConnection(mysqlLocalUri, "root", "");
-                    new MongoToMySql(mysqlConn, new MySqlData(iniFile), sleepTime).serveSQL(buffer);
+                    MongoToMySql mtm =  new MongoToMySql(mysqlConn, new MySqlData(iniFile), sleepTime);
+                    mtm.serveSQL(this.buffer);
 
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
@@ -51,7 +52,7 @@ public class ClusterToMySQL extends IniConfig {
 
     public static void main(String[] args) {
         //MigrationMethod method = MigrationMethod.getByValue(args[0]);
-        MigrationMethod method = MigrationMethod.MQTT;
+        MigrationMethod method = MigrationMethod.DIRECT;
         new ClusterToMySQL(method, "config.ini");
     }
 
