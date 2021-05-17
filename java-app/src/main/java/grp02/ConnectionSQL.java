@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import common.BrokerConnector;
+import common.IniConfig;
 import grp07.Measurement;
 import grp07.MySqlData;
 import grp07.MySqlData.*;
@@ -16,23 +17,34 @@ import java.sql.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class ConnectionSQL {
+public class ConnectionSQL extends IniConfig {
 
-    private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
-    private static final String BROKER_TOPIC = "pisid_g07_sensors";
-    private static final int BROKER_QOS = 0;
+    public ConnectionSQL(String iniFile) {
+        super(iniFile);
 
-    private static final String MYSQL_LOCAL_URI = "jdbc:mysql://localhost:3306/g07_local";
+        String brokerUri = getConfig("broker", "uri");
+        String brokerTopic = getConfig("broker", "topic");
+        int brokerQos = Integer.parseInt(getConfig("broker", "qos"));
+        String mysqlLocalUri = getConfig("mysql", "local_uri");
+
+        try {
+            BrokerSubscriber subscriber = new BrokerSubscriber(brokerUri, brokerTopic, brokerQos);
+            try {
+                Connection mysql_local = DriverManager.getConnection(mysqlLocalUri, "root", "");
+                MySqlData data = new MySqlData("config.ini");
+
+                SqlPublisher publisher = new SqlPublisher(mysql_local, data, subscriber.getBuffer());
+                publisher.start();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) throws MqttException, SQLException {
-
-        BrokerSubscriber subscriber = new BrokerSubscriber(BROKER_URI, BROKER_TOPIC, BROKER_QOS);
-
-        final Connection mysql_local = DriverManager.getConnection(MYSQL_LOCAL_URI, "root", "");
-        MySqlData sender = new MySqlData();
-
-        SQL_Publisher publisher = new SQL_Publisher(mysql_local, sender, subscriber.getBuffer());
-        publisher.start();
+        new ConnectionSQL("config.ini");
     }
 
     public static class BrokerSubscriber extends BrokerConnector {
@@ -43,9 +55,9 @@ public class ConnectionSQL {
             super(URI, topic, qos);
             buffer = new LinkedBlockingQueue<>();
 
-            client.setCallback(insertInBufferCallback());
+            getClient().setCallback(insertInBufferCallback());
             tryConnect();
-            client.subscribe(topic, this.qos);
+            getClient().subscribe(topic, getQos());
         }
 
         public LinkedBlockingQueue<Measurement> getBuffer() {
@@ -62,13 +74,13 @@ public class ConnectionSQL {
 
                 @Override
                 public void messageArrived(String topic, MqttMessage message) {
-                    System.out.println("Message arrived from broker (topic " + topic + "): " + message);
 
                     ObjectMapper objectMapper = new ObjectMapper();
                     objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
                     try {
                         Measurement m = objectMapper.readValue(message.toString(), Measurement.class);
+                        System.out.println("Fetched:\t" + m);
                         buffer.offer(m);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
@@ -83,13 +95,13 @@ public class ConnectionSQL {
 
     }
 
-    public static class SQL_Publisher extends Thread {
+    public static class SqlPublisher extends Thread {
 
         private final Connection connection;
         private final MySqlData data;
         private final LinkedBlockingQueue<Measurement> buffer;
 
-        public SQL_Publisher(Connection connection, MySqlData data, LinkedBlockingQueue<Measurement> buffer) {
+        public SqlPublisher(Connection connection, MySqlData data, LinkedBlockingQueue<Measurement> buffer) {
             this.connection = connection;
             this.data = data;
             this.buffer = buffer;

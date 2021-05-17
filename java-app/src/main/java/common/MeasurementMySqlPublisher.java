@@ -10,8 +10,8 @@ import java.sql.Timestamp;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measurement> {
-    public MeasurementMySqlPublisher(Connection mysql_local, LinkedBlockingQueue<Measurement> buffer) {
-        super(mysql_local, MySqlData.get(), buffer);
+    public MeasurementMySqlPublisher(Connection mysql_local, MySqlData data, LinkedBlockingQueue<Measurement> buffer) {
+        super(mysql_local, data, buffer);
     }
 
     public void publish(Measurement m) throws SQLException {
@@ -34,7 +34,7 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
             String id = measurement.getId().toString();
             MySqlData.Zone zone = getData().getZones().get(measurement.getZoneId());
             MySqlData.Sensor sensor = getData().getSensors().get(measurement.getSensorId());
-            String value = measurement.getValue();
+            Double value = measurement.getRoundValue();
             //Timestamp date = measurement.getTimestamp();
             Timestamp date = new Timestamp(System.currentTimeMillis());
 
@@ -43,7 +43,7 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
             String sql = "INSERT INTO measurements (id, value, sensor_id, zone_id, date, is_correct) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = getConnection().prepareStatement(sql);
             statement.setString(1, id);
-            statement.setString(2, value);
+            statement.setDouble(2, value);
             statement.setInt(3, zone.getId());
             statement.setInt(4, sensor.getId());
             statement.setTimestamp(5, date);
@@ -64,7 +64,7 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
 
         double min = sensor.getMinLim();
         double max = sensor.getMaxLim();
-        double value = Double.parseDouble(measurement.getValue());
+        double value = measurement.getRoundValue();
         System.out.println(measurement);
         System.err.println("Parâmetros Sensor -> minLin: " + min + ", maxLim: " + max + ", valid: " + (value > min && value < max));
 

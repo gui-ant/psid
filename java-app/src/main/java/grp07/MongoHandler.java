@@ -4,18 +4,18 @@ import com.mongodb.client.MongoCollection;
 import common.MongoConnector;
 import org.bson.Document;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class MongoHandler<T> extends MongoConnector {
 
-    private final ConcurrentHashMap<String, LinkedBlockingQueue<T>> collectionsDataBuffer = new ConcurrentHashMap<>();
+    private final HashMap<String, LinkedBlockingQueue<T>> collectionsDataBuffer = new HashMap<>();
 
-    protected abstract void deal(ConcurrentHashMap<String, LinkedBlockingQueue<T>> collectionsDataBuffer);
+    protected abstract void deal(HashMap<String, LinkedBlockingQueue<T>> collectionsDataBuffer);
 
     public MongoHandler(String sourceUri, String db) {
         super(sourceUri, db);
-        deal(collectionsDataBuffer);
+        //deal(collectionsDataBuffer);
         System.out.println("Connection stablished with mongo database!");
     }
 
@@ -34,11 +34,12 @@ public abstract class MongoHandler<T> extends MongoConnector {
             collectionsDataBuffer.put(col, new LinkedBlockingQueue<>());
     }
 
-    public ConcurrentHashMap<String, LinkedBlockingQueue<T>> getFetchingSource() {
+    public HashMap<String, LinkedBlockingQueue<T>> getFetchingSource() {
         return collectionsDataBuffer;
     }
 
     protected MongoCollection<T> getCollection(String name, Class<T> type) {
         return getCurrentDb().getCollection(name, type);
     }
+
 }

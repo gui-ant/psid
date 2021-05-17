@@ -14,11 +14,11 @@ public class ParamAnalyser {
     private List<MySqlData.CultureParams> paramList;  //lista de parametros INDIVIDUAIS de um dado sensor
     private final List<Measurement> measurements;
     private int maxTolerance;
-    private final int insertionRate;  //frequencia a que as medidas são geradas
+    private final long insertionRate;  //frequencia a que as medidas são geradas
     //    private int numCycles = 10;
     private final int numCycles = 3;
 
-    public ParamAnalyser(PreAlertSet preAlertCompiler, ArrayList<MySqlData.CultureParams> paramList, int insertionRate) {
+    public ParamAnalyser(PreAlertSet preAlertCompiler, ArrayList<MySqlData.CultureParams> paramList, long insertionRate) {
         this.preAlertCompiler = preAlertCompiler;
         this.paramList = paramList;
         this.measurements = new LinkedList<>();
@@ -65,7 +65,7 @@ public class ParamAnalyser {
         int tolerance = param.getTolerance();
         Timestamp headTime = measurements.get(0).getTimestamp();
         for (Measurement measure : measurements) {
-            if (Double.parseDouble(measure.getValue()) < param.getValMax() && Double.parseDouble(measure.getValue()) > param.getValMin()) {
+            if (measure.getRoundValue() < param.getValMax() && measure.getRoundValue() > param.getValMin()) {
                 return false;
             }
 
@@ -99,14 +99,14 @@ public class ParamAnalyser {
         double diff = (param.getValMax() - param.getValMin()) * 0.3;
         double minLim = param.getValMax() - diff;
 
-        double val = Double.parseDouble(measurements.get(0).getValue());
+        double val = measurements.get(0).getRoundValue();
 
         if (val > param.getValMax() || val < minLim || measurements.size() < numCycles) {
             return false;
         }
 
         for (int ind = 1; ind < numCycles; ind++) {
-            double newval = Double.parseDouble(measurements.get(ind).getValue());
+            double newval =measurements.get(ind).getRoundValue();
             if (newval >= val || newval > param.getValMax() || newval < minLim) {
                 return false;
             }
@@ -120,14 +120,14 @@ public class ParamAnalyser {
         double diff = (param.getValMax() - param.getValMin()) * 0.3;
         double maxLim = param.getValMin() + diff;
 
-        double val = Double.parseDouble(measurements.get(0).getValue());
+        double val = measurements.get(0).getRoundValue();
 
         if (val > maxLim || val < param.getValMin() || measurements.size() < numCycles) {
             return false;
         }
 
         for (int ind = 1; ind < numCycles; ind++) {
-            double newval = Double.parseDouble(measurements.get(ind).getValue());
+            double newval = measurements.get(ind).getRoundValue();
             if (newval <= val || newval > maxLim || newval < param.getValMin()) {
                 return false;
             }
@@ -141,10 +141,9 @@ public class ParamAnalyser {
         measurements.removeIf(m -> m.getTimestamp().compareTo(maxThreshold) < 0);
     }
 
-    private Timestamp subtractSecondsThreshold(Timestamp initialTime, int tolerance, int rate) {
-        Timestamp newTime = initialTime;
-        newTime.setTime(initialTime.getTime() - (tolerance + 3 * rate) * 1000);
-        return newTime;
+    private Timestamp subtractSecondsThreshold(Timestamp time, int tolerance, long rate) {
+        time.setTime(time.getTime() - (tolerance + 3 * rate) * 1000);
+        return time;
     }
 
     public List<MySqlData.CultureParams> getParamList() {

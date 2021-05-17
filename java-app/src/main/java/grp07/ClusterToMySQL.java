@@ -3,67 +3,69 @@ package grp07;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import common.IniConfig;
 import common.MigrationMethod;
 import org.bson.types.ObjectId;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ClusterToMySQL {
-    private static final String MONGO_LOCAL_URI = "mongodb://127.0.0.1:27017";
-    private static final String MONGO_LOCAL_DB = "g07";
-    // private static final String TARGET_URL_CLOUD = "jdbc:mysql://194.210.86.10:3306/aluno_g07_cloud";
-    private static final String MYSQL_LOCAL_URI = "jdbc:mysql://localhost:3306/g07_local";
-    private static final int CADENCE_SECONDS = 5;
+public class ClusterToMySQL extends IniConfig {
 
-    private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
+    public ClusterToMySQL(MigrationMethod method, String iniFile) {
+        super(iniFile);
 
-    public ClusterToMySQL(MigrationMethod method, String[] collectionNames) {
-        this.buffer = new ConcurrentHashMap<>();
+        String mongoLocalUri = getConfig("mongo", "local_uri");
+        String mongoLocalDb = getConfig("mongo", "local_db");
+        String[] collectionNames = getConfig("mongo", "collections").split(",");
+
+        String mysqlLocalUri = getConfig("mysql", "local_uri");
+
+        long sleepTime = Long.parseLong(getConfig("cluster_to_mysql", "sleep_time"));
+
+        HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
 
         for (String collection : collectionNames)
-            this.buffer.put(collection, new LinkedBlockingQueue<>());
+            buffer.put(collection, new LinkedBlockingQueue<>());
 
         switch (method) {
             case DIRECT:
-                new MeasurementMongoFetcher(MONGO_LOCAL_URI, MONGO_LOCAL_DB).deal(this.buffer);
+                new MeasurementMongoFetcher(mongoLocalUri, mongoLocalDb, sleepTime).deal(buffer);
                 try {
 
-                    Connection mysqlConn = DriverManager.getConnection(MYSQL_LOCAL_URI, "root", "");
-                    new MongoToMySql(mysqlConn, MySqlData.get(), CADENCE_SECONDS).serveSQL(this.buffer);
+                    Connection mysqlConn = DriverManager.getConnection(mysqlLocalUri, "root", "");
+                    new MongoToMySql(mysqlConn, new MySqlData(iniFile), sleepTime).serveSQL(buffer);
 
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
 
             case MQTT:
-                new grp02.MongoToBroker(collectionNames);
-                new grp02.ConnectionSQL();
+                new grp02.MongoToBroker(iniFile);
+                new grp02.ConnectionSQL(iniFile);
         }
     }
 
     public static void main(String[] args) {
-        String[] collectionNames = {
-                "sensort1",
-                //"sensort2",
-        };
         //MigrationMethod method = MigrationMethod.getByValue(args[0]);
-        MigrationMethod method = MigrationMethod.DIRECT;
-        new ClusterToMySQL(method, collectionNames);
+        MigrationMethod method = MigrationMethod.MQTT;
+        new ClusterToMySQL(method, "config.ini");
     }
 
     private static class MeasurementMongoFetcher extends MongoHandler<Measurement> {
-        private static final long SLEEP_TIME = 5000;
 
-        public MeasurementMongoFetcher(String uri, String db) {
+        private final long sleepTime;
+
+        public MeasurementMongoFetcher(String uri, String db, long sleepTime) {
             super(uri, db);
+            this.sleepTime = sleepTime;
         }
 
         @Override
-        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+        protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
             collectionsDataBuffer.forEach((collectionName, buffer) -> {
 
                         new Thread(() -> {
@@ -84,9 +86,9 @@ public class ClusterToMySQL {
                                         doc = cursor.next();
                                         lastId = doc.getId();
                                         buffer.offer(doc);
-                                        System.out.println("Fetched: " + doc);
+                                        System.out.println("Fetched:\t" + doc);
                                     }
-                                    Thread.sleep(SLEEP_TIME);
+                                    Thread.sleep(sleepTime);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }

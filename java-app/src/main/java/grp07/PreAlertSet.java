@@ -1,13 +1,10 @@
 package grp07;
 
-import common.MySqlPublisher;
-
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 // APENAS A THREAD SUPERVISORA "USA" O PREALERTSET
 public class PreAlertSet {

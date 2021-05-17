@@ -7,49 +7,49 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import common.BrokerHandler;
+import common.IniConfig;
 import grp07.Measurement;
 import grp07.MongoHandler;
 import org.bson.types.ObjectId;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class MongoToBroker {
+public class MongoToBroker extends IniConfig {
 
-    private static final String MONGO_LOCAL_URI = "mongodb://127.0.0.1:27017";
-    private static final String MONGO_LOCAL_DB = "g07";
+    private final HashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
-    private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
-    private static final String BROKER_TOPIC = "pisid_g07_sensors";
-    private static final int BROKER_QOS = 0;
+    public MongoToBroker(String iniFile) {
+        super(iniFile);
+        String mongoLocalUri = getConfig("mongo", "local_uri");
+        String mongoLocalDb = getConfig("mongo", "local_db");
+        String brokerUri = getConfig("broker", "uri");
+        String brokerTopic = getConfig("broker", "topic");
+        int brokerQos = Integer.parseInt(getConfig("broker", "qos"));
 
-    private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
+        String[] collectionNames = getConfig("mongo", "collections").split(",");
 
-    public MongoToBroker(String[] collectionNames) {
-        this.buffer = new ConcurrentHashMap<>();
+        this.buffer = new HashMap<>();
         for (String collection : collectionNames)
             this.buffer.put(collection, new LinkedBlockingQueue<>());
 
-        ConnectToMongo cluster = new ConnectToMongo(MONGO_LOCAL_URI, MONGO_LOCAL_DB);
+        ConnectToMongo cluster = new ConnectToMongo(mongoLocalUri, mongoLocalDb);
         cluster.useCollections(collectionNames);
         cluster.deal(this.buffer);
 
         try {
-            new BrokerPublisher(BROKER_URI, BROKER_TOPIC, BROKER_QOS).startPublishing(cluster.getFetchingSource());
+            new BrokerPublisher(brokerUri, brokerTopic, brokerQos).startPublishing(cluster.getFetchingSource());
         } catch (MqttException e) {
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) throws MqttException {
-
-        String[] collectionNames = {"sensort1"};
-
-        new MongoToBroker(collectionNames);
+        new MongoToBroker("config.ini");
     }
 
     public class BrokerPublisher extends BrokerHandler<Measurement> {
@@ -83,9 +83,9 @@ public class MongoToBroker {
 
 
         public void
-        startPublishing(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
+        startPublishing(HashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
             sourceBuffer.forEach(
-                    (collectionName, buffer) -> new ToBroker(client, BROKER_TOPIC, qos, buffer).start()
+                    (collectionName, buffer) -> new ToBroker(getClient(), this.getTopic(), getQos(), buffer).start()
             );
         }
 
@@ -137,12 +137,10 @@ public class MongoToBroker {
         }
 
         @Override
-        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
-            new Thread(() -> {
-                collectionsDataBuffer.forEach((collection, buffer) -> {
-                    new MeasureFetcher(getCollection(collection, Measurement.class), buffer);
-                });
-            }).start();
+        protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+            new Thread(() -> collectionsDataBuffer.forEach((collection, buffer) ->
+                    new MeasureFetcher(getCollection(collection, Measurement.class), buffer)
+            )).start();
         }
 
         class MeasureFetcher extends Thread {
@@ -174,7 +172,7 @@ public class MongoToBroker {
                             doc = cursor.next();
                             lastId = doc.getId();
                             buffer.offer(doc);
-                            System.out.println("Fetched: " + doc.getId());
+                            System.out.println("Fetched:\t" + doc);
                         }
                         sleep(SLEEP_TIME);
                     } catch (InterruptedException e) {

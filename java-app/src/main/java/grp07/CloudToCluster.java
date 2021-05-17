@@ -4,40 +4,38 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
+import common.IniConfig;
 import org.bson.types.ObjectId;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class CloudToCluster {
-    private static final String MONGO_CLOUD_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String MONGO_CLOUD_DB = "g07";
-    private static final String MONGO_LOCAL_URI = "mongodb://127.0.0.1:27017";
-    private static final String MONGO_LOCAL_DB = "g07";
-    //private static final String MONGO_LOCAL_URI = "mongodb://aluno:aluno@madrugadao-sama.ddns.net/g07?authSource=admin&authMechanism=SCRAM-SHA-1";
+public class CloudToCluster extends IniConfig {
 
-    private final ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
+    private final HashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
     public static void main(String[] args) {
-
-        String[] collectionNames = {
-                "sensort1",
-                "sensort2",
-        };
-
-        new CloudToCluster(collectionNames);
+        new CloudToCluster("config.ini");
     }
 
-    CloudToCluster(String[] collectionNames) {
-        this.buffer = new ConcurrentHashMap<>();
+    CloudToCluster(String iniFile) {
+        super(iniFile);
+
+        String mongoCloudUri = getConfig("mongo", "cloud_uri");
+        String mongoCloudDb = getConfig("mongo", "cloud_db");
+        String mongoLocalUri = getConfig("mongo", "local_uri");
+        String mongoLocalDb = getConfig("mongo", "local_db");
+        String[] collectionNames = getConfig("mongo", "collections").split(",");
+
+        this.buffer = new HashMap<>();
         for (String collectionName : collectionNames)
             this.buffer.put(collectionName, new LinkedBlockingQueue<>());
 
-        new MongoCloudFetcher(MONGO_CLOUD_URI, MONGO_CLOUD_DB).deal(this.getBuffer());
-        new MongoClusterPublisher(MONGO_LOCAL_URI, MONGO_LOCAL_DB).deal(this.getBuffer());
+        new MongoCloudFetcher(mongoCloudUri, mongoCloudDb).deal(this.getBuffer());
+        new MongoClusterPublisher(mongoLocalUri, mongoLocalDb).deal(this.getBuffer());
     }
 
-    public ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
+    public HashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
         return this.buffer;
     }
 
@@ -49,7 +47,7 @@ public class CloudToCluster {
         }
 
         @Override
-        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+        protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
             collectionsDataBuffer.forEach((collectionName, measurements) ->
                     new Thread(() -> {
                         MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
@@ -68,7 +66,7 @@ public class CloudToCluster {
                                     doc = cursor.next();
                                     lastId = doc.getId();
                                     measurements.offer(doc);
-                                    System.out.println("Fetched: " + doc.getId());
+                                    System.out.println("Fetched:\t" + doc);
                                 }
                                 Thread.sleep(SLEEP_TIME);
                             } catch (InterruptedException e) {
@@ -86,15 +84,15 @@ public class CloudToCluster {
         }
 
         @Override
-        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+        protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
             collectionsDataBuffer.forEach((name, buffer) -> {
                 MongoCollection<Measurement> collection = getCurrentDb().getCollection(name, Measurement.class);
                 new Thread(() -> {
                     while (true) {
                         try {
-
-                            InsertOneResult res = collection.insertOne(buffer.take());
-                            System.out.println("Inserted: " + res.getInsertedId());
+                            Measurement m = buffer.take();
+                            InsertOneResult res = collection.insertOne(m);
+                            System.out.println("Inserted:\t" + m);
 
                         } catch (InterruptedException e) {
                             e.printStackTrace();

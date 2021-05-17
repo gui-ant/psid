@@ -1,14 +1,12 @@
 package grp07;
 
 import common.MeasurementMySqlPublisher;
-import common.MySqlPublisher;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -17,26 +15,25 @@ public class MongoToMySql {
     private final Connection mysqlConn;
     private final MySqlData data;
 
-    private final int sleep_time;
+    private final long sleepTime;
     // PreAlertSet (comum a threads e supervisor)
     private final PreAlertSet preAlertSet;
-    private final ParameterSupervisor supervisor;
 
 
-    public MongoToMySql(Connection mysqlConn, MySqlData data, int sleep_time_seconds) {
+    public MongoToMySql(Connection mysqlConn, MySqlData data, long sleepTimeSeconds) {
         this.mysqlConn = mysqlConn;
         this.data = data;
-        this.sleep_time = (sleep_time_seconds * 1000);
+        this.sleepTime = (sleepTimeSeconds * 1000);
 
         // criar PreAlertSet e Supervisor
         this.preAlertSet = new PreAlertSet(data.getCultureParamsSet());
-        this.supervisor = new ParameterSupervisor(preAlertSet);
+        ParameterSupervisor supervisor = new ParameterSupervisor(preAlertSet);
         supervisor.start();
     }
 
-    public void serveSQL(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
+    public void serveSQL(HashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
         sourceBuffer.forEach(
-                (collectionName, buffer) -> new SqlPublisher(buffer, sleep_time, preAlertSet).start()
+                (collectionName, buffer) -> new SqlPublisher(buffer, sleepTime, preAlertSet).start()
         );
     }
 
@@ -44,21 +41,21 @@ public class MongoToMySql {
 
         private final LinkedBlockingQueue<Measurement> buffer;
         private final double ERROR_PERCENTAGE = 0.33;
-        private int sleep_time;
+        private long sleepTime;
         //analyser individual (de cada thread)
         private final PreAlertSet preAlertSet;
         private ParamAnalyser analyser;
 
         private final ReadingStats stats;
 
-        public SqlPublisher(LinkedBlockingQueue<Measurement> buffer, int sleep_time, PreAlertSet preAlertSet) {
-            super(mysqlConn, buffer);
+        public SqlPublisher(LinkedBlockingQueue<Measurement> buffer, long sleepTime, PreAlertSet preAlertSet) {
+            super(mysqlConn, data, buffer);
             this.buffer = buffer;
-            this.sleep_time = sleep_time;
+            this.sleepTime = sleepTime;
 
-            //this.analyser = new ParamAnalyser(preAlertSet, null, sleep_time);
+            //this.analyser = new ParamAnalyser(preAlertSet, null, sleepTime);
             this.preAlertSet = preAlertSet;
-            this.analyser = createAnalyser(data, sleep_time);
+            this.analyser = createAnalyser(data, sleepTime);
 
             this.stats = new ReadingStats();
             ErrorSupervisor es = new ErrorSupervisor(stats, ERROR_PERCENTAGE);
@@ -72,15 +69,15 @@ public class MongoToMySql {
 
             while (true) {
                 if (analyser == null) {
-                    analyser = createAnalyser(data, sleep_time);
+                    analyser = createAnalyser(data, sleepTime);
                 }
                 try {
-                    sleep(sleep_time);
+                    sleep(sleepTime);
 
                     emptyBufferRoutine();
 
                     int counter = 0;
-                    double mean_value, acc = 0;
+                    double meanValue, acc = 0;
 
                     Measurement measurement = buffer.take();
                     stats.incrementReadings();
@@ -89,7 +86,7 @@ public class MongoToMySql {
                         publish(measurement);
                         stats.incrementErrors();
                     } else {
-                        acc += Double.parseDouble(measurement.getValue());
+                        acc += measurement.getRoundValue();
                         counter++;
                         lastValidMeas = measurement;
                     }
@@ -99,8 +96,8 @@ public class MongoToMySql {
                     // tipologia de sensor: measurement.getSensorType();
 
                     if (counter != 0) {
-                        mean_value = acc / counter;
-                        lastValidMeas.setValue(Double.toString(mean_value));
+                        meanValue = acc / counter;
+                        lastValidMeas.setValue(String.valueOf(meanValue));
 
                         // TODO - É AQUI???
                         if (analyser != null) {
@@ -124,20 +121,20 @@ public class MongoToMySql {
         // para o valor inserido pelo utilizador.
         private void emptyBufferRoutine() throws InterruptedException {
             if (buffer.isEmpty()) {
-                int empty_counter = 0;
-                sleep(sleep_time);
+                int emptyCounter = 0;
+                sleep(sleepTime);
 
                 while (buffer.isEmpty()) {
                     System.err.println("Buffer vazio");
-                    if (empty_counter <= 10) {
-                        empty_counter++;
-                        sleep_time += 1000;
+                    if (emptyCounter <= 10) {
+                        emptyCounter++;
+                        sleepTime += 1000;
                     }
 
-                    sleep(sleep_time);
+                    sleep(sleepTime);
                 }
 
-                sleep_time -= empty_counter * 1000;
+                sleepTime -= emptyCounter * 1000L;
             }
         }
 
@@ -147,7 +144,7 @@ public class MongoToMySql {
 
         // cria um analisador de parametros, com os parametros filtrados desta thread
         // TODO - testar!!!
-        private ParamAnalyser createAnalyser(MySqlData data, int rate) {
+        private ParamAnalyser createAnalyser(MySqlData data, long rate) {
             ArrayList<MySqlData.CultureParams> list = new ArrayList<>();
             Measurement mea = buffer.peek();
             if (mea == null) {
@@ -163,9 +160,7 @@ public class MongoToMySql {
                 }
             });
 
-            ParamAnalyser an = new ParamAnalyser(preAlertSet, list, rate);
-
-            return an;
+            return new ParamAnalyser(preAlertSet, list, rate);
         }
 
         /**
@@ -193,8 +188,8 @@ public class MongoToMySql {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    int totalReadings = stats.getTotalReadings();
-                    int totalErrors = stats.getTotalErrors();
+                    double totalReadings = stats.getTotalReadings();
+                    double totalErrors = stats.getTotalErrors();
                     if (totalReadings != 0) {
                         if (totalErrors / totalReadings >= percentage) {
                             // TODO - ENVIAR ALERTA!!!
@@ -204,23 +199,6 @@ public class MongoToMySql {
                     stats.resetData();
                 }
             }
-        }
-    }
-
-    class AlertPublisher extends MySqlPublisher<Alert> {
-        public AlertPublisher(Connection connection, MySqlData data, LinkedBlockingQueue<Alert> buffer) {
-            super(connection, data, buffer);
-        }
-
-        @Override
-        protected void handle(Alert object) {
-
-        }
-
-        @Override
-        protected PreparedStatement getStatement(Alert object) {
-
-            return null;
         }
     }
 }

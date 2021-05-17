@@ -6,9 +6,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public abstract class BrokerConnector {
 
-    protected final MqttClient client;
-    protected final String topic;
-    protected final int qos;
+    private final MqttClient client;
+    private final String topic;
+    private final int qos;
 
     public BrokerConnector(String URI, String topic, int qos) throws MqttException {
         this.client = new MqttClient(
@@ -28,5 +28,13 @@ public abstract class BrokerConnector {
 
     public MqttClient getClient() {
         return client;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public int getQos() {
+        return qos;
     }
 }

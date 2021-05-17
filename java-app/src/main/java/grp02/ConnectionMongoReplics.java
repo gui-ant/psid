@@ -1,32 +1,40 @@
 package grp02;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import common.IniConfig;
 import grp07.MongoHandler;
 import grp07.Measurement;
+import org.bson.types.ObjectId;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ConnectionMongoReplics {
+public class ConnectionMongoReplics extends IniConfig {
 
-    private static final String MONGO_CLOUD_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String MONGO_CLOUD_DB = "g07";
-    private static final String MONGO_LOCAL_URI = "mongodb://127.0.0.1:27017";
-    private static final String MONGO_LOCAL_DB = "g07";
+    private final HashMap<String, LinkedBlockingQueue<Measurement>> buffer;
 
-    private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer;
+    public ConnectionMongoReplics(String iniFile) {
+        super(iniFile);
+        String mongoCloudUri = getConfig("mongo", "cloud_uri");
+        String mongoCloudDb = getConfig("mongo", "cloud_db");
+        String mongoLocalUri = getConfig("mongo", "local_uri");
+        String mongoLocalDb = getConfig("mongo", "local_db");
+        String[] collectionNames = getConfig("mongo", "collections").split(",");
 
-    public ConnectionMongoReplics(String[] collectionNames) {
-        this.buffer = new ConcurrentHashMap<>();
+        this.buffer = new HashMap<>();
         for (String collectionName : collectionNames)
             this.buffer.put(collectionName, new LinkedBlockingQueue<>());
+
+        MeasurementsFetcher fetcher = new MeasurementsFetcher(mongoCloudUri, mongoCloudDb);
+        MeasurementsPublisher publisher = new MeasurementsPublisher(mongoLocalUri, mongoLocalDb);
 
         new Thread(() -> {
             while (true) {
                 try {
-                    new MeasurementsFetcher(MONGO_CLOUD_URI, MONGO_CLOUD_DB).deal(this.buffer);
-                    new MeasurementsPublisher(MONGO_LOCAL_URI, MONGO_LOCAL_DB).deal(this.buffer);
+                    fetcher.deal(this.buffer);
+                    publisher.deal(this.buffer);
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -36,9 +44,7 @@ public class ConnectionMongoReplics {
     }
 
     public static void main(String[] args) {
-
-        String[] collectionNames = {"sensort1"};
-        new ConnectionMongoReplics(collectionNames);
+        new ConnectionMongoReplics("config.ini");
     }
 
     private static class MeasurementsFetcher extends MongoHandler<Measurement> {
@@ -47,14 +53,21 @@ public class ConnectionMongoReplics {
         }
 
         @Override
-        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+        protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
             collectionsDataBuffer.forEach((collectionName, buffer) -> {
                 MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
-                Measurement m = buffer.poll();
 
-                while (m != null) {
-                    InsertOneResult res = collection.insertOne(m);
-                    System.out.println("Inserted: " + res.getInsertedId());
+                Measurement doc = getLastObject(collection);
+
+                ObjectId lastId = doc.getId();
+
+                MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
+
+                // Le os novos dados e adiciona-os ao buffer
+                while (cursor.hasNext()) {
+                    doc = cursor.next();
+                    buffer.offer(doc);
+                    System.out.println("Fetched:\t" + doc);
                 }
             });
         }
@@ -67,16 +80,14 @@ public class ConnectionMongoReplics {
         }
 
         @Override
-        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+        protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
             collectionsDataBuffer.forEach((collectionName, buffer) -> {
                 MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
-                Measurement m = buffer.poll();
-
-                while (m != null) {
-                    InsertOneResult res = collection.insertOne(m);
-                    System.out.println("Inserted: " + res.getInsertedId());
+                Measurement m;
+                while ((m = buffer.poll()) != null) {
+                    collection.insertOne(m);
+                    System.out.println("Inserted:\t" + m);
                 }
-
             });
         }
     }

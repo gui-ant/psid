@@ -1,16 +1,16 @@
 package grp07;
 
+import common.IniConfig;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-public final class MySqlData {
-    private static final String MYSQL_LOCAL_URI = "jdbc:mysql://localhost:3306/g07_local";
+public final class MySqlData extends IniConfig {
     private static final String MYSQL_LOCAL_USER = "root";
     private static final String MYSQL_LOCAL_PASS = "";
 
-    private static final String MYSQL_CLOUD_URI = "jdbc:mysql://194.210.86.10:3306/aluno_g07_cloud";
     private static final String MYSQL_CLOUD_USER = "aluno";
     private static final String MYSQL_CLOUD_PASS = "aluno";
 
@@ -18,16 +18,24 @@ public final class MySqlData {
     private final Hashtable<Long, Zone> zones = new Hashtable<>();
     private final Hashtable<Long, Sensor> sensors = new Hashtable<>();
     private final Hashtable<Long, Culture> cultures = new Hashtable<>();// Todas as culturas, com as respetivas parametrizações associadas
-    private final Hashtable<Long, CultureParams> cultureParams = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
 
-    public static MySqlData get() {
-        return new MySqlData();
+    public Hashtable<Long, Culture> getCultures() {
+        return cultures;
     }
 
-    public MySqlData() {
+    public Hashtable<Long, CultureParams> getCultureParams() {
+        return cultureParams;
+    }
+
+    private final Hashtable<Long, CultureParams> cultureParams = new Hashtable<>(); // Sets de paramatrizações com culturas associadas
+
+    public MySqlData(String iniFile) {
+        super(iniFile);
+        String mysqlCloudUri = getConfig("mysql", "cloud_uri");
+        String mysqlLocalUri = getConfig("mysql", "local_uri");
         try {
-            Connection connCloud = DriverManager.getConnection(MYSQL_CLOUD_URI, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
-            Connection connLocal = DriverManager.getConnection(MYSQL_LOCAL_URI, MYSQL_LOCAL_USER, MYSQL_LOCAL_PASS);
+            Connection connCloud = DriverManager.getConnection(mysqlCloudUri, MYSQL_CLOUD_USER, MYSQL_CLOUD_PASS);
+            Connection connLocal = DriverManager.getConnection(mysqlLocalUri, MYSQL_LOCAL_USER, MYSQL_LOCAL_PASS);
 
             fetchZones(connCloud);
             fetchSensors(connCloud);
@@ -36,6 +44,7 @@ public final class MySqlData {
             fetchCultures(connLocal);
             fetchCultureParams(connLocal);
 
+            System.out.println();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -312,6 +321,9 @@ public final class MySqlData {
         private int tolerance;
         private Culture culture;
 
+        public CultureParams() {
+        }
+
         public Culture getCulture() {
             return culture;
         }
@@ -331,6 +343,7 @@ public final class MySqlData {
         public double getValMax() {
             return valMax;
         }
+
 
         public void setValMax(double valMax) {
             this.valMax = valMax;
@@ -361,6 +374,7 @@ public final class MySqlData {
                             culture.isEqual(param.getCulture())
                     ;
         }
+
     }
 
     public static final class Culture {

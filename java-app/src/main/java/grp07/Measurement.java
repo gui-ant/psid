@@ -51,6 +51,26 @@ public final class Measurement {
         return sensor;
     }
 
+    public void setSensor(String sensor) {
+        this.sensor = sensor;
+    }
+
+    public String getDate() {
+        return date.replaceAll("[TZ]", " ").trim();
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = String.valueOf((double) Math.round(Double.parseDouble(value) * 100) / 100);
+    }
+
     @BsonIgnore
     public Long getZoneId() {
         return Long.parseLong(String.valueOf(getSensor().charAt(1)));
@@ -66,29 +86,9 @@ public final class Measurement {
         return sensor.substring(0, 1);
     }
 
-    public void setSensor(String sensor) {
-        this.sensor = sensor;
-    }
-
-    public String getDate() {
-        return date.replaceAll("[TZ]", " ").trim();
-    }
-
     @BsonIgnore
     public Timestamp getTimestamp() {
         return java.sql.Timestamp.valueOf(getDate());
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     @BsonIgnore
@@ -125,5 +125,9 @@ public final class Measurement {
                 ", Data='" + this.date + "'" +
                 ", Medicao='" + this.value + "'" +
                 '}';
+    }
+
+    public Double getRoundValue() {
+        return Double.parseDouble(this.value);
     }
 }

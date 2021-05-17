@@ -2,42 +2,42 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.result.InsertOneResult;
-
 import common.BrokerHandler;
-import grp07.MongoHandler;
+import common.IniConfig;
 import grp07.Measurement;
+import grp07.MongoHandler;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import java.util.HashMap;
 import java.util.Locale;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Esta classe não faz parte do projeto. Simula apenas as leituras dos sensores.
  * Os simuladores estão construídos apenas para mandar medições para um Broker.
  * Para gerar dados no broker, correr os SimulateSensor.jar nas pastas respetivas a cada Sensor (src/main/resources/)
- *
+ * <p>
  * Esta classe, envia dados do broker para o cluster do Atlas (Cloud inicial), sendo que na apresentação esta Cloud será a incial deles.
  */
 
-public class BrokerToMongo {
-    private static final String BROKER_URI = "tcp://broker.mqttdashboard.com:1883";
-    private static final String TOPIC = "pisid_g07_simulators";
+public class BrokerToMongo extends IniConfig {
 
-    private static final String TARGET_URI = "mongodb+srv://sid2021:sid2021@sid.yingw.mongodb.net/g07?retryWrites=true&w=majority";
-    private static final String TARGET_DB = "g07";
+    public BrokerToMongo(String iniFile) {
+        super(iniFile);
 
-    private static final int QOS = 0;
+        String mongoCloudUri = getConfig("mongo", "cloud_uri");
+        String mongoCloudDb = getConfig("mongo", "cloud_db");
 
-    public static void main(String[] args) {
+        String brokerUri = getConfig("broker", "uri");
+        String brokerTopic = getConfig("broker", "topic_simul");
+        int brokerQos = Integer.parseInt(getConfig("broker", "qos"));
 
-        String[] collectionNames = {"sensort1", "sensort2"};
+        String[] collectionNames = getConfig("mongo","collections").split(",");
 
         try {
 
-            MeasurementFetcher fetcher = new MeasurementFetcher(BROKER_URI, TOPIC, QOS);
-            MeasurementPublisher publisher = new MeasurementPublisher(TARGET_URI, TARGET_DB);
+            MeasurementFetcher fetcher = new MeasurementFetcher(brokerUri, brokerTopic, brokerQos);
+            MeasurementPublisher publisher = new MeasurementPublisher(mongoCloudUri, mongoCloudDb);
 
             for (String collection : collectionNames)
                 fetcher.getBuffer().put(collection, new LinkedBlockingQueue<>());
@@ -49,6 +49,10 @@ public class BrokerToMongo {
         }
     }
 
+    public static void main(String[] args) {
+        new BrokerToMongo("config.ini");
+    }
+
     public static class MeasurementPublisher extends MongoHandler<Measurement> {
 
         public MeasurementPublisher(String sourceUri, String db) {
@@ -56,7 +60,7 @@ public class BrokerToMongo {
         }
 
         @Override
-        protected void deal(ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
+        protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
             collectionsDataBuffer.forEach((collectionName, collectionBuffer) -> {
                 new Thread(() -> {
                     while (true) {
@@ -64,9 +68,9 @@ public class BrokerToMongo {
                             Measurement m = collectionBuffer.take();
 
                             MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
-                            InsertOneResult res = collection.insertOne(m);
+                            collection.insertOne(m);
 
-                            System.out.println("Published: " + m);
+                            System.out.println("Published:\t" + m);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -79,7 +83,7 @@ public class BrokerToMongo {
 
     public static class MeasurementFetcher extends BrokerHandler<Measurement> {
 
-        private ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> buffer = new ConcurrentHashMap<>();
+        private final HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
 
         public MeasurementFetcher(String uri, String topic, int qos) throws MqttException {
             super(uri, topic, qos);
@@ -102,9 +106,9 @@ public class BrokerToMongo {
         @Override
         protected void onObjectArrived(Measurement object, String topic) {
             try {
-                /**
-                 * Só acrescenta ao buffer, se já existir a key corresponente na HashMap, i.e. se se pretende considerar a leitura desse sensor.
-                 * Esta validação depende do parâmetro "collecionNames" passado no construtor
+                /*
+                  Só acrescenta ao buffer, se já existir a key corresponente na HashMap, i.e. se se pretende considerar a leitura desse sensor.
+                  Esta validação depende do parâmetro "collecionNames" passado no construtor
                  */
                 String mongoCollectionName = "sensor" + object.getSensor().toLowerCase(Locale.ROOT);
                 if (buffer.containsKey(mongoCollectionName)) {
@@ -115,7 +119,7 @@ public class BrokerToMongo {
             }
         }
 
-        protected ConcurrentHashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
+        protected HashMap<String, LinkedBlockingQueue<Measurement>> getBuffer() {
             return this.buffer;
         }
     }

@@ -8,14 +8,12 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public abstract class BrokerHandler<T> extends BrokerConnector {
-    private final String topic;
 
     public BrokerHandler(String uri, String topic, int qos) throws MqttException {
         super(uri, topic, qos);
-        this.topic = topic;
         try {
             super.tryConnect();
-            super.getClient().subscribe(this.topic, qos);
+            super.getClient().subscribe(topic, qos);
             super.getClient().setCallback(insertInBufferCallback());
         } catch (MqttException e) {
             e.printStackTrace();
@@ -31,8 +29,9 @@ public abstract class BrokerHandler<T> extends BrokerConnector {
 
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
-                System.out.println("Message arrived from broker (topic " + topic + "): " + mqttMessage);
-                onObjectArrived(getMappedObject(mqttMessage.toString()), topic);
+                T obj = getMappedObject(mqttMessage.toString());
+                onObjectArrived(obj, topic);
+                System.out.println("Fetched:\t" + obj);
             }
 
             @Override
@@ -47,6 +46,6 @@ public abstract class BrokerHandler<T> extends BrokerConnector {
     protected abstract void onObjectArrived(T objectMapper, String topic);
 
     protected void publish(T m) throws MqttException {
-        client.publish(this.topic, m.toString().getBytes(UTF_8), this.qos, false);
+        getClient().publish(getTopic(), m.toString().getBytes(UTF_8), getQos(), false);
     }
 }

@@ -15,11 +15,6 @@ public class MongoConnector {
     private final MongoClient client;
     private MongoDatabase database;
 
-    public MongoConnector(String sourceUri) {
-        this.client = MongoClients.create(sourceUri);
-
-    }
-
     public MongoConnector(String sourceUri, String db) {
         this.client = MongoClients.create(sourceUri);
         useDatabase(db);
