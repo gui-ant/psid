@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -151,16 +152,19 @@ public class MongoToMySql {
                 return null;
             }
 
-            Hashtable<Long, MySqlData.CultureParams> cultureParamsSet = data.getCultureParamsSet();
+            Hashtable<Long, List<MySqlData.CultureParams>> cultureParamsSet = data.getCultureParamsSet();
             MySqlData.Zone zone = data.getZones().get(Long.parseLong(String.valueOf(mea.getZone().charAt(1))));
 
-            cultureParamsSet.forEach((id, param) -> {
-                if (param.getSensorType().equals(mea.getSensorType()) && param.getCulture().getZone().equals(zone)) {
-                    list.add(param);
+            for (List<MySqlData.CultureParams> params : cultureParamsSet.values()) {
+                for (MySqlData.CultureParams param : params) {
+                    if (param.getSensorType().equals(mea.getSensorType()) && param.getCulture().getZone().equals(zone)) {
+                        list.add(param);
+                    }
                 }
-            });
+            }
 
             return new ParamAnalyser(preAlertSet, list, rate);
+
         }
 
         /**

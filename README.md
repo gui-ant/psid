@@ -160,3 +160,147 @@ SHOW GRANTS;
  <li>double-tap nos .jar que estão nas pastas SimulateSensorXY (dentro de resources)</li>
  <li>no IntelliJ: no package common, correr o BrokerToMongo</li>
 </ul>
+
+<br>
+<hr>
+<br>
+<strong><u>Conteudo dos .conf das replicas</u>:</strong>
+<br>
+<br>
+db1.conf
+<br>
+storage:
+<br>
+  dbPath: /home/rep/rpl1/data/
+  <br>
+  journal:
+  <br>
+    enabled: true
+    <br>
+    <br>
+
+systemLog:
+<br>
+  destination: file
+  <br>
+  logAppend: true
+  <br>
+  path: /home/rep/rpl1/logs/mongo.log
+  <br>
+  <br>
+
+net:
+<br>
+  port: 28017
+  <br>
+  bindIp: 192.168.31.126
+  <br>
+  <br>
+
+security:
+<br>
+  authorization: enabled
+  <br>
+  keyFile: /home/rep/key.key
+  <br>
+  <br>
+
+replication:
+<br>
+  replSetName: replica
+  <br>
+  <br>
+  <br>
+
+
+
+db2.conf
+<br>
+storage:
+<br>
+  dbPath: /home/rep/rpl2/data/
+  <br>
+  journal:
+  <br>
+    enabled: true
+    <br>
+    <br>
+
+systemLog:
+<br>
+  destination: file
+  <br>
+  logAppend: true
+  <br>
+  path: /home/rep/rpl2/logs/mongo.log
+  <br>
+  <br>
+
+net:
+<br>
+  port: 25017
+  <br>
+  bindIp: 192.168.31.126
+  <br>
+  <br>
+
+security:
+<br>
+  authorization: enabled
+  <br>
+  keyFile: /home/rep/key.key
+  <br>
+  <br>
+
+replication:
+<br>
+  replSetName: replica
+  <br>
+  <br>
+  <br>
+
+
+
+db3.conf
+<br>
+storage:
+<br>
+  dbPath: /home/rep/rpl3/data/
+  <br>
+  journal:
+  <br>
+    enabled: true
+    <br>
+    <br>
+
+systemLog:
+<br>
+  destination: file
+  <br>
+  logAppend: true
+  <br>
+  path: /home/rep/rpl3/logs/mongo.log
+  <br>
+  <br>
+
+net:
+<br>
+  port: 23017
+  <br>
+  bindIp: 192.168.31.126
+  <br>
+  <br>
+
+security:
+<br>
+  authorization: enabled
+  <br>
+  keyFile: /home/rep/key.key
+  <br>
+  <br>
+
+replication:
+<br>
+  replSetName: replica
+  <br>
+  <br>

@@ -1,6 +1,7 @@
 package grp07;
 
 import java.sql.*;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -13,22 +14,22 @@ public class PreAlertSet {
     private static final String MYSQL_PASS = "";
 
     private final List<TimeParameterPair> susParams;  //esta lista tem os parametros INDIVIDUAIS
-    private Hashtable<Long, MySqlData.CultureParams> allParams;  //esta lista tem os parametros COMPOSTOS (ir buscar ao SQLSender)
+    private Hashtable<Long, List<MySqlData.CultureParams>> allParams;  //esta lista tem os parametros COMPOSTOS (ir buscar ao SQLSender)
     private boolean altered;
 
-    public PreAlertSet(Hashtable<Long, MySqlData.CultureParams> allParams) {
+    public PreAlertSet (Hashtable<Long, List<MySqlData.CultureParams>> allParams) {
         this.allParams = allParams;
         this.susParams = new ArrayList<>();
         this.altered = true;
     }
 
     //alterado por SQLSender
-    public void setAllParams(Hashtable<Long, MySqlData.CultureParams> allParams) {
+    public void setAllParams (Hashtable<Long, List<MySqlData.CultureParams>> allParams) {
         this.allParams = allParams;
     }
 
     //populado por cada Thread de sensor
-    public synchronized void addPreAlert(Timestamp insertion, MySqlData.CultureParams param, boolean isAlert) {
+    public synchronized void addPreAlert (Timestamp insertion, MySqlData.CultureParams param, boolean isAlert) {
         System.err.println("PreAlertSet: alerta adicionado!");
         deleteParamOcc(param);
         if (isAlert) {
@@ -40,7 +41,7 @@ public class PreAlertSet {
 
     //executado pelo supervisor
     public synchronized void analyse() throws InterruptedException {
-        while (!altered) {
+        while (! altered) {
             System.out.println("Supervisor vai dormir");
             wait();
         }
@@ -48,12 +49,14 @@ public class PreAlertSet {
         altered = false;
         deleteOldAlerts();
 
-        List<MySqlData.CultureParams> sus = susToParameterArray();
+        ArrayList<MySqlData.CultureParams> sus = (ArrayList<MySqlData.CultureParams>) susToParameterArray();
         for (Long id : allParams.keySet()) {
-            List<MySqlData.CultureParams> paramSet = List.copyOf(allParams.values());
+            List<MySqlData.CultureParams> paramSet = allParams.get(id);
             if (sus.containsAll(paramSet)) {
+                // TODO - enviar Alerta
+                String msg = "";
+                Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), msg);
 
-                Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), "wow mano, uma mensagem");
                 try {
                     Connection mysql = DriverManager.getConnection(MYSQL_URI, MYSQL_USER, MYSQL_PASS);
                     String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
@@ -71,14 +74,14 @@ public class PreAlertSet {
         }
     }
 
-    private void deleteParamOcc(MySqlData.CultureParams param) {
+    private void deleteParamOcc (MySqlData.CultureParams param) {
         susParams.removeIf(pair -> pair.getParam().isEqual(param));
     }
 
     // apagar registos com mais de 30 segundos
     private void deleteOldAlerts() {
         Timestamp curr = Timestamp.from(Instant.now());
-        curr.setTime(curr.getTime() + (30 * 1000));
+        curr.setTime(curr.getTime() + (30*1000));
         susParams.removeIf(pair -> pair.getTime().after(curr));
     }
 
@@ -90,60 +93,50 @@ public class PreAlertSet {
         return arr;
     }
 
-
 /*
     public static void main(String[] args) {
         MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
         u.setName("name");
         u.setRole(2);
-
         MySqlData.Zone z = new MySqlData.Zone(6);
         z.setTemperature(20);
         z.setHumidity(21);
         z.setLight(22);
-
         MySqlData.Culture c = new MySqlData.Culture(5L);
         c.setName("cultura");
         c.setZone(z);
         c.setManager(u);
         c.setState(true);
-
         MySqlData.CultureParams p1 = new MySqlData.CultureParams();
         p1.setSensorType("h");
         p1.setValMax(5);
         p1.setValMin(2);
         p1.setTolerance(1);
         p1.setCulture(c);
-
         MySqlData.CultureParams p11 = new MySqlData.CultureParams();
         p11.setSensorType("h");
         p11.setValMax(5);
         p11.setValMin(2);
         p11.setTolerance(15);
         p11.setCulture(c);
-
         MySqlData.CultureParams p2 = new MySqlData.CultureParams();
         p2.setSensorType("t");
         p2.setValMax(10);
         p2.setValMin(5);
         p2.setTolerance(15);
         p2.setCulture(c);
-
         MySqlData.CultureParams p3 = new MySqlData.CultureParams();
         p3.setSensorType("l");
         p3.setValMax(50);
         p3.setValMin(49);
         p3.setTolerance(15);
         p3.setCulture(c);
-
         List<MySqlData.CultureParams> list = new ArrayList<>();
         list.add(p1);
         list.add(p3);
-
         Hashtable<Long, List<MySqlData.CultureParams>> todosParams = new Hashtable<>();
         todosParams.put(1L, list);
-
         PreAlertSet pas = new PreAlertSet(todosParams);
         try {
             Thread.sleep(500);
@@ -155,7 +148,6 @@ public class PreAlertSet {
             System.out.println(p.getParam().getSensorType() + " " + p.getTime());
         }
         System.out.println("------------------------------");
-
         //pas.addPreAlert(Timestamp.from(Instant.now()), p2, true);
         try {
             Thread.sleep(500);
@@ -167,7 +159,6 @@ public class PreAlertSet {
             System.out.println(p.getParam().getSensorType() + " " + p.getTime());
         }
         System.out.println("------------------------------");
-
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
@@ -178,15 +169,11 @@ public class PreAlertSet {
             System.out.println(p.getParam().getSensorType() + " " + p.getTime());
         }
         System.out.println("------------------------------");
-
-
 //        try {
 //            Thread.sleep(35000);
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-
-
 //        try {
 //            pas.analyse();
 //        } catch (InterruptedException e) {
