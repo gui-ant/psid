@@ -1,16 +1,20 @@
 package grp07;
 
-import java.sql.Timestamp;
+import common.IniConfig;
+
+import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
 // CADA THREAD TEM UM PARAMANALYSER!!!
-public class ParamAnalyser {
+public class ParamAnalyser extends IniConfig {
+    private static final String MYSQL_USER = "root";
+    private static final String MYSQL_PASS = "";
+
     private final PreAlertSet preAlertCompiler;
-
-
     private List<MySqlData.CultureParams> paramList;  //lista de parametros INDIVIDUAIS de um dado sensor
     private final List<Measurement> measurements;
     private int maxTolerance;
@@ -19,6 +23,7 @@ public class ParamAnalyser {
     private final int numCycles = 3;
 
     public ParamAnalyser(PreAlertSet preAlertCompiler, ArrayList<MySqlData.CultureParams> paramList, long insertionRate) {
+        super("config.ini");
         this.preAlertCompiler = preAlertCompiler;
         this.paramList = paramList;
         this.measurements = new LinkedList<>();
@@ -55,11 +60,24 @@ public class ParamAnalyser {
 //        System.err.println("ParamAnalyser: dentro do isSuspect");
         //controlar subidas/descidas constantes em parametros sem tolerancia
         if (param.getTolerance() == 0) {
-            // TODO - ele lança ALERTA, ou passa o alerta para o PreAlertCompiler para ser logo enviado para o MySQL???
             Alert alert = zeroToleranceAnalyser(param);
             if (alert != null) {
+                try {
+                    Connection mysql = DriverManager.getConnection(getConfig("mysql","local_uri"), MYSQL_USER, MYSQL_PASS);
+                    String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
 
-                // ENVIAR ALERTA!!!
+                    PreparedStatement statement = mysql.prepareStatement(sql);
+                    statement.setLong(1, alert.getParameterSetId());
+                    statement.setTimestamp(2, alert.getCreatedAt());
+                    statement.setString(3, alert.getMsg());
+                    statement.execute();
+
+//                } catch (SQLException throwables) {
+//                    System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 15 min.");
+//                }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         int tolerance = param.getTolerance();
@@ -82,14 +100,24 @@ public class ParamAnalyser {
         boolean constantFall = constantFall(param);
         Alert alert = null;
         if (constantRise) {
-//            System.err.println("CONSTANT RISE!!!");
-            String msg = "Subida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas";
-            // alert = ...
+            Long id = GenerateAlertId.constantRiseAlertId(param);
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone() + ".");
+            sb.append(" O sensor " + param.getSensorType());
+            sb.append(" detetou uma subida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas");
+//            TODO - parameterSetId
+            alert = new Alert(0, id, Timestamp.from(Instant.now()), sb.toString());
         }
         if (constantFall) {
-//            System.err.println("CONSTANT FALL!!!");
-            String msg = "Descida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas";
-            // alert = ...
+            Long id = GenerateAlertId.constantFallAlertId(param);
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone() + ".");
+            sb.append(" O sensor " + param.getSensorType());
+            sb.append(" detetou uma descida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas");
+//            TODO - parameterSetId
+            alert = new Alert(0, id, Timestamp.from(Instant.now()), sb.toString());
         }
         return alert;
     }
@@ -150,7 +178,7 @@ public class ParamAnalyser {
         return paramList;
     }
 
-/*
+
     public static void main (String[] args) {
         MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
@@ -217,5 +245,5 @@ public class ParamAnalyser {
 
         pa.analyseParameters();
     }
-*/
+
 }

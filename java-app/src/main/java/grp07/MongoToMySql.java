@@ -1,17 +1,17 @@
 package grp07;
 
+import common.IniConfig;
 import common.MeasurementMySqlPublisher;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
+import java.sql.*;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class MongoToMySql {
+public class MongoToMySql extends IniConfig {
+    private static final String MYSQL_USER = "root";
+    private static final String MYSQL_PASS = "";
 
     private final Connection mysqlConn;
     private final MySqlData data;
@@ -22,6 +22,8 @@ public class MongoToMySql {
 
 
     public MongoToMySql(Connection mysqlConn, MySqlData data, long sleepTime) {
+
+        super("config.ini");
         this.mysqlConn = mysqlConn;
         this.data = data;
         this.sleepTime = sleepTime;
@@ -84,6 +86,10 @@ public class MongoToMySql {
 
                     Measurement measurement = buffer.take();
                     stats.incrementReadings();
+                    if (stats.getSensor() == "" || stats.getZone() == "") {
+                        stats.setSensor(measurement.getSensor());
+                        stats.setZone(measurement.getZone());
+                    }
 
                     if (!isValid(measurement)) {
                         publish(measurement);
@@ -178,7 +184,7 @@ public class MongoToMySql {
 
         //thread que analisa a percentagem de leituras errada, a cada hora
         private class ErrorSupervisor extends Thread {
-            private final ReadingStats stats;
+            private ReadingStats stats;
             private final double percentage;
 
             public ErrorSupervisor(ReadingStats stats, double percentage) {
@@ -200,6 +206,31 @@ public class MongoToMySql {
                         if (totalErrors / totalReadings >= percentage) {
                             // TODO - ENVIAR ALERTA!!!
 
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Atencao, ao sensor " + stats.getSensor() + " da zona " + stats.getZone() + "!");
+                            sb.append(" O sensor apresenta uma percentagem de erros superior a " + percentage * 100 + "%.");
+                            Long sensorId = 0L;
+
+                            // Percorre todos os sensores em memória e faz a correspondencia pelo nome, para obter o id
+                            for (Map.Entry<Long, MySqlData.Sensor> s : data.getSensors().entrySet()) {
+                                if (s.getValue().getName().equals(stats.getSensor()))
+                                    sensorId = s.getKey();
+                            }
+                            Alert alert = new Alert(-1, -1, sensorId, -1, Timestamp.from(Instant.now()), sb.toString());
+
+                            try {
+                                Connection mysql = DriverManager.getConnection(getConfig("mysql", "local_uri"), MYSQL_USER, MYSQL_PASS);
+                                String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
+
+                                PreparedStatement statement = mysql.prepareStatement(sql);
+                                statement.setLong(1, alert.getParameterSetId());
+                                statement.setTimestamp(2, alert.getCreatedAt());
+                                statement.setString(3, alert.getMsg());
+                                statement.execute();
+
+                            } catch (SQLException throwables) {
+                                System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 15 min.");
+                            }
                         }
                     }
                     stats.resetData();

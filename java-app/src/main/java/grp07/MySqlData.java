@@ -173,6 +173,7 @@ public final class MySqlData extends IniConfig {
                 Sensor s = new Sensor(res.getInt("id"));
                 Zone z = zones.get(res.getLong("z.id"));
 
+                s.setName(res.getString("name"));
                 s.setMinLim(res.getDouble("minlim"));
                 s.setMaxLim(res.getDouble("maxlim"));
                 s.setZone(z);
@@ -190,6 +191,7 @@ public final class MySqlData extends IniConfig {
         private Zone zone;
         private double minLim;
         private double maxLim;
+        private String name;
 
         public Sensor(int id) {
             this.id = id;
@@ -201,6 +203,10 @@ public final class MySqlData extends IniConfig {
 
         public void setZone(Zone zone) {
             this.zone = zone;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
 
         public int getId() {
@@ -223,6 +229,9 @@ public final class MySqlData extends IniConfig {
             this.maxLim = maxLim;
         }
 
+        public String getName() {
+            return this.name;
+        }
     }
 
     public static final class User {
