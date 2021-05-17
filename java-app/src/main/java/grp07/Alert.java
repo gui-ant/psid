@@ -22,7 +22,7 @@ public final class Alert {
         return sensor_id;
     }
 
-    public long getParam_id() {
+    public long getParamId() {
         return param_id;
     }
 
