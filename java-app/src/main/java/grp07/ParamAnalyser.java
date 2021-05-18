@@ -67,9 +67,9 @@ public class ParamAnalyser extends IniConfig {
                     String sql = "INSERT INTO alerts (param_id, created_at, message) VALUES (?, ?, ?)";
 
                     PreparedStatement statement = mysql.prepareStatement(sql);
-                    statement.setLong(3, alert.getParamId());
-                    statement.setTimestamp(4, alert.getCreatedAt());
-                    statement.setString(5, alert.getMsg());
+                    statement.setLong(1, alert.getParamId());
+                    statement.setTimestamp(2, alert.getCreatedAt());
+                    statement.setString(3, alert.getMsg());
                     statement.execute();
 
 //                } catch (SQLException throwables) {
@@ -102,10 +102,10 @@ public class ParamAnalyser extends IniConfig {
         if (constantRise) {
 
             StringBuilder sb = new StringBuilder();
-            sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone() + ".");
+            sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone().getId() + ".");
             sb.append(" O sensor " + param.getSensorType());
             sb.append(" detetou uma subida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas");
-//            TODO - parameterSetId
+
             alert = new Alert(0, 0, 0, param.getParamId(), Timestamp.from(Instant.now()), sb.toString());
         }
         if (constantFall) {
@@ -114,7 +114,7 @@ public class ParamAnalyser extends IniConfig {
             sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone() + ".");
             sb.append(" O sensor " + param.getSensorType());
             sb.append(" detetou uma descida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas");
-//            TODO - parameterSetId
+
             alert = new Alert(0, 0, 0, param.getParamId(), Timestamp.from(Instant.now()), sb.toString());
         }
         return alert;
@@ -176,7 +176,7 @@ public class ParamAnalyser extends IniConfig {
         return paramList;
     }
 
-
+/*
     public static void main (String[] args) {
         MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
@@ -243,5 +243,5 @@ public class ParamAnalyser extends IniConfig {
 
         pa.analyseParameters();
     }
-
+*/
 }

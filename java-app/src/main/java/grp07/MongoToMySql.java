@@ -153,7 +153,6 @@ public class MongoToMySql extends IniConfig {
         }*/
 
         // cria um analisador de parametros, com os parametros filtrados desta thread
-        // TODO - testar!!!
         private ParamAnalyser createAnalyser(MySqlData data, long rate) {
             ArrayList<MySqlData.CultureParams> list = new ArrayList<>();
             Measurement mea = buffer.peek();
@@ -205,7 +204,6 @@ public class MongoToMySql extends IniConfig {
                     double totalErrors = stats.getTotalErrors();
                     if (totalReadings != 0) {
                         if (totalErrors / totalReadings >= percentage) {
-                            // TODO - ENVIAR ALERTA!!!
 
                             StringBuilder sb = new StringBuilder();
                             sb.append("Atencao, ao sensor " + sensor.getId() + " da zona " + sensor.getZone().getId() + "!");
@@ -218,9 +216,9 @@ public class MongoToMySql extends IniConfig {
                                 String sql = "INSERT INTO alerts (sensor_id, created_at, message) VALUES (?, ?, ?)";
 
                                 PreparedStatement statement = mysql.prepareStatement(sql);
-                                statement.setLong(2, alert.getSensorId());
-                                statement.setTimestamp(4, alert.getCreatedAt());
-                                statement.setString(5, alert.getMsg());
+                                statement.setLong(1, alert.getSensorId());
+                                statement.setTimestamp(2, alert.getCreatedAt());
+                                statement.setString(3, alert.getMsg());
                                 statement.execute();
 
                             } catch (SQLException throwables) {

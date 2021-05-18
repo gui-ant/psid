@@ -65,8 +65,8 @@ public class PreAlertSet extends IniConfig {
 
                     PreparedStatement statement = mysql.prepareStatement(sql);
                     statement.setLong(1, alert.getParameterSetId());
-                    statement.setTimestamp(4, alert.getCreatedAt());
-                    statement.setString(5, alert.getMsg());
+                    statement.setTimestamp(2, alert.getCreatedAt());
+                    statement.setString(3, alert.getMsg());
                     statement.execute();
 
                 } catch (SQLException throwables) {
