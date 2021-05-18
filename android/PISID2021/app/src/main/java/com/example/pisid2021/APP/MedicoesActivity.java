@@ -25,11 +25,16 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import android.os.Handler;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 public class MedicoesActivity extends AppCompatActivity {
 
@@ -37,8 +42,10 @@ public class MedicoesActivity extends AppCompatActivity {
     private static final String PORT = UserLogin.getInstance().getPort();
     private static final String username= UserLogin.getInstance().getUsername();
     private static final String password = UserLogin.getInstance().getPassword();
-
-    String getMedicoes = "http://" + IP + ":" + PORT + "/psid/android/scripts/getMedicoesTemperatura.php";
+    private static String selectedZone = "-1";
+    private static Spinner zoneSpinner;
+    private static ArrayAdapter<String> spinnerAdapter;
+    String getMedicoes = "http://" + IP + ":" + PORT + "/scripts/getMedicoesTemperatura.php";
     DatabaseHandler db = new DatabaseHandler(this);
 
     Handler h = new Handler();
@@ -49,6 +56,28 @@ public class MedicoesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_medicoes);
+        zoneSpinner = findViewById(R.id.spinner1);
+        List<String> zonesList = new ArrayList<>();
+        zonesList.add("Waiting for data...");
+
+        spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, zonesList);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        zoneSpinner.setAdapter(spinnerAdapter);
+        spinnerAdapter.notifyDataSetChanged();
+
+        zoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(parent.getItemAtPosition(position).toString().contains("Zona"))
+                    selectedZone = parent.getItemAtPosition(position).toString().split(" ")[1];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         updateMedicoes();
@@ -86,16 +115,42 @@ public class MedicoesActivity extends AppCompatActivity {
         HashMap<String, String> params = new HashMap<>();
         params.put("username", username);
         params.put("password", password);
+        params.put("selectedZone", selectedZone);
         ConnectionHandler jParser = new ConnectionHandler();
         JSONArray medicoes = jParser.getJSONFromUrl(getMedicoes, params);
         try {
             if (medicoes != null){
+
+                JSONObject c = medicoes.getJSONObject(0);
+
+
+                // Código responsável por atualizar a lista com as zonas disponíveis, só atualiza até que seja selecionada uma das zonas disponíveis.
+                if(selectedZone == "-1" || selectedZone == "Waiting for data...") {
+
+                    JSONArray zones = c.getJSONArray("zonas");
+
+                    ArrayList<String> zoneslist = new ArrayList<String>();
+
+                    if (zones != null) {
+                        int len = zones.length();
+                        for (int i = 0; i < len; i++) {
+                            zoneslist.add("Zona "+zones.get(i).toString());
+                        }
+                    }
+
+                    spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, zoneslist);
+                    zoneSpinner.setAdapter(spinnerAdapter);
+                    spinnerAdapter.notifyDataSetChanged();
+                }
+
                 for (int i=0;i< medicoes.length();i++){
-                    JSONObject c = medicoes.getJSONObject(i);
-                    String hora = c.getString("Hora");
+                    c = medicoes.getJSONObject(i);
+                    String hora = c.getString("date");
+                    System.out.println("Hora a inserir: " + hora);
                     double leitura;
                     try {
-                        leitura = c.getDouble("Leitura");
+                        leitura = c.getDouble("value");
+                        System.out.println("Valor a inserir: "+leitura);
                     } catch (Exception e) {
                         leitura = -1000.0;
                     }
@@ -120,8 +175,8 @@ public class MedicoesActivity extends AppCompatActivity {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while (cursorTemperatura.moveToNext()){
-            String hora =  cursorTemperatura.getString(cursorTemperatura.getColumnIndex("Hora"));
-            Integer valorMedicao = cursorTemperatura.getInt(cursorTemperatura.getColumnIndex("Leitura"));
+            String hora =  cursorTemperatura.getString(cursorTemperatura.getColumnIndex("date"));
+            Integer valorMedicao = cursorTemperatura.getInt(cursorTemperatura.getColumnIndex("value"));
             try {
                 Date date = format.parse(hora);
                 long pointLong = date.getTime();
@@ -139,7 +194,16 @@ public class MedicoesActivity extends AppCompatActivity {
         graphTemperatura.getViewport().setMinX(0);
         graphTemperatura.getViewport().setMaxX(300);
         LineGraphSeries<DataPoint> seriesTemperatura = new LineGraphSeries<>(datapointsTemperatura);
+
         seriesTemperatura.setColor(Color.RED);
+        if(selectedZone != "-1"){
+            if(Integer.parseInt(selectedZone)%2==0){
+                seriesTemperatura.setColor(Color.RED);
+            }else{
+                seriesTemperatura.setColor(Color.BLUE);
+            }
+        }
+
         seriesTemperatura.setTitle("Temperatura");
         StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graphTemperatura);
         staticLabelsFormatter.setHorizontalLabels(new String[] {"300"," 250", "200", "150", "100", "50", "0"});
