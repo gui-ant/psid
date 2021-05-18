@@ -55,7 +55,7 @@ public class PreAlertSet extends IniConfig {
         for (Long id : allParams.keySet()) {
             List<MySqlData.CultureParams> paramSet = allParams.get(id);
             if (sus.containsAll(paramSet)) {
-                // TODO - enviar Alerta
+
                 String msg = buildAlertMessage(paramSet);
                 Alert alert = new Alert(0, id, 0, 0, Timestamp.from(Instant.now()), msg);
 
