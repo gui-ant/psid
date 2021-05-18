@@ -57,7 +57,7 @@ public class PreAlertSet extends IniConfig {
             if (sus.containsAll(paramSet)) {
                 // TODO - enviar Alerta
                 String msg = buildAlertMessage(paramSet);
-                Alert alert = new Alert(0, id, Timestamp.from(Instant.now()), msg);
+                Alert alert = new Alert(0, id, 0, 0, Timestamp.from(Instant.now()), msg);
 
                 try {
                     Connection mysql = DriverManager.getConnection(getConfig("mysql","cloud_uri"), MYSQL_USER, MYSQL_PASS);
@@ -65,8 +65,8 @@ public class PreAlertSet extends IniConfig {
 
                     PreparedStatement statement = mysql.prepareStatement(sql);
                     statement.setLong(1, alert.getParameterSetId());
-                    statement.setTimestamp(2, alert.getCreatedAt());
-                    statement.setString(3, alert.getMsg());
+                    statement.setTimestamp(4, alert.getCreatedAt());
+                    statement.setString(5, alert.getMsg());
                     statement.execute();
 
                 } catch (SQLException throwables) {

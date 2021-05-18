@@ -108,6 +108,7 @@ public final class MySqlData extends IniConfig {
                             cultureParamsSets.put(res.getLong("set_id"), new ArrayList<>());
 
                         CultureParams p = new CultureParams();
+                        p.setParamId((long) res.getInt("param_id"));
                         p.setSensorType(res.getString("sensor_type"));
                         p.setValMax(res.getDouble("valmax"));
                         p.setValMin(res.getDouble("valmin"));
@@ -173,6 +174,7 @@ public final class MySqlData extends IniConfig {
                 Sensor s = new Sensor(res.getInt("id"));
                 Zone z = zones.get(res.getLong("z.id"));
 
+                s.setSensorName(res.getString("name"));
                 s.setMinLim(res.getDouble("minlim"));
                 s.setMaxLim(res.getDouble("maxlim"));
                 s.setZone(z);
@@ -188,11 +190,20 @@ public final class MySqlData extends IniConfig {
     public static final class Sensor {
         private final int id;
         private Zone zone;
+        private String sensorName;
         private double minLim;
         private double maxLim;
 
         public Sensor(int id) {
             this.id = id;
+        }
+
+        public String getSensorName() {
+            return sensorName;
+        }
+
+        public void setSensorName(String name) {
+            this.sensorName = name;
         }
 
         public Zone getZone() {
@@ -321,6 +332,7 @@ public final class MySqlData extends IniConfig {
     }
 
     public static final class CultureParams {
+        private Long paramId;
         private String sensorType;
         private double valMax;
         private double valMin;
@@ -334,6 +346,14 @@ public final class MySqlData extends IniConfig {
 
         public Long getSetId() {
             return this.setId;
+        }
+
+        public void setParamId(Long paramId) {
+            this.paramId = paramId;
+        }
+
+        public Long getParamId() {
+            return paramId;
         }
 
         public CultureParams() {
@@ -481,6 +501,7 @@ public final class MySqlData extends IniConfig {
         for (Long k : sensors.keySet()) {
             Sensor s = sensors.get(k);
             System.err.println("sensor: id " + s.getId());
+            System.err.println("sensor: name " + s.getSensorName());
             System.err.println("sensor: zone " + s.getZone().getId());
             System.err.println("sensor: min " + s.getMinLim());
             System.err.println("sensor: max " + s.getMaxLim());
@@ -504,6 +525,7 @@ public final class MySqlData extends IniConfig {
     private void testCultureParams() {
         for (Long k : cultureParams.keySet()) {
             CultureParams p = cultureParams.get(k);
+            System.err.println("Parametro: id - " + p.getParamId());
             System.err.println("Parametro: tipo - " + p.getSensorType());
             System.err.println("Parametro: max - " + p.getValMax());
             System.err.println("Parametro: min - " + p.getValMin());
