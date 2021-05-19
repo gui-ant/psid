@@ -5,7 +5,6 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import common.IniConfig;
 import common.MigrationMethod;
-import grp02.MongoToBroker;
 import org.bson.types.ObjectId;
 
 import java.sql.Connection;
@@ -49,7 +48,7 @@ public class ClusterToMySQL extends IniConfig {
                 }
                 break;
             case MQTT:
-                new MongoToBroker(iniFile);
+                new grp02.MongoToBroker(iniFile);
                 new grp02.ConnectionSQL(iniFile);
                 break;
         }

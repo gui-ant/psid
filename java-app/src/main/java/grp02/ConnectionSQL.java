@@ -126,15 +126,15 @@ public class ConnectionSQL extends IniConfig {
             System.out.println("To insert: " + measurement);
             try {
                 String id = measurement.getId().toString();
-                Zone zone = this.data.getZones().get(measurement.getZone());
-                Sensor sensor = this.data.getSensors().get(measurement.getSensor());
+                Zone zone = this.data.getZones().get(measurement.getZoneId());
+                Sensor sensor = this.data.getSensors().get(measurement.getSensorId());
                 String value = measurement.getValue();
                 //Timestamp date = measurement.getTimestamp();
                 Timestamp date = new Timestamp(System.currentTimeMillis());
 
 
                 //enviar para SQL
-                String sql = "INSERT INTO measurements (id, value, sensor_id, zone_id, date, isCorrect) VALUES (?, ?, ?, ?, ?, ?)";
+                String sql = "INSERT INTO measurements (id, value, sensor_id, zone_id, date, is_correct) VALUES (?, ?, ?, ?, ?, ?)";
                 PreparedStatement statement = connection.prepareStatement(sql);
                 statement.setString(1, id);
                 statement.setString(2, value);
