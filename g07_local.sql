@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.0.1
+-- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 19, 2021 at 09:36 PM
--- Server version: 10.4.6-MariaDB
--- PHP Version: 7.3.9
+-- Tempo de geração: 19-Maio-2021 às 23:56
+-- Versão do servidor: 10.4.18-MariaDB
+-- versão do PHP: 7.4.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -19,14 +18,14 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `g07_local`
+-- Banco de dados: `g07_local`
 --
 CREATE DATABASE IF NOT EXISTS `g07_local` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `g07_local`;
 
 DELIMITER $$
 --
--- Procedures
+-- Procedimentos
 --
 DROP PROCEDURE IF EXISTS `spAddUserToCulture`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUserToCulture` (IN `p_culture_id` INT(11), IN `p_user_id` INT(11))  NO SQL
@@ -300,7 +299,7 @@ UPDATE users u SET u.username=p_name WHERE u.id=user_id;
 END$$
 
 --
--- Functions
+-- Funções
 --
 DROP FUNCTION IF EXISTS `checkPrevAlert`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `checkPrevAlert` (`p_rule_set_id` INT, `p_mins` INT, `p_senor_id` INT, `p_pmara_id` INT) RETURNS TINYINT(1) RETURN EXISTS ( 
@@ -376,7 +375,7 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `alerts`
+-- Estrutura da tabela `alerts`
 --
 
 DROP TABLE IF EXISTS `alerts`;
@@ -391,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `alerts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Triggers `alerts`
+-- Acionadores `alerts`
 --
 DROP TRIGGER IF EXISTS `existsPrevAlert`;
 DELIMITER $$
@@ -404,7 +403,7 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cultures`
+-- Estrutura da tabela `cultures`
 --
 
 DROP TABLE IF EXISTS `cultures`;
@@ -422,7 +421,7 @@ CREATE TABLE IF NOT EXISTS `cultures` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `culture_params`
+-- Estrutura da tabela `culture_params`
 --
 
 DROP TABLE IF EXISTS `culture_params`;
@@ -438,7 +437,7 @@ CREATE TABLE IF NOT EXISTS `culture_params` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `culture_params_sets`
+-- Estrutura da tabela `culture_params_sets`
 --
 
 DROP TABLE IF EXISTS `culture_params_sets`;
@@ -452,7 +451,7 @@ CREATE TABLE IF NOT EXISTS `culture_params_sets` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `culture_users`
+-- Estrutura da tabela `culture_users`
 --
 
 DROP TABLE IF EXISTS `culture_users`;
@@ -467,7 +466,7 @@ CREATE TABLE IF NOT EXISTS `culture_users` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `measurements`
+-- Estrutura da tabela `measurements`
 --
 
 DROP TABLE IF EXISTS `measurements`;
@@ -486,7 +485,7 @@ CREATE TABLE IF NOT EXISTS `measurements` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `rel_culture_params_set`
+-- Estrutura da tabela `rel_culture_params_set`
 --
 
 DROP TABLE IF EXISTS `rel_culture_params_set`;
@@ -500,7 +499,7 @@ CREATE TABLE IF NOT EXISTS `rel_culture_params_set` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Estrutura da tabela `users`
 --
 
 DROP TABLE IF EXISTS `users`;
@@ -513,30 +512,30 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Constraints for dumped tables
+-- Restrições para despejos de tabelas
 --
 
 --
--- Constraints for table `cultures`
+-- Limitadores para a tabela `cultures`
 --
 ALTER TABLE `cultures`
   ADD CONSTRAINT `culture_manager` FOREIGN KEY (`manager_id`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `culture_params_sets`
+-- Limitadores para a tabela `culture_params_sets`
 --
 ALTER TABLE `culture_params_sets`
   ADD CONSTRAINT `culture_params_sets_ibfk_1` FOREIGN KEY (`culture_id`) REFERENCES `cultures` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `culture_users`
+-- Limitadores para a tabela `culture_users`
 --
 ALTER TABLE `culture_users`
   ADD CONSTRAINT `culture` FOREIGN KEY (`culture_id`) REFERENCES `cultures` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `culture_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `rel_culture_params_set`
+-- Limitadores para a tabela `rel_culture_params_set`
 --
 ALTER TABLE `rel_culture_params_set`
   ADD CONSTRAINT `rel_culture_params_set_ibfk_1` FOREIGN KEY (`culture_param_id`) REFERENCES `culture_params` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -544,9 +543,9 @@ ALTER TABLE `rel_culture_params_set`
 
 DELIMITER $$
 --
--- Events
+-- Eventos
 --
-DROP EVENT `LimpezaDados`$$
+DROP EVENT IF EXISTS `LimpezaDados`$$
 CREATE DEFINER=`root`@`localhost` EVENT `LimpezaDados` ON SCHEDULE EVERY 1 DAY STARTS '2021-05-03 22:54:35' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
 END$$
 
