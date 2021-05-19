@@ -21,6 +21,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MongoToBroker extends IniConfig {
 
+    private HashMap<String, LinkedBlockingQueue<Measurement>> buffer;
+
     public MongoToBroker(String iniFile) {
         super(iniFile);
         String mongoLocalUri = getConfig("mongo", "local_uri");
@@ -92,7 +94,7 @@ public class MongoToBroker extends IniConfig {
             private final MqttClient client;
             private final String topic;
             private final int qos;
-            private final LinkedBlockingQueue<Measurement> buffer;
+            private LinkedBlockingQueue<Measurement> buffer;
 
             public ToBroker(MqttClient client, String topic, int qos, LinkedBlockingQueue<Measurement> buffer) {
                 this.client = client;
@@ -152,22 +154,28 @@ public class MongoToBroker extends IniConfig {
             @Override
             public void run() {
 
-                Measurement doc = getLastObject(collection);
-
+                Measurement doc = getLastObject(this.collection);
+                ObjectId lastId = null;
                 // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
-                ObjectId lastId = doc.getId();
                 while (true) {
                     try {
-                        System.out.println("Fetching " + getCollectionName(collection) + "...");
-
-                        MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
-
-                        // Le os novos dados e adiciona-os ao buffer
-                        while (cursor.hasNext()) {
-                            doc = cursor.next();
+                        try {
                             lastId = doc.getId();
-                            buffer.offer(doc);
-                            System.out.println("Fetched:\t" + doc);
+                        } catch (Exception e) {
+                            System.err.println("Não foi encontrado nenhum documento.");
+                        }
+                        if (lastId != null) {
+                            System.out.println("Fetching " + getCollectionName(collection) + "...");
+
+                            MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
+
+                            // Le os novos dados e adiciona-os ao buffer
+                            while (cursor.hasNext()) {
+                                doc = cursor.next();
+                                lastId = doc.getId();
+                                buffer.offer(doc);
+                                System.out.println("Fetched:\t" + doc);
+                            }
                         }
                         sleep(SLEEP_TIME);
                     } catch (InterruptedException e) {

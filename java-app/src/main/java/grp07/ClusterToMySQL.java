@@ -16,7 +16,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClusterToMySQL extends IniConfig {
 
-        HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
+    HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
+
     public ClusterToMySQL(String iniFile) {
         super(iniFile);
 
@@ -40,7 +41,7 @@ public class ClusterToMySQL extends IniConfig {
                 try {
 
                     Connection mysqlConn = DriverManager.getConnection(mysqlLocalUri, "root", "");
-                    MongoToMySql mtm =  new MongoToMySql(mysqlConn, new MySqlData(iniFile), sleepTime);
+                    MongoToMySql mtm = new MongoToMySql(mysqlConn, new MySqlData(iniFile), sleepTime);
                     mtm.serveSQL(this.buffer);
 
                 } catch (SQLException throwables) {
@@ -48,7 +49,7 @@ public class ClusterToMySQL extends IniConfig {
                 }
                 break;
             case MQTT:
-                MongoToBroker mtb = new MongoToBroker(iniFile);
+                new MongoToBroker(iniFile);
                 new grp02.ConnectionSQL(iniFile);
                 break;
         }

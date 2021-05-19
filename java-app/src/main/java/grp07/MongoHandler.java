@@ -20,7 +20,6 @@ public abstract class MongoHandler<T> extends MongoConnector {
     }
 
     protected T getLastObject(MongoCollection<T> collection) {
-        System.out.println(collection.find().sort(new Document("_id", -1)).limit(1));
         return collection.find().sort(new Document("_id", -1)).limit(1).first();
     }
 
