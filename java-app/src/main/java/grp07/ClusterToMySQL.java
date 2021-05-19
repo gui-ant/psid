@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import common.IniConfig;
 import common.MigrationMethod;
+import grp02.MongoToBroker;
 import org.bson.types.ObjectId;
 
 import java.sql.Connection;
@@ -16,7 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ClusterToMySQL extends IniConfig {
 
         HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
-    public ClusterToMySQL(MigrationMethod method, String iniFile) {
+    public ClusterToMySQL(String iniFile) {
         super(iniFile);
 
         String mongoLocalUri = getConfig("mongo", "local_uri");
@@ -26,10 +27,12 @@ public class ClusterToMySQL extends IniConfig {
         String mysqlLocalUri = getConfig("mysql", "local_uri");
 
         long sleepTime = Long.valueOf(getConfig("cluster_to_mysql", "sleep_time"));
+        MigrationMethod method = MigrationMethod.getByValue(getConfig("cluster_to_mysql", "method"));
 
         for (String collection : collectionNames)
             buffer.put(collection, new LinkedBlockingQueue<>());
 
+        System.out.println(method);
         switch (method) {
             case DIRECT:
                 MeasurementMongoFetcher m = new MeasurementMongoFetcher(mongoLocalUri, mongoLocalDb, sleepTime);
@@ -43,17 +46,16 @@ public class ClusterToMySQL extends IniConfig {
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
-
+                break;
             case MQTT:
-                new grp02.MongoToBroker(iniFile);
+                MongoToBroker mtb = new MongoToBroker(iniFile);
                 new grp02.ConnectionSQL(iniFile);
+                break;
         }
     }
 
     public static void main(String[] args) {
-        //MigrationMethod method = MigrationMethod.getByValue(args[0]);
-        MigrationMethod method = MigrationMethod.DIRECT;
-        new ClusterToMySQL(method, "config.ini");
+        new ClusterToMySQL("config.ini");
     }
 
     private static class MeasurementMongoFetcher extends MongoHandler<Measurement> {

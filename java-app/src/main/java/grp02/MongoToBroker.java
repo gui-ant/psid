@@ -21,8 +21,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MongoToBroker extends IniConfig {
 
-    private final HashMap<String, LinkedBlockingQueue<Measurement>> buffer;
-
     public MongoToBroker(String iniFile) {
         super(iniFile);
         String mongoLocalUri = getConfig("mongo", "local_uri");
@@ -66,6 +64,7 @@ public class MongoToBroker extends IniConfig {
 
             try {
                 return objectMapper.readValue(message, Measurement.class);
+
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -82,10 +81,9 @@ public class MongoToBroker extends IniConfig {
         }
 
 
-        public void
-        startPublishing(HashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
+        public void startPublishing(HashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
             sourceBuffer.forEach(
-                    (collectionName, buffer) -> new ToBroker(getClient(), this.getTopic(), getQos(), buffer).start()
+                    (collectionName, buffer) -> new ToBroker(getClient(), getTopic(), getQos(), buffer).start()
             );
         }
 
@@ -106,16 +104,13 @@ public class MongoToBroker extends IniConfig {
             @Override
             public void run() {
 
-                try {
-                    while (true) {
-
+                while (true) {
+                    try {
                         Measurement obj = buffer.take();
                         publish(topic, obj);
-
+                    } catch (InterruptedException | MqttException e) {
+                        e.printStackTrace();
                     }
-
-                } catch (InterruptedException | MqttException e) {
-                    e.printStackTrace();
                 }
             }
 
@@ -138,9 +133,9 @@ public class MongoToBroker extends IniConfig {
 
         @Override
         protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
-            new Thread(() -> collectionsDataBuffer.forEach((collection, buffer) ->
-                    new MeasureFetcher(getCollection(collection, Measurement.class), buffer)
-            )).start();
+            collectionsDataBuffer.forEach((collection, buffer) ->
+                    new MeasureFetcher(getCollection(collection, Measurement.class), buffer).start()
+            );
         }
 
         class MeasureFetcher extends Thread {

@@ -96,6 +96,10 @@ public final class Measurement {
         return this.toString().getBytes(UTF_8);
     }
 
+    @BsonIgnore
+    public Double getRoundValue() {
+        return Double.parseDouble(this.value);
+    }
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -118,16 +122,12 @@ public final class Measurement {
 
     @Override
     public String toString() {
-        return "Medicao{" +
+        return "Measurement{" +
                 "_id=" + this.id +
-                ", Zona='" + this.zone + "'" +
+                ", Zone='" + this.zone + "'" +
                 ", Sensor='" + this.sensor + "'" +
-                ", Data='" + this.date + "'" +
-                ", Medicao='" + this.value + "'" +
+                ", Date='" + this.date + "'" +
+                ", Value='" + this.value + "'" +
                 '}';
-    }
-
-    public Double getRoundValue() {
-        return Double.parseDouble(this.value);
     }
 }

@@ -25,11 +25,11 @@ public class MongoToMySql extends IniConfig {
     private final PreAlertSet preAlertSet;
 
 
-    public MongoToMySql(Connection mysqlConn, MySqlData data, long sleepTimeSeconds) {
+    public MongoToMySql(Connection mysqlConn, MySqlData data, long sleepTime) {
         super("config.ini");
         this.mysqlConn = mysqlConn;
         this.data = data;
-        this.sleepTime = (sleepTimeSeconds * 1000);
+        this.sleepTime = sleepTime;
         this.sensor = null;
 
         // criar PreAlertSet e Supervisor
