@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.0
+-- version 4.9.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 08-Maio-2021 às 00:43
--- Versão do servidor: 10.4.18-MariaDB
--- versão do PHP: 7.4.16
+-- Generation Time: May 19, 2021 at 09:36 PM
+-- Server version: 10.4.6-MariaDB
+-- PHP Version: 7.3.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -18,14 +19,14 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `g07_local`
+-- Database: `g07_local`
 --
 CREATE DATABASE IF NOT EXISTS `g07_local` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `g07_local`;
 
 DELIMITER $$
 --
--- Procedimentos
+-- Procedures
 --
 DROP PROCEDURE IF EXISTS `spAddUserToCulture`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spAddUserToCulture` (IN `p_culture_id` INT(11), IN `p_user_id` INT(11))  NO SQL
@@ -133,34 +134,6 @@ IF isManager(@culture_id) THEN
 	
 END IF;
 
-END$$
-
-DROP PROCEDURE IF EXISTS `spDeleteUser`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spDeleteUser`(IN `p_user_id` INT(10))
-    NO SQL
-BEGIN
-SET @user_email := '';
-
-SELECT u.email INTO @user_email FROM users u WHERE u.id=p_user_id;
-
-SET @user_concat:=CONCAT("'",@user_email ,"'@'%'");
-SET @qry:=CONCAT("DROP USER ", @user_concat);
-PREPARE stmt FROM @qry;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-DELETE from users WHERE id = p_user_id;
-
-END$$
-
-DROP PROCEDURE IF EXISTS `spGetUsersByRole`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spGetUsersByRole`(IN `p_role` ENUM('admin','researcher','technician') CHARSET latin1)
-
-BEGIN
-SET @role := CONCAT("'group_", p_role, "'");
-SET @qry := CONCAT("select user from mysql.roles_mapping
-where role=" , @role, " AND user<>'root'");
-PREPARE stmt FROM @qry; EXECUTE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `spCreateUser`$$
@@ -327,15 +300,16 @@ UPDATE users u SET u.username=p_name WHERE u.id=user_id;
 END$$
 
 --
--- Funções
+-- Functions
 --
 DROP FUNCTION IF EXISTS `checkPrevAlert`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `checkPrevAlert` (`p_rule_set_id` INT, `p_mins` INT) RETURNS TINYINT(1) RETURN EXISTS ( 
+CREATE DEFINER=`root`@`localhost` FUNCTION `checkPrevAlert` (`p_rule_set_id` INT, `p_mins` INT, `p_senor_id` INT, `p_pmara_id` INT) RETURNS TINYINT(1) RETURN EXISTS ( 
 SELECT * 
 FROM alerts 
-WHERE parameter_set_id = p_rule_set_id 
-AND
-created_at >= NOW()- INTERVAL p_mins MINUTE 
+WHERE sensor_id = p_sensor_id
+  AND parameter_set_id = p_rule_set_id
+  AND param_id = p_param_id
+  AND created_at >= NOW() - INTERVAL p_mins MINUTE
 )$$
 
 DROP FUNCTION IF EXISTS `getUserInfo`$$
@@ -402,19 +376,22 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `alerts`
+-- Table structure for table `alerts`
 --
 
 DROP TABLE IF EXISTS `alerts`;
-CREATE TABLE `alerts` (
-  `id` int(11) NOT NULL,
-  `parameter_set_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `alerts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parameter_set_id` int(11) DEFAULT NULL COMMENT 'id do set de parametros: utilizado por alerta de parametrizacao de cultura',
+  `sensor_id` int(11) DEFAULT NULL COMMENT 'id do sensor. utilizar por alerta de manutencao',
+  `param_id` int(11) DEFAULT NULL COMMENT 'id do parametro simples. utilizado por alerta de previsao',
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `message` varchar(150) NOT NULL
+  `message` varchar(300) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Acionadores `alerts`
+-- Triggers `alerts`
 --
 DROP TRIGGER IF EXISTS `existsPrevAlert`;
 DELIMITER $$
@@ -427,225 +404,139 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `cultures`
+-- Table structure for table `cultures`
 --
 
 DROP TABLE IF EXISTS `cultures`;
-CREATE TABLE `cultures` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `cultures` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `zone_id` int(11) NOT NULL,
   `manager_id` int(1) NOT NULL,
-  `state` tinyint(1) NOT NULL
+  `state` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `culture_zone` (`zone_id`),
+  KEY `culture_manager` (`manager_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `culture_params`
+-- Table structure for table `culture_params`
 --
 
 DROP TABLE IF EXISTS `culture_params`;
-CREATE TABLE `culture_params` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `culture_params` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `sensor_type` varchar(1) NOT NULL,
   `valmax` double(5,2) NOT NULL,
   `valmin` double(5,2) NOT NULL,
-  `tolerance` double(5,2) NOT NULL
+  `tolerance` double(5,2) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `culture_params_sets`
+-- Table structure for table `culture_params_sets`
 --
 
 DROP TABLE IF EXISTS `culture_params_sets`;
-CREATE TABLE `culture_params_sets` (
-  `id` int(11) NOT NULL,
-  `culture_id` int(11) NOT NULL
+CREATE TABLE IF NOT EXISTS `culture_params_sets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `culture_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `culture_id` (`culture_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `culture_users`
+-- Table structure for table `culture_users`
 --
 
 DROP TABLE IF EXISTS `culture_users`;
-CREATE TABLE `culture_users` (
+CREATE TABLE IF NOT EXISTS `culture_users` (
   `culture_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`culture_id`,`user_id`),
+  KEY `culture` (`culture_id`),
+  KEY `culture_users_ibfk_1` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `measurements`
+-- Table structure for table `measurements`
 --
 
 DROP TABLE IF EXISTS `measurements`;
-CREATE TABLE `measurements` (
+CREATE TABLE IF NOT EXISTS `measurements` (
   `id` varchar(32) NOT NULL,
   `value` double DEFAULT NULL,
   `sensor_id` int(11) NOT NULL,
   `zone_id` int(11) NOT NULL,
   `date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `is_correct` tinyint(1) NOT NULL
+  `is_correct` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sensure_measure` (`sensor_id`),
+  KEY `sensor_zone` (`zone_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `rel_culture_params_set`
+-- Table structure for table `rel_culture_params_set`
 --
 
 DROP TABLE IF EXISTS `rel_culture_params_set`;
-CREATE TABLE `rel_culture_params_set` (
+CREATE TABLE IF NOT EXISTS `rel_culture_params_set` (
   `set_id` int(11) NOT NULL,
-  `culture_param_id` int(11) NOT NULL
+  `culture_param_id` int(11) NOT NULL,
+  PRIMARY KEY (`set_id`,`culture_param_id`),
+  KEY `culture_param_id` (`culture_param_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `users`
+-- Table structure for table `users`
 --
 
 DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
-  `email` varchar(64) NOT NULL
+  `email` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Índices para tabelas despejadas
+-- Constraints for dumped tables
 --
 
 --
--- Índices para tabela `alerts`
---
-ALTER TABLE `alerts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `parameter_alert` (`parameter_set_id`);
-
---
--- Índices para tabela `cultures`
---
-ALTER TABLE `cultures`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `culture_zone` (`zone_id`),
-  ADD KEY `culture_manager` (`manager_id`);
-
---
--- Índices para tabela `culture_params`
---
-ALTER TABLE `culture_params`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices para tabela `culture_params_sets`
---
-ALTER TABLE `culture_params_sets`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `culture_id` (`culture_id`);
-
---
--- Índices para tabela `culture_users`
---
-ALTER TABLE `culture_users`
-  ADD PRIMARY KEY (`culture_id`,`user_id`),
-  ADD KEY `culture` (`culture_id`),
-  ADD KEY `culture_users_ibfk_1` (`user_id`);
-
---
--- Índices para tabela `measurements`
---
-ALTER TABLE `measurements`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sensure_measure` (`sensor_id`),
-  ADD KEY `sensor_zone` (`zone_id`);
-
---
--- Índices para tabela `rel_culture_params_set`
---
-ALTER TABLE `rel_culture_params_set`
-  ADD PRIMARY KEY (`set_id`,`culture_param_id`),
-  ADD KEY `culture_param_id` (`culture_param_id`);
-
---
--- Índices para tabela `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- AUTO_INCREMENT de tabelas despejadas
---
-
---
--- AUTO_INCREMENT de tabela `alerts`
---
-ALTER TABLE `alerts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `cultures`
---
-ALTER TABLE `cultures`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `culture_params`
---
-ALTER TABLE `culture_params`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `culture_params_sets`
---
-ALTER TABLE `culture_params_sets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- Restrições para despejos de tabelas
---
-
---
--- Limitadores para a tabela `alerts`
---
-ALTER TABLE `alerts`
-  ADD CONSTRAINT `parameter_alert` FOREIGN KEY (`parameter_set_id`) REFERENCES `culture_params_sets` (`id`);
-
---
--- Limitadores para a tabela `cultures`
+-- Constraints for table `cultures`
 --
 ALTER TABLE `cultures`
   ADD CONSTRAINT `culture_manager` FOREIGN KEY (`manager_id`) REFERENCES `users` (`id`);
 
 --
--- Limitadores para a tabela `culture_params_sets`
+-- Constraints for table `culture_params_sets`
 --
 ALTER TABLE `culture_params_sets`
   ADD CONSTRAINT `culture_params_sets_ibfk_1` FOREIGN KEY (`culture_id`) REFERENCES `cultures` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limitadores para a tabela `culture_users`
+-- Constraints for table `culture_users`
 --
 ALTER TABLE `culture_users`
   ADD CONSTRAINT `culture` FOREIGN KEY (`culture_id`) REFERENCES `cultures` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `culture_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limitadores para a tabela `rel_culture_params_set`
+-- Constraints for table `rel_culture_params_set`
 --
 ALTER TABLE `rel_culture_params_set`
   ADD CONSTRAINT `rel_culture_params_set_ibfk_1` FOREIGN KEY (`culture_param_id`) REFERENCES `culture_params` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -653,9 +544,9 @@ ALTER TABLE `rel_culture_params_set`
 
 DELIMITER $$
 --
--- Eventos
+-- Events
 --
-DROP EVENT IF EXISTS `LimpezaDados`$$
+DROP EVENT `LimpezaDados`$$
 CREATE DEFINER=`root`@`localhost` EVENT `LimpezaDados` ON SCHEDULE EVERY 1 DAY STARTS '2021-05-03 22:54:35' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
 END$$
 
