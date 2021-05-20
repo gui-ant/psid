@@ -1,23 +1,17 @@
 package grp02;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
-import common.BrokerHandler;
+import common.BrokerPublisher;
 import common.IniConfig;
 import grp07.Measurement;
 import grp07.MongoHandler;
 import org.bson.types.ObjectId;
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MongoToBroker extends IniConfig {
 
@@ -31,18 +25,20 @@ public class MongoToBroker extends IniConfig {
         String brokerTopic = getConfig("broker", "topic");
         int brokerQos = Integer.parseInt(getConfig("broker", "qos"));
 
+        int sleepTime = Integer.parseInt(getConfig("cluster_to_mysql", "sleep_time"));
+        ;
         String[] collectionNames = getConfig("mongo", "collections").split(",");
 
         this.buffer = new HashMap<>();
         for (String collection : collectionNames)
             this.buffer.put(collection, new LinkedBlockingQueue<>());
 
-        ConnectToMongo cluster = new ConnectToMongo(mongoLocalUri, mongoLocalDb);
+        ConnectToMongo cluster = new ConnectToMongo(mongoLocalUri, mongoLocalDb, sleepTime);
         cluster.useCollections(collectionNames);
         cluster.deal(this.buffer);
 
         try {
-            new BrokerPublisher(brokerUri, brokerTopic, brokerQos).startPublishing(this.buffer);
+            new BrokerPublisher<Measurement>(brokerUri, brokerTopic, brokerQos).startPublishing(this.buffer);
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -52,84 +48,12 @@ public class MongoToBroker extends IniConfig {
         new MongoToBroker("config.ini");
     }
 
-    public class BrokerPublisher extends BrokerHandler<Measurement> {
-
-
-        public BrokerPublisher(String uri, String topic, int qos) throws MqttException {
-            super(uri, topic, qos);
-        }
-
-        @Override
-        protected Measurement getMappedObject(String message) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-
-            try {
-                return objectMapper.readValue(message, Measurement.class);
-
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onObjectArrived(Measurement m, String topic) {
-            try {
-                buffer.get(topic).put(m);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        public void startPublishing(HashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
-            sourceBuffer.forEach(
-                    (collectionName, buffer) -> new ToBroker(getClient(), getTopic(), getQos(), buffer).start()
-            );
-        }
-
-        private class ToBroker extends Thread {
-
-            private final MqttClient client;
-            private final String topic;
-            private final int qos;
-            private LinkedBlockingQueue<Measurement> buffer;
-
-            public ToBroker(MqttClient client, String topic, int qos, LinkedBlockingQueue<Measurement> buffer) {
-                this.client = client;
-                this.buffer = buffer;
-                this.topic = topic;
-                this.qos = qos;
-            }
-
-            @Override
-            public void run() {
-                Measurement obj;
-                while ((obj = buffer.poll()) != null) {
-                    try {
-                        publish(topic, obj);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            private void publish(String topic, Measurement m) throws MqttException {
-                client.publish(topic,
-                        m.toString().getBytes(UTF_8), // does it work tho?
-                        qos,
-                        false);
-            }
-        }
-
-
-    }
-
     static class ConnectToMongo extends MongoHandler<Measurement> {
+        private final int sleepTime;
 
-        public ConnectToMongo(String sourceUri, String db) {
+        public ConnectToMongo(String sourceUri, String db, int sleepTime) {
             super(sourceUri, db);
+            this.sleepTime = sleepTime;
         }
 
         @Override
@@ -143,7 +67,6 @@ public class MongoToBroker extends IniConfig {
 
             private final MongoCollection<Measurement> collection;
             private final LinkedBlockingQueue<Measurement> buffer;
-            private static final int SLEEP_TIME = 5000;
 
             public MeasureFetcher(MongoCollection<Measurement> collection, LinkedBlockingQueue<Measurement> buffer) {
                 this.collection = collection;
@@ -167,10 +90,10 @@ public class MongoToBroker extends IniConfig {
                             doc = cursor.next();
                             lastId = doc.getId();
                             buffer.offer(doc);
-                            System.out.println("Fetched:\t" + doc);
+                            System.out.println("Fetched (Mongo):\t" + doc);
                         }
 
-                        sleep(SLEEP_TIME);
+                        sleep(sleepTime);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

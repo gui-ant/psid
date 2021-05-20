@@ -80,7 +80,7 @@ public class ConnectionSQL extends IniConfig {
 
                     try {
                         Measurement m = objectMapper.readValue(message.toString(), Measurement.class);
-                        System.out.println("Fetched:\t" + m);
+                        System.out.println("Fetched (Broker):\t" + m);
                         buffer.offer(m);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
@@ -122,8 +122,6 @@ public class ConnectionSQL extends IniConfig {
         void send(Connection connection, Measurement measurement, boolean isValid) {
 
             // buscar dados e extrair valores
-
-            System.out.println("To insert: " + measurement);
             try {
                 String id = measurement.getId().toString();
                 Zone zone = this.data.getZones().get(measurement.getZoneId());
@@ -146,7 +144,7 @@ public class ConnectionSQL extends IniConfig {
 
                 int rows = statement.executeUpdate();
                 if (rows > 0) {
-                    System.out.println("Inserted value successfully!!!");
+                    System.out.println("Inserted (MySQL):\t" + measurement);
                 }
 
                 statement.close();

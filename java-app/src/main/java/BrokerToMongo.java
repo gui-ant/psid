@@ -2,7 +2,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
-import common.BrokerHandler;
+import common.BrokerSubscriber;
 import common.IniConfig;
 import grp07.Measurement;
 import grp07.MongoHandler;
@@ -70,7 +70,7 @@ public class BrokerToMongo extends IniConfig {
                             MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
                             collection.insertOne(m);
 
-                            System.out.println("Published:\t" + m);
+                            System.out.println("Published (Mongo):\t" + m);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -81,7 +81,7 @@ public class BrokerToMongo extends IniConfig {
         }
     }
 
-    public static class MeasurementFetcher extends BrokerHandler<Measurement> {
+    public static class MeasurementFetcher extends BrokerSubscriber<Measurement> {
 
         private final HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
 
