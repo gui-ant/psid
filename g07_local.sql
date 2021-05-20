@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19-Maio-2021 às 23:56
+-- Tempo de geração: 20-Maio-2021 às 17:59
 -- Versão do servidor: 10.4.18-MariaDB
--- versão do PHP: 7.4.16
+-- versão do PHP: 8.0.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -302,7 +302,7 @@ END$$
 -- Funções
 --
 DROP FUNCTION IF EXISTS `checkPrevAlert`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `checkPrevAlert` (`p_rule_set_id` INT, `p_mins` INT, `p_senor_id` INT, `p_pmara_id` INT) RETURNS TINYINT(1) RETURN EXISTS ( 
+CREATE DEFINER=`root`@`localhost` FUNCTION `checkPrevAlert` (`p_rule_set_id` INT, `p_mins` INT, `p_sensor_id` INT, `p_param_id` INT) RETURNS TINYINT(1) RETURN EXISTS ( 
 SELECT * 
 FROM alerts 
 WHERE sensor_id = p_sensor_id
@@ -394,7 +394,7 @@ CREATE TABLE IF NOT EXISTS `alerts` (
 --
 DROP TRIGGER IF EXISTS `existsPrevAlert`;
 DELIMITER $$
-CREATE TRIGGER `existsPrevAlert` BEFORE INSERT ON `alerts` FOR EACH ROW IF checkPrevAlert(NEW.parameter_set_id, 5) THEN
+CREATE TRIGGER `existsPrevAlert` BEFORE INSERT ON `alerts` FOR EACH ROW IF checkPrevAlert(NEW.parameter_set_id, 5, NEW.sensor_id, NEW.param_id) THEN
 SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'A similar previous alert already exists in past 5 minute(s)';
 END IF
 $$
