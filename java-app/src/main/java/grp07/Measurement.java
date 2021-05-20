@@ -1,5 +1,6 @@
 package grp07;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -14,6 +15,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public final class Measurement {
 
+    @JsonProperty(value = "_id")
     private ObjectId id;
     @JsonProperty(value = "Zona")
     @BsonProperty(value = "Zona")
@@ -72,31 +74,37 @@ public final class Measurement {
     }
 
     @BsonIgnore
+    @JsonIgnore
     public Long getZoneId() {
         return Long.parseLong(String.valueOf(getSensor().charAt(1)));
     }
 
     @BsonIgnore
+    @JsonIgnore
     public Long getSensorId() {
         return Long.parseLong(String.valueOf(getSensor().charAt(1)));
     }
 
     @BsonIgnore
+    @JsonIgnore
     public String getSensorType() {
         return sensor.substring(0, 1);
     }
 
     @BsonIgnore
+    @JsonIgnore
     public Timestamp getTimestamp() {
         return java.sql.Timestamp.valueOf(getDate());
     }
 
     @BsonIgnore
+    @JsonIgnore
     public byte[] toByteArray() {
         return this.toString().getBytes(UTF_8);
     }
 
     @BsonIgnore
+    @JsonIgnore
     public Double getRoundValue() {
         return Double.parseDouble(this.value);
     }
@@ -122,12 +130,12 @@ public final class Measurement {
 
     @Override
     public String toString() {
-        return "Measurement{" +
-                "_id=" + this.id +
-                ", Zone='" + this.zone + "'" +
-                ", Sensor='" + this.sensor + "'" +
-                ", Date='" + this.date + "'" +
-                ", Value='" + this.value + "'" +
-                '}';
+        return "{" +
+                "_id:\"" + this.id + "\"" +
+                ",Zona:\"" + this.zone + "\"" +
+                ",Sensor:\"" + this.sensor + "\"" +
+                ",Data:\"" + this.date + "\"" +
+                ",Medicao:\"" + this.value + "\"" +
+                "}";
     }
 }
