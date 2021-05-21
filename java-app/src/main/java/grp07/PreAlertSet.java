@@ -60,7 +60,7 @@ public class PreAlertSet extends IniConfig {
                 Alert alert = new Alert(0, id, 0, 0, Timestamp.from(Instant.now()), msg);
 
                 try {
-                    Connection mysql = DriverManager.getConnection(getConfig("mysql","cloud_uri"), MYSQL_USER, MYSQL_PASS);
+                    Connection mysql = DriverManager.getConnection(getConfig("mysql","local_uri"), MYSQL_USER, MYSQL_PASS);
                     String sql = "INSERT INTO alerts (parameter_set_id, created_at, message) VALUES (?, ?, ?)";
 
                     PreparedStatement statement = mysql.prepareStatement(sql);
