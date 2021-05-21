@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 21-Maio-2021 às 21:46
+-- Tempo de geração: 21-Maio-2021 às 22:52
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 8.0.3
 
@@ -303,11 +303,12 @@ END$$
 --
 DROP FUNCTION IF EXISTS `checkPrevAlert`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `checkPrevAlert` (`p_mins` INT, `p_rule_set_id` INT, `p_sensor_id` INT, `p_param_id` INT) RETURNS TINYINT(1) RETURN EXISTS ( 
+RETURN EXISTS ( 
 SELECT * 
 FROM alerts 
-WHERE sensor_id = p_sensor_id
-  AND parameter_set_id = p_rule_set_id
-  AND param_id = p_param_id
+WHERE ((sensor_id = p_sensor_id)
+  OR ( parameter_set_id = p_rule_set_id)
+  OR (param_id = p_param_id) )
   AND created_at >= NOW() - INTERVAL p_mins MINUTE
 )$$
 
