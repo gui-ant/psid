@@ -13,7 +13,7 @@ public abstract class BrokerSubscriber<T> extends BrokerConnector {
             super.tryConnect();
             super.getClient().setCallback(insertInBufferCallback());
             super.getClient().subscribe(topic, qos);
-            System.err.println("URI " + uri + "; TOPICO: " + topic);
+            System.err.println("URI: " + uri + "; TOPICO: " + topic);
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -23,6 +23,7 @@ public abstract class BrokerSubscriber<T> extends BrokerConnector {
         return new MqttCallback() {
             @Override
             public void connectionLost(Throwable throwable) {
+                System.err.println("connectionLost");
                 return;
             }
 
