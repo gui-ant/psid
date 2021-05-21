@@ -76,7 +76,7 @@ public final class Measurement {
     @BsonIgnore
     @JsonIgnore
     public Long getZoneId() {
-        return Long.parseLong(String.valueOf(getSensor().charAt(1)));
+        return Long.parseLong(String.valueOf(getZone().charAt(1)));
     }
 
     @BsonIgnore

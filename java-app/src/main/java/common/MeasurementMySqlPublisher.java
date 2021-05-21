@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measurement> {
@@ -31,7 +32,13 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
         try {
             String id = measurement.getId().toString();
             MySqlData.Zone zone = getData().getZones().get(measurement.getZoneId());
-            MySqlData.Sensor sensor = getData().getSensors().get(measurement.getSensorId());
+
+            MySqlData.Sensor sensor = null;
+            for (Map.Entry<Long, MySqlData.Sensor> e: getData().getSensors().entrySet()) {
+                if (e.getValue().getSensorName().equals(measurement.getSensor()))
+                    sensor = e.getValue();
+            }
+
             Double value = measurement.getRoundValue();
             //Timestamp date = measurement.getTimestamp();
             Timestamp date = new Timestamp(System.currentTimeMillis());
@@ -42,8 +49,8 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
             PreparedStatement statement = getConnection().prepareStatement(sql);
             statement.setString(1, id);
             statement.setDouble(2, value);
-            statement.setInt(3, zone.getId());
-            statement.setInt(4, sensor.getId());
+            statement.setInt(3, sensor.getId());
+            statement.setInt(4, zone.getId());
             statement.setTimestamp(5, date);
             statement.setBoolean(6, isValid(measurement));
 

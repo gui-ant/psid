@@ -14,6 +14,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.sql.*;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -125,7 +126,12 @@ public class ConnectionSQL extends IniConfig {
             try {
                 String id = measurement.getId().toString();
                 Zone zone = this.data.getZones().get(measurement.getZoneId());
-                Sensor sensor = this.data.getSensors().get(measurement.getSensorId());
+
+                MySqlData.Sensor sensor = null;
+                for (Map.Entry<Long, MySqlData.Sensor> e: this.data.getSensors().entrySet()) {
+                    if (e.getValue().getSensorName().equals(measurement.getSensor()))
+                        sensor = e.getValue();
+                }
                 String value = measurement.getValue();
                 //Timestamp date = measurement.getTimestamp();
                 Timestamp date = new Timestamp(System.currentTimeMillis());
@@ -136,8 +142,8 @@ public class ConnectionSQL extends IniConfig {
                 PreparedStatement statement = connection.prepareStatement(sql);
                 statement.setString(1, id);
                 statement.setString(2, value);
-                statement.setInt(3, zone.getId());
-                statement.setInt(4, sensor.getId());
+                statement.setInt(3, sensor.getId());
+                statement.setInt(4, zone.getId());
                 statement.setTimestamp(5, date);
                 statement.setBoolean(6, isValid);
 

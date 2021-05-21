@@ -17,7 +17,7 @@ public class CloudToCluster extends IniConfig {
         new CloudToCluster("config.ini");
     }
 
-    CloudToCluster(String iniFile) {
+    public CloudToCluster(String iniFile) {
         super(iniFile);
 
         String mongoCloudUri = getConfig("mongo", "cloud_uri");
