@@ -47,7 +47,7 @@ public class MethodsComparison extends IniConfig {
     }
 
     public static void main(String[] args) throws MqttException {
-        MigrationMethod m = MigrationMethod.MQTT;
+        MigrationMethod m = MigrationMethod.DIRECT;
         int counter = 100;
         new MethodsComparison("config.ini", m, counter);
     }
@@ -63,6 +63,7 @@ public class MethodsComparison extends IniConfig {
                 }
             }
         };
+        this.measMongoFetcher.deal(this.buffer);
         this.measMongoPublisher = new MeasMongoPublisher(getConfig("mongo", "local_uri"), "g07") {
             @Override
             protected Measurement getMeasurement() {
@@ -142,8 +143,7 @@ public class MethodsComparison extends IniConfig {
         protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
             MongoCollection<Measurement> collection = getCollection(MONGO_COLLECTION_NAME, Measurement.class);
             MongoCursor<Measurement> cursor = collection.find().iterator();
-
-            
+            new Thread(() -> {
                 while (counter-- > 0)
                     fetch(cursor.next());
             }).start();
