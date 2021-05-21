@@ -1,3 +1,6 @@
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import common.BrokerPublisher;
@@ -14,7 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class MethodsComparison extends IniConfig {
     private MeasMongoFetcher measMongoFetcher;
     private MeasBrokerPublisher measBrokerPublisher;
-
     private MeasBrokerFetcher measBrokerFetcher;
     private MeasMongoPublisher measMongoPublisher;
 
@@ -29,34 +31,25 @@ public class MethodsComparison extends IniConfig {
         this.counter = counter;
 
         long start = System.currentTimeMillis();
-        Thread a = new Thread(() -> {
-            switch (m) {
-                case DIRECT:
-                    testDirect();
-                    break;
-                case MQTT:
-                    testMQTT();
-                    break;
-            }
-        });
-        a.start();
-        synchronized (a) {
-            try {
-                a.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            long end = System.currentTimeMillis();
-            long elapsedTime = end - start;
-            System.out.println(m + ": " + elapsedTime + " msec. to migrate " + counter + " records.");
+
+        switch (m) {
+            case DIRECT:
+                testDirect();
+                break;
+            case MQTT:
+                testMQTT();
+                break;
         }
 
+        long end = System.currentTimeMillis();
+        long elapsedTime = end - start;
+        System.out.println(m + ": " + elapsedTime + " msec. to migrate " + counter + " records.");
     }
 
     public static void main(String[] args) throws MqttException {
         MigrationMethod m = MigrationMethod.MQTT;
         int counter = 100;
-        MethodsComparison p = new MethodsComparison("config.ini", m, counter);
+        new MethodsComparison("config.ini", m, counter);
     }
 
     private void testDirect() {
@@ -85,7 +78,7 @@ public class MethodsComparison extends IniConfig {
         int qos = Integer.valueOf(getConfig("broker", "qos"));
 
 
-        new MeasMongoFetcher(getConfig("mongo", "cloud_uri"), getConfig("mongo", "cloud_db")) {
+        this.measMongoFetcher = new MeasMongoFetcher(getConfig("mongo", "cloud_uri"), getConfig("mongo", "cloud_db")) {
             @Override
             void fetch(Measurement m) {
                 try {
@@ -95,7 +88,7 @@ public class MethodsComparison extends IniConfig {
                 }
             }
         };
-
+        this.measMongoFetcher.deal(this.buffer);
         try {
             this.measBrokerPublisher = new MeasBrokerPublisher(brokerUri, brokerTopic, qos);
             this.measBrokerPublisher.startPublishing(this.buffer);
@@ -117,6 +110,18 @@ public class MethodsComparison extends IniConfig {
         }
 
         @Override
+        protected Measurement getMappedObject(String message) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+                return objectMapper.readValue(message, Measurement.class);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
         protected void onObjectArrived(Measurement object, String topic) {
             measMongoPublisher.getCurrentDb().getCollection(MONGO_COLLECTION_NAME, Measurement.class).insertOne(object);
         }
@@ -131,19 +136,16 @@ public class MethodsComparison extends IniConfig {
     private abstract class MeasMongoFetcher extends MongoHandler<Measurement> {
         public MeasMongoFetcher(String sourceUri, String db) {
             super(sourceUri, db);
-            deal(MethodsComparison.this.buffer);
         }
 
         @Override
         protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
             MongoCollection<Measurement> collection = getCollection(MONGO_COLLECTION_NAME, Measurement.class);
             MongoCursor<Measurement> cursor = collection.find().iterator();
-            new Thread(() -> {
-                synchronized (this) {
-                    while (counter-- > 0)
-                        fetch(cursor.next());
-                    notify();
-                }
+
+            
+                while (counter-- > 0)
+                    fetch(cursor.next());
             }).start();
         }
 
