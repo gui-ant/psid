@@ -5,9 +5,9 @@
 	$url2="194.210.86.10"; // BD cloud com dados dos sensores
 	$database2="aluno_g07_cloud";
 	
-	//$conn = mysqli_connect($url,$_POST['username'],$_POST['password'],$database);
-	$test_user = 'res1@foo.bar';
-	$conn = mysqli_connect($url,$test_user,'pass',$database);
+	$conn = mysqli_connect($url,$_POST['username'],$_POST['password'],$database);
+	//$test_user = 'res1@foo.bar';
+	//$conn = mysqli_connect($url,$test_user,'pass',$database);
 	
 	
 	$conn_cloud = mysqli_connect($url2,'aluno','aluno',$database2);

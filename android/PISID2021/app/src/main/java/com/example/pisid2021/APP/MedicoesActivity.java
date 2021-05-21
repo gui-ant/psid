@@ -46,6 +46,7 @@ public class MedicoesActivity extends AppCompatActivity {
     private static Spinner zoneSpinner;
     private static ArrayAdapter<String> spinnerAdapter;
     private static int zonesState = 0;
+    private static boolean firstTime;
     String getMedicoes = "http://" + IP + ":" + PORT + "/scripts/getMedicoesTemperatura.php";
     DatabaseHandler db = new DatabaseHandler(this);
 
@@ -56,6 +57,7 @@ public class MedicoesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        firstTime=true;
         setContentView(R.layout.activity_medicoes);
         zoneSpinner = findViewById(R.id.spinner1);
         List<String> zonesList = new ArrayList<>();
@@ -127,7 +129,7 @@ public class MedicoesActivity extends AppCompatActivity {
 
 
                 // Código responsável por atualizar a lista com as zonas disponíveis, só atualiza até que seja selecionada uma das zonas disponíveis.
-                if(selectedZone == "-1" || selectedZone == "Waiting for data..." || zones.length()!=zonesState) {
+                if(selectedZone == "-1" || selectedZone == "Waiting for data..." || zones.length()!=zonesState || firstTime) {
 
 
                     ArrayList<String> zoneslist = new ArrayList<String>();
@@ -146,7 +148,7 @@ public class MedicoesActivity extends AppCompatActivity {
                     zonesState = zones.length();
 
                 }
-
+                firstTime = false;
                 for (int i=0;i< medicoes.length();i++){
                     c = medicoes.getJSONObject(i);
                     String hora = c.getString("date");

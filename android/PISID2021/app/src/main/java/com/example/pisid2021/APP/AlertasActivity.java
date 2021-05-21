@@ -126,7 +126,7 @@ public class AlertasActivity extends AppCompatActivity {
         TableRow headerRow = new TableRow(this);
         headerRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
-        List<String> alertaFields = Arrays.asList(new String[]{"Mensagem", "Data do alerta"});
+        List<String> alertaFields = Arrays.asList(new String[]{"Hora do alerta", "Mensagem"});
 
         for (String field: alertaFields) {
             TextView header = new TextView(this);
@@ -142,91 +142,29 @@ public class AlertasActivity extends AppCompatActivity {
         while (cursorAlertas.moveToNext()){
             TableRow row = new TableRow(this);
             row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-/*
-            TextView zona = new TextView(this);
-            String valorZona = cursorAlertas.getString(cursorAlertas.getColumnIndex("Zona"));
-            if (valorZona == null || valorZona.equals("null")) valorZona = "";
-            zona.setText(valorZona);
-            zona.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
 
-            TextView sensor = new TextView(this);
-            String valorSensor = cursorAlertas.getString(cursorAlertas.getColumnIndex("Sensor"));
-            if (valorSensor == null || valorSensor.equals("null")) valorSensor = "";
-            sensor.setText(valorSensor);
-            sensor.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-*/
             TextView hora = new TextView(this);
             String valorHora = cursorAlertas.getString(cursorAlertas.getColumnIndex("created_at")).split(" ")[1];
             hora.setText(valorHora);
             hora.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
-/*
-            TextView leitura = new TextView(this);
-            String valorLeitura = Double.toString(cursorAlertas.getDouble(cursorAlertas.getColumnIndex("Leitura")));
-            if (valorLeitura.equals("-1000.0")) valorLeitura = "";
-            leitura.setText(valorLeitura);
-            leitura.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
 
-            TextView tipoAlerta = new TextView(this);
-            String valorTipoAlerta = cursorAlertas.getString(cursorAlertas.getColumnIndex("TipoAlerta"));
-            if (valorTipoAlerta == null || valorTipoAlerta.equals("null")) valorTipoAlerta = "";
-            tipoAlerta.setText(valorTipoAlerta);
-            tipoAlerta.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-
-            TextView cultura = new TextView(this);
-            String valorCultura = cursorAlertas.getString(cursorAlertas.getColumnIndex("Cultura"));
-            if (valorCultura == null || valorCultura.equals("null")) valorCultura = "";
-            cultura.setText(valorCultura);
-            cultura.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-*/
             TextView mensagem = new TextView(this);
             String valorMensagem = cursorAlertas.getString(cursorAlertas.getColumnIndex("message"));
             if (valorMensagem == null || valorMensagem.equals("null")) valorMensagem = "";
             mensagem.setText(valorMensagem);
             mensagem.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-/*
-            TextView idUtilizador = new TextView(this);
-            String valorIDUtilizador = Integer.toString(cursorAlertas.getInt(cursorAlertas.getColumnIndex("IDUtilizador")));
-            idUtilizador.setText(valorIDUtilizador);
-            idUtilizador.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
 
-            TextView idCultura = new TextView(this);
-            String valorIDCultura = Integer.toString(cursorAlertas.getInt(cursorAlertas.getColumnIndex("IDCultura")));
-            idCultura.setText(valorIDCultura);
-            idCultura.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-
-            TextView horaEscrita = new TextView(this);
-            String valorHoraEscrita = cursorAlertas.getString(cursorAlertas.getColumnIndex("HoraEscrita"));
-            if (valorHoraEscrita == null || valorHoraEscrita.equals("null")) valorHoraEscrita = "";
-            horaEscrita.setText(valorHoraEscrita);
-            horaEscrita.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-*/
             String intHora = valorHora.replace(":", "");
             int newHora = Integer.parseInt(intHora);
             if (newHora > mostRecentEntry) mostRecentEntry = newHora;
             if (newHora > sp.getInt("timePref", 0)) {
                 if (sp.getInt("refreshPref", 1) == 0) {
-                  //  zona.setTextColor(Color.RED);
-                   // sensor.setTextColor(Color.RED);
                     hora.setTextColor(Color.RED);
-                  //  leitura.setTextColor(Color.RED);
-                   // tipoAlerta.setTextColor(Color.RED);
-                   // cultura.setTextColor(Color.RED);
                     mensagem.setTextColor(Color.RED);
-                  //  idUtilizador.setTextColor(Color.RED);
-                   // idCultura.setTextColor(Color.RED);
-                   // horaEscrita.setTextColor(Color.RED);
                 }
             }
-          //  row.addView(zona);
-           // row.addView(sensor);
-            row.addView(mensagem);
-           // row.addView(leitura);
-           // row.addView(tipoAlerta);
-           // row.addView(cultura);
             row.addView(hora);
-           // row.addView(idUtilizador);
-           // row.addView(idCultura);
-            //row.addView(horaEscrita);
+            row.addView(mensagem);
 
             table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
