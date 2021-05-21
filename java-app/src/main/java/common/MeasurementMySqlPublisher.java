@@ -19,7 +19,7 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
 
         int rows = p.executeUpdate();
         if (rows > 0) {
-            System.out.println("Inserted value successfully!!!");
+            System.out.println("Inserted (MySQL):\t" + m);
         }
         p.close();
     }
@@ -28,7 +28,6 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
     protected PreparedStatement getStatement(Measurement measurement) {
         // buscar dados e extrair valores
 
-        System.out.println("To insert: " + measurement);
         try {
             String id = measurement.getId().toString();
             MySqlData.Zone zone = getData().getZones().get(measurement.getZoneId());
@@ -64,7 +63,6 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
         double min = sensor.getMinLim();
         double max = sensor.getMaxLim();
         double value = measurement.getRoundValue();
-        System.out.println(measurement);
         System.err.println("Parâmetros Sensor -> minLin: " + min + ", maxLim: " + max + ", valid: " + (value > min && value < max));
 
         return value > min && value < max;

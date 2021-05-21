@@ -32,8 +32,6 @@ public abstract class MySqlPublisher<T> extends Thread {
         while (true) {
             try {
                 T obj = buffer.take();
-                System.out.println("To insert: " + obj);
-
                 handle(obj);
 
             } catch (Exception e) {

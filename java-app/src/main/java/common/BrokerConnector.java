@@ -22,8 +22,7 @@ public abstract class BrokerConnector {
 
     protected void tryConnect() throws MqttException {
         client.connect();
-        System.out.println(client.getClientId());
-        System.out.println("Connection stablished with broker!");
+        System.out.println("Connection stablished with broker! (client:" + client.getClientId() + ")");
     }
 
     public MqttClient getClient() {

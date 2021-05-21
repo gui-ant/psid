@@ -32,7 +32,7 @@ public class ClusterToMySQL extends IniConfig {
         for (String collection : collectionNames)
             buffer.put(collection, new LinkedBlockingQueue<>());
 
-        System.out.println(method);
+        System.out.println("Migration method:\t" + method);
         switch (method) {
             case DIRECT:
                 MeasurementMongoFetcher m = new MeasurementMongoFetcher(mongoLocalUri, mongoLocalDb, sleepTime);
@@ -89,7 +89,7 @@ public class ClusterToMySQL extends IniConfig {
                                         doc = cursor.next();
                                         lastId = doc.getId();
                                         buffer.offer(doc);
-                                        System.out.println("Fetched:\t" + doc);
+                                        System.out.println("Fetched (Mongo):\t" + doc);
                                     }
                                     Thread.sleep(sleepTime);
                                 } catch (InterruptedException e) {
