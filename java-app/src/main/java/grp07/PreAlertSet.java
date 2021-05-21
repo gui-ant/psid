@@ -70,6 +70,7 @@ public class PreAlertSet extends IniConfig {
                     statement.execute();
 
                 } catch (SQLException throwables) {
+                    throwables.printStackTrace();
                     System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 15 min.");
                 }
             }
@@ -107,7 +108,7 @@ public class PreAlertSet extends IniConfig {
         return arr;
     }
 
-/*
+
     public static void main(String[] args) {
         MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
@@ -188,13 +189,13 @@ public class PreAlertSet extends IniConfig {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-//        try {
-//            pas.analyse();
-//        } catch (InterruptedException e) {
-//            System.out.println("ERRO!!!");
-//        }
+        try {
+            pas.analyse();
+        } catch (InterruptedException e) {
+            System.out.println("ERRO!!!");
+        }
     }
-*/
+
 
 
     private class TimeParameterPair {
