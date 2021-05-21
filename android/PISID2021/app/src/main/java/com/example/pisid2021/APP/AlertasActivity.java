@@ -34,7 +34,7 @@ public class AlertasActivity extends AppCompatActivity {
     private static final String username= UserLogin.getInstance().getUsername();
     private static final String password = UserLogin.getInstance().getPassword();
     DatabaseHandler db = new DatabaseHandler(this);
-    String getAlertas = "http://" + IP + ":" + PORT + "/psid/android/scripts/getAlertasGlobais.php";
+    String getAlertas = "http://" + IP + ":" + PORT + "/scripts/getAlertasGlobais.php";
     int year;
     int month;
     int day;
@@ -104,32 +104,9 @@ public class AlertasActivity extends AppCompatActivity {
             if(alertas!=null){
                 for (int i=0;i< alertas.length();i++){
                     JSONObject c = alertas.getJSONObject(i);
-                    String zona = c.getString("Zona");
-                    String sensor = c.getString("Sensor");
-                    String hora = c.getString("Hora");
-                    double leitura;
-                    try {
-                        leitura = c.getDouble("Leitura");
-                    } catch (Exception e) {
-                        leitura = -1000.0;
-                    }
-                    String tipoAlerta = c.getString("TipoAlerta");
-                    String cultura = c.getString("Cultura");
-                    String mensagem = c.getString("Mensagem");
-                    int idUtilizador;
-                    try {
-                        idUtilizador = c.getInt("IDUtilizador");
-                    } catch (Exception e) {
-                        idUtilizador = 0;
-                    }
-                    int idCultura;
-                    try {
-                        idCultura = c.getInt("IDCultura");
-                    } catch (Exception e) {
-                        idCultura = 0;
-                    }
-                    String horaEscrita = c.getString("HoraEscrita");
-                    db.insertAlert(zona, sensor, hora, leitura, tipoAlerta, cultura, mensagem, idUtilizador, idCultura, horaEscrita);
+                    String mensagem = c.getString("message");
+                    String horaEscrita = c.getString("created_at");
+                    db.insertAlert(mensagem, horaEscrita);
                 }
             }
         }catch (JSONException e){
@@ -149,7 +126,7 @@ public class AlertasActivity extends AppCompatActivity {
         TableRow headerRow = new TableRow(this);
         headerRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
-        List<String> alertaFields = Arrays.asList(new String[]{"Zona", "Sensor", "Hora", "Leitura", "TipoAlerta", "Cultura", "Mensagem", "IDUtilizador", "IDCultura", "HoraEscrita"});
+        List<String> alertaFields = Arrays.asList(new String[]{"Mensagem", "Data do alerta"});
 
         for (String field: alertaFields) {
             TextView header = new TextView(this);
@@ -165,7 +142,7 @@ public class AlertasActivity extends AppCompatActivity {
         while (cursorAlertas.moveToNext()){
             TableRow row = new TableRow(this);
             row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-
+/*
             TextView zona = new TextView(this);
             String valorZona = cursorAlertas.getString(cursorAlertas.getColumnIndex("Zona"));
             if (valorZona == null || valorZona.equals("null")) valorZona = "";
@@ -177,12 +154,12 @@ public class AlertasActivity extends AppCompatActivity {
             if (valorSensor == null || valorSensor.equals("null")) valorSensor = "";
             sensor.setText(valorSensor);
             sensor.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-
+*/
             TextView hora = new TextView(this);
-            String valorHora = cursorAlertas.getString(cursorAlertas.getColumnIndex("Hora")).split(" ")[1];
+            String valorHora = cursorAlertas.getString(cursorAlertas.getColumnIndex("created_at")).split(" ")[1];
             hora.setText(valorHora);
             hora.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
-
+/*
             TextView leitura = new TextView(this);
             String valorLeitura = Double.toString(cursorAlertas.getDouble(cursorAlertas.getColumnIndex("Leitura")));
             if (valorLeitura.equals("-1000.0")) valorLeitura = "";
@@ -200,13 +177,13 @@ public class AlertasActivity extends AppCompatActivity {
             if (valorCultura == null || valorCultura.equals("null")) valorCultura = "";
             cultura.setText(valorCultura);
             cultura.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-
+*/
             TextView mensagem = new TextView(this);
-            String valorMensagem = cursorAlertas.getString(cursorAlertas.getColumnIndex("Mensagem"));
+            String valorMensagem = cursorAlertas.getString(cursorAlertas.getColumnIndex("message"));
             if (valorMensagem == null || valorMensagem.equals("null")) valorMensagem = "";
             mensagem.setText(valorMensagem);
             mensagem.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-
+/*
             TextView idUtilizador = new TextView(this);
             String valorIDUtilizador = Integer.toString(cursorAlertas.getInt(cursorAlertas.getColumnIndex("IDUtilizador")));
             idUtilizador.setText(valorIDUtilizador);
@@ -222,34 +199,34 @@ public class AlertasActivity extends AppCompatActivity {
             if (valorHoraEscrita == null || valorHoraEscrita.equals("null")) valorHoraEscrita = "";
             horaEscrita.setText(valorHoraEscrita);
             horaEscrita.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
-
+*/
             String intHora = valorHora.replace(":", "");
             int newHora = Integer.parseInt(intHora);
             if (newHora > mostRecentEntry) mostRecentEntry = newHora;
             if (newHora > sp.getInt("timePref", 0)) {
                 if (sp.getInt("refreshPref", 1) == 0) {
-                    zona.setTextColor(Color.RED);
-                    sensor.setTextColor(Color.RED);
+                  //  zona.setTextColor(Color.RED);
+                   // sensor.setTextColor(Color.RED);
                     hora.setTextColor(Color.RED);
-                    leitura.setTextColor(Color.RED);
-                    tipoAlerta.setTextColor(Color.RED);
-                    cultura.setTextColor(Color.RED);
+                  //  leitura.setTextColor(Color.RED);
+                   // tipoAlerta.setTextColor(Color.RED);
+                   // cultura.setTextColor(Color.RED);
                     mensagem.setTextColor(Color.RED);
-                    idUtilizador.setTextColor(Color.RED);
-                    idCultura.setTextColor(Color.RED);
-                    horaEscrita.setTextColor(Color.RED);
+                  //  idUtilizador.setTextColor(Color.RED);
+                   // idCultura.setTextColor(Color.RED);
+                   // horaEscrita.setTextColor(Color.RED);
                 }
             }
-            row.addView(zona);
-            row.addView(sensor);
-            row.addView(hora);
-            row.addView(leitura);
-            row.addView(tipoAlerta);
-            row.addView(cultura);
+          //  row.addView(zona);
+           // row.addView(sensor);
             row.addView(mensagem);
-            row.addView(idUtilizador);
-            row.addView(idCultura);
-            row.addView(horaEscrita);
+           // row.addView(leitura);
+           // row.addView(tipoAlerta);
+           // row.addView(cultura);
+            row.addView(hora);
+           // row.addView(idUtilizador);
+           // row.addView(idCultura);
+            //row.addView(horaEscrita);
 
             table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
