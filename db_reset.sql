@@ -82,14 +82,14 @@ INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance) VALUES ("T",
 INSERT INTO rel_culture_params_set (set_id, culture_param_id) VALUES (@set_id, @param_id);
 
 SET @culture_id=2; 
-INSERT INTO culture_params_sets (culture_id) VALUES (@culture_id); 
+INSERT INTO culture_params_sets (culture_id) VALUES (@culture_id); SET @set_id = LAST_INSERT_ID();
 INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance) VALUES ("L", 20, 15, 0); SET @param_id = LAST_INSERT_ID();
 INSERT INTO rel_culture_params_set (set_id, culture_param_id) VALUES (@set_id, @param_id);
 INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance) VALUES ("T", 30, 5, 60); SET @param_id = LAST_INSERT_ID();
 INSERT INTO rel_culture_params_set (set_id, culture_param_id) VALUES (@set_id, @param_id);
 
 SET @culture_id=3; 
-INSERT INTO culture_params_sets (culture_id) VALUES (@culture_id); 
+INSERT INTO culture_params_sets (culture_id) VALUES (@culture_id); SET @set_id = LAST_INSERT_ID();
 INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance) VALUES ("H", 10, -10, 0); SET @param_id = LAST_INSERT_ID();
 INSERT INTO rel_culture_params_set (set_id, culture_param_id) VALUES (@set_id, @param_id);
 INSERT INTO culture_params (sensor_type, valmax, valmin, tolerance) VALUES ("L", 10, 5, 0); SET @param_id = LAST_INSERT_ID();
