@@ -108,7 +108,7 @@ public class PreAlertSet extends IniConfig {
         return arr;
     }
 
-
+/*
     public static void main(String[] args) {
         MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
@@ -195,7 +195,7 @@ public class PreAlertSet extends IniConfig {
             System.out.println("ERRO!!!");
         }
     }
-
+*/
 
 
     private class TimeParameterPair {
