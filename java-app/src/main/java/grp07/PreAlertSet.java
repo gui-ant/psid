@@ -28,6 +28,14 @@ public class PreAlertSet extends IniConfig {
     //alterado por SQLSender
     public void setAllParams (Hashtable<Long, List<MySqlData.CultureParams>> allParams) {
         this.allParams = allParams;
+        for (Long k : allParams.keySet()) {
+            List<MySqlData.CultureParams> parametros = allParams.get(k);
+            for (MySqlData.CultureParams p : parametros) {
+                System.err.println("PreAlertSet: setId - " + p.getSetId() + " paramId - " + p.getParamId());
+                System.err.println("-----------------------");
+            }
+            System.err.println("++++++++++++++++++++++++++++++++++++++");
+        }
     }
 
     //populado por cada Thread de sensor
@@ -108,7 +116,7 @@ public class PreAlertSet extends IniConfig {
         return arr;
     }
 
-
+/*
     public static void main(String[] args) {
         MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
@@ -195,7 +203,7 @@ public class PreAlertSet extends IniConfig {
             System.out.println("ERRO!!!");
         }
     }
-
+*/
 
 
     private class TimeParameterPair {

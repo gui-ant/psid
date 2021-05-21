@@ -41,6 +41,13 @@ public class ParamAnalyser extends IniConfig {
 
     public void analyseParameters() {
 //        System.err.println("analyse");
+
+
+        for (MySqlData.CultureParams p : paramList) {
+            System.err.println("Parametro no analyser: " + p.getParamId());
+        }
+        System.err.println("--------------------------");
+
         for (MySqlData.CultureParams param : paramList) {
             boolean isSus = isSuspect(param);
             if (isSus) {
@@ -54,6 +61,7 @@ public class ParamAnalyser extends IniConfig {
             }
         }
         trimMeasureList();
+
     }
 
     private boolean isSuspect(MySqlData.CultureParams param) {

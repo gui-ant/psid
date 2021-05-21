@@ -18,7 +18,8 @@ public class Main {
         new MySqlData("config.ini");
         new BrokerToMongo(CONFIG_FILE);
         new CloudToCluster(CONFIG_FILE);
-        new ClusterToMySQL(CONFIG_FILE, MigrationMethod.MQTT);
+//        new ClusterToMySQL(CONFIG_FILE, MigrationMethod.MQTT);
+        new ClusterToMySQL(CONFIG_FILE, MigrationMethod.DIRECT);
 
     }
 }

@@ -17,7 +17,7 @@ public class MongoToMySql extends IniConfig {
     private static final String MYSQL_PASS = "";
 
     private final Connection mysqlConn;
-    private final MySqlData data;
+    private MySqlData data;
     private MySqlData.Sensor sensor;
 
     private final long sleepTime;
@@ -36,6 +36,7 @@ public class MongoToMySql extends IniConfig {
         this.preAlertSet = new PreAlertSet(data.getCultureParamsSet());
         ParameterSupervisor supervisor = new ParameterSupervisor(preAlertSet);
         supervisor.start();
+
     }
 
     public void serveSQL(HashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
@@ -67,6 +68,9 @@ public class MongoToMySql extends IniConfig {
             this.stats = new ReadingStats();
             ErrorSupervisor es = new ErrorSupervisor(stats, ERROR_PERCENTAGE);
             es.start();
+
+            SqlDbUpdater updater = new SqlDbUpdater();
+            updater.start();
         }
 
         @Override
@@ -227,6 +231,27 @@ public class MongoToMySql extends IniConfig {
                         }
                     }
                     stats.resetData();
+                }
+            }
+        }
+
+
+        public class SqlDbUpdater extends Thread {
+
+            public SqlDbUpdater() {
+            }
+
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    // TODO - testar esta merda!!!
+                    data = new MySqlData("config.ini");
+                    analyser = createAnalyser(data, sleepTime);
+                    preAlertSet.setAllParams(data.getCultureParamsSet());
                 }
             }
         }
