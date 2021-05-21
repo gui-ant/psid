@@ -1,11 +1,14 @@
 DROP DATABASE IF EXISTS g07_local; 
-DROP USER IF EXISTS 'admin1@foo.bar'@'%', 'res1@foo.bar'@'%', 'res2@foo.bar'@'%', 'tech1@foo.bar'@'%';
+DROP USER IF EXISTS 'admin1@foo.bar'@'%', 'res1@foo.bar'@'%', 'res2@foo.bar'@'%', 'tech1@foo.bar'@'%','aluno'@'%';
+CREATE USER 'aluno'@'%' IDENTIFIED BY 'aluno';
+GRANT ALL PRIVILEGES ON *.* TO 'aluno'@'%';
 CREATE ROLE IF NOT EXISTS 'group_admin', 'group_researcher', 'group_technician';
 
 GRANT CREATE USER ON *.* TO `group_admin`;
 GRANT GRANT OPTION ON *.* TO 'group_admin';
 
 \. g07_local.sql
+\. g07_cloud.sql
 
 GRANT SELECT ON g07_local.* TO 'group_researcher';
 GRANT SELECT,INSERT,UPDATE,DELETE ON g07_local.users TO 'group_admin';

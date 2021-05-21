@@ -171,7 +171,7 @@ public final class MySqlData extends IniConfig {
             ResultSet res = st.executeQuery(query);
 
             while (res.next()) {
-                Sensor s = new Sensor(res.getInt("id"));
+                Sensor s = new Sensor(res.getInt("s.id"));
                 Zone z = zones.get(res.getLong("z.id"));
 
                 s.setSensorName(res.getString("name"));
@@ -179,7 +179,7 @@ public final class MySqlData extends IniConfig {
                 s.setMaxLim(res.getDouble("maxlim"));
                 s.setZone(z);
                 z.getSensors().add(s);
-                sensors.put(res.getLong("id"), s);
+                sensors.put(res.getLong("s.id"), s);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();

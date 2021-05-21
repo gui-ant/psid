@@ -63,7 +63,7 @@ public class ParamAnalyser extends IniConfig {
             Alert alert = zeroToleranceAnalyser(param);
             if (alert != null) {
                 try {
-                    Connection mysql = DriverManager.getConnection(getConfig("mysql","local_uri"), MYSQL_USER, MYSQL_PASS);
+                    Connection mysql = DriverManager.getConnection(getConfig("mysql", "local_uri"), MYSQL_USER, MYSQL_PASS);
                     String sql = "INSERT INTO alerts (param_id, created_at, message) VALUES (?, ?, ?)";
 
                     PreparedStatement statement = mysql.prepareStatement(sql);
@@ -72,11 +72,8 @@ public class ParamAnalyser extends IniConfig {
                     statement.setString(3, alert.getMsg());
                     statement.execute();
 
-//                } catch (SQLException throwables) {
-//                    System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 15 min.");
-//                }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                } catch (SQLException throwables) {
+                    System.err.println("Alerta rejeitado. Já existe alerta anterior para a mesma parametrização nos últimos 5 min.");
                 }
             }
         }
@@ -132,7 +129,7 @@ public class ParamAnalyser extends IniConfig {
         }
 
         for (int ind = 1; ind < numCycles; ind++) {
-            double newval =measurements.get(ind).getRoundValue();
+            double newval = measurements.get(ind).getRoundValue();
             if (newval >= val || newval > param.getValMax() || newval < minLim) {
                 return false;
             }

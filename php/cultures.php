@@ -146,7 +146,20 @@ if ($culture_id != "") {
                                 <?php foreach ($param as $p) : ?>
                                     <label for="chk_param_<?= $param[0]->id; ?>">
                                         <input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture->manager_id == $_SESSION['user_id'] ?: "disabled" ?>>
-                                        <?= "Sensor Type: $p->sensor_type, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; " ?>
+                                        <?php switch($p->sensor_type) :
+                                            case "H": 
+                                                echo "Sensor Type: Humidity, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; "; 
+                                                break;
+                                            case "T":
+                                                echo "Sensor Type: Temperature, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; "; 
+                                                break; 
+                                            case "L": 
+                                                echo "Sensor Type: Light, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; " ;
+                                                break; 
+                                            default: 
+                                                "Sensor Type: $p->sensor_type, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; " ;
+                                        endswitch; ?>
+                                        
                                     </label>
                                 <?php endforeach; ?>
                             </div>

@@ -67,7 +67,7 @@ public class ConnectionMongoReplics extends IniConfig {
                 while (cursor.hasNext()) {
                     doc = cursor.next();
                     buffer.offer(doc);
-                    System.out.println("Fetched:\t" + doc);
+                    System.out.println("Fetched (Mongo):\t" + doc);
                 }
             });
         }
@@ -86,7 +86,7 @@ public class ConnectionMongoReplics extends IniConfig {
                 Measurement m;
                 while ((m = buffer.poll()) != null) {
                     collection.insertOne(m);
-                    System.out.println("Inserted:\t" + m);
+                    System.out.println("Inserted (Mongo):\t" + m);
                 }
             });
         }

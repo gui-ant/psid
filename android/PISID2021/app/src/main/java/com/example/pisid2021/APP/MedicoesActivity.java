@@ -45,6 +45,7 @@ public class MedicoesActivity extends AppCompatActivity {
     private static String selectedZone = "-1";
     private static Spinner zoneSpinner;
     private static ArrayAdapter<String> spinnerAdapter;
+    private static int zonesState = 0;
     String getMedicoes = "http://" + IP + ":" + PORT + "/scripts/getMedicoesTemperatura.php";
     DatabaseHandler db = new DatabaseHandler(this);
 
@@ -122,12 +123,12 @@ public class MedicoesActivity extends AppCompatActivity {
             if (medicoes != null){
 
                 JSONObject c = medicoes.getJSONObject(0);
+                JSONArray zones = c.getJSONArray("zonas");
 
 
                 // Código responsável por atualizar a lista com as zonas disponíveis, só atualiza até que seja selecionada uma das zonas disponíveis.
-                if(selectedZone == "-1" || selectedZone == "Waiting for data...") {
+                if(selectedZone == "-1" || selectedZone == "Waiting for data..." || zones.length()!=zonesState) {
 
-                    JSONArray zones = c.getJSONArray("zonas");
 
                     ArrayList<String> zoneslist = new ArrayList<String>();
 
@@ -141,6 +142,9 @@ public class MedicoesActivity extends AppCompatActivity {
                     spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, zoneslist);
                     zoneSpinner.setAdapter(spinnerAdapter);
                     spinnerAdapter.notifyDataSetChanged();
+
+                    zonesState = zones.length();
+
                 }
 
                 for (int i=0;i< medicoes.length();i++){

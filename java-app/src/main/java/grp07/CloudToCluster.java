@@ -17,7 +17,7 @@ public class CloudToCluster extends IniConfig {
         new CloudToCluster("config.ini");
     }
 
-    CloudToCluster(String iniFile) {
+    public CloudToCluster(String iniFile) {
         super(iniFile);
 
         String mongoCloudUri = getConfig("mongo", "cloud_uri");
@@ -65,7 +65,7 @@ public class CloudToCluster extends IniConfig {
                                     doc = cursor.next();
                                     lastId = doc.getId();
                                     measurements.offer(doc);
-                                    System.out.println("Fetched:\t" + doc);
+                                    System.out.println("Fetched (Mongo):\t" + doc);
                                 }
                                 Thread.sleep(SLEEP_TIME);
                             } catch (InterruptedException e) {
@@ -91,7 +91,7 @@ public class CloudToCluster extends IniConfig {
                         try {
                             Measurement m = buffer.take();
                             collection.insertOne(m);
-                            System.out.println("Inserted:\t" + m);
+                            System.out.println("Inserted (Mongo):\t" + m);
 
                         } catch (InterruptedException e) {
                             e.printStackTrace();

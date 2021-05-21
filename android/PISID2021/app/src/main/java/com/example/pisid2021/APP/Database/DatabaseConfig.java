@@ -9,15 +9,11 @@ public class DatabaseConfig {
         public static final String COLUMN_ID = "id";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_VALUE = "value";
-        public static final String COLUMN_SENSOR_ID = "sensor_id";
-        public static final String COLUMN_ZONE_ID = "zone_id";
-        public static final String COLUMN_IS_CORRECT = "is_correct";
     }
 
     public static class Alert implements BaseColumns {
         public static final String TABLE_NAME = "alerts";
         public static final String COLUMN_ID = "id";
-        public static final String COLUMN_PARAM_SET_ID = "parameter_set_id";
         public static final String COLUMN_CREATED_AT = "created_at";
         public static final String COLUMN_MESSAGE = "message";
     }
@@ -28,15 +24,11 @@ public class DatabaseConfig {
                     Measurement.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     Measurement.COLUMN_DATE + " TIMESTAMP, " +
                     Measurement.COLUMN_VALUE + " DOUBLE, " +
-                    Measurement.COLUMN_SENSOR_ID + " VARCHAR(4), " +
-                    Measurement.COLUMN_ZONE_ID + " INT, " +
-                    Measurement.COLUMN_IS_CORRECT + " DOUBLE " +
                     ")";
 
     protected static final String SQL_CREATE_ALERT =
             "CREATE TABLE " + Alert.TABLE_NAME + " (" +
                     Alert.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    Alert.COLUMN_PARAM_SET_ID + " INT, " +
                     Alert.COLUMN_CREATED_AT + " TIMESTAMP, " +
                     Alert.COLUMN_MESSAGE + " VARCHAR(128) " +
                     ")";

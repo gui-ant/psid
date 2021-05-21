@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19-Maio-2021 às 23:56
+-- Tempo de geração: 21-Maio-2021 às 01:01
 -- Versão do servidor: 10.4.18-MariaDB
 -- versão do PHP: 7.4.16
 
@@ -302,7 +302,7 @@ END$$
 -- Funções
 --
 DROP FUNCTION IF EXISTS `checkPrevAlert`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `checkPrevAlert` (`p_rule_set_id` INT, `p_mins` INT, `p_senor_id` INT, `p_pmara_id` INT) RETURNS TINYINT(1) RETURN EXISTS ( 
+CREATE DEFINER=`root`@`localhost` FUNCTION `checkPrevAlert` (`p_mins` INT, `p_rule_set_id` INT, `p_sensor_id` INT, `p_param_id` INT) RETURNS TINYINT(1) RETURN EXISTS ( 
 SELECT * 
 FROM alerts 
 WHERE sensor_id = p_sensor_id
@@ -394,7 +394,7 @@ CREATE TABLE IF NOT EXISTS `alerts` (
 --
 DROP TRIGGER IF EXISTS `existsPrevAlert`;
 DELIMITER $$
-CREATE TRIGGER `existsPrevAlert` BEFORE INSERT ON `alerts` FOR EACH ROW IF checkPrevAlert(NEW.parameter_set_id, 5) THEN
+CREATE TRIGGER `existsPrevAlert` BEFORE INSERT ON `alerts` FOR EACH ROW IF checkPrevAlert(5, NEW.parameter_set_id, NEW.sensor_id, NEW.param_id) THEN
 SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'A similar previous alert already exists in past 5 minute(s)';
 END IF
 $$
@@ -547,6 +547,24 @@ DELIMITER $$
 --
 DROP EVENT IF EXISTS `LimpezaDados`$$
 CREATE DEFINER=`root`@`localhost` EVENT `LimpezaDados` ON SCHEDULE EVERY 1 DAY STARTS '2021-05-03 22:54:35' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+SET @dia_anterior = CURRENT_DATE - INTERVAL 1 DAY;
+INSERT INTO measurements (id, value, sensor_id, zone_id, date, is_correct)
+SELECT 	Concat( DATE_FORMAT(date, "%Y-%m-%d_%H"), '_Z', zone_id , '_S', sensor_id ) AS id , 
+		AVG(value) AS value, 
+		sensor_id , 
+		zone_id , 
+		0, 
+		is_correct
+FROM measurements
+WHERE date > @dia_anterior 
+  AND date < CURRENT_DATE
+  AND is_correct = 1
+GROUP BY HOUR(date) , sensor_id , zone_id;
+
+DELETE FROM measurements
+WHERE date > @dia_anterior 
+  AND date < CURRENT_DATE
+  AND is_correct = 1;
 END$$
 
 DELIMITER ;

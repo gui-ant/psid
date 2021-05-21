@@ -17,7 +17,7 @@ public class ClusterToMySQL extends IniConfig {
 
     HashMap<String, LinkedBlockingQueue<Measurement>> buffer = new HashMap<>();
 
-    public ClusterToMySQL(String iniFile) {
+    public ClusterToMySQL(String iniFile, MigrationMethod defaultMethod) {
         super(iniFile);
 
         String mongoLocalUri = getConfig("mongo", "local_uri");
@@ -32,7 +32,11 @@ public class ClusterToMySQL extends IniConfig {
         for (String collection : collectionNames)
             buffer.put(collection, new LinkedBlockingQueue<>());
 
-        System.out.println(method);
+        System.out.println("Migration method:\t" + method);
+
+        if (!defaultMethod.equals(""))
+            method = defaultMethod;
+
         switch (method) {
             case DIRECT:
                 MeasurementMongoFetcher m = new MeasurementMongoFetcher(mongoLocalUri, mongoLocalDb, sleepTime);
@@ -55,7 +59,7 @@ public class ClusterToMySQL extends IniConfig {
     }
 
     public static void main(String[] args) {
-        new ClusterToMySQL("config.ini");
+        new ClusterToMySQL("config.ini", MigrationMethod.getByValue(args[0]));
     }
 
     private static class MeasurementMongoFetcher extends MongoHandler<Measurement> {
@@ -89,7 +93,7 @@ public class ClusterToMySQL extends IniConfig {
                                         doc = cursor.next();
                                         lastId = doc.getId();
                                         buffer.offer(doc);
-                                        System.out.println("Fetched:\t" + doc);
+                                        System.out.println("Fetched (Mongo):\t" + doc);
                                     }
                                     Thread.sleep(sleepTime);
                                 } catch (InterruptedException e) {

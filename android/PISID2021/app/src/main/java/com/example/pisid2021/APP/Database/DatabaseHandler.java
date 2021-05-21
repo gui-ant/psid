@@ -34,11 +34,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         getWritableDatabase().insert(DatabaseConfig.Measurement.TABLE_NAME, null, values);
     }
 
-    public void insertAlert(String zona, String sensor, String hora, double leitura, String tipoAlerta, String cultura, String mensagem, int idUtilizador, int idCultura, String horaEscrita) {
+    public void insertAlert(String mensagem,String horaEscrita) {
 
         ContentValues values = new ContentValues();
-        values.put(DatabaseConfig.Alert.COLUMN_PARAM_SET_ID, zona);
-        values.put(DatabaseConfig.Alert.COLUMN_CREATED_AT, sensor);
+        values.put(DatabaseConfig.Alert.COLUMN_MESSAGE, mensagem);
+        values.put(DatabaseConfig.Alert.COLUMN_CREATED_AT, horaEscrita);
         getWritableDatabase().insert(DatabaseConfig.Alert.TABLE_NAME, null, values);
     }
 
