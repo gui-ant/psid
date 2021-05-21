@@ -65,7 +65,14 @@ public abstract class MeasurementMySqlPublisher extends MySqlPublisher<Measureme
 
     protected boolean isValid(Measurement measurement) {
 
-        MySqlData.Sensor sensor = getData().getSensors().get(measurement.getSensorId());
+        //MySqlData.Sensor sensor = getData().getSensors().get(measurement.getSensorId());
+
+        MySqlData.Sensor sensor = null;
+        for (Map.Entry<Long, MySqlData.Sensor> e: getData().getSensors().entrySet()) {
+            if (e.getValue().getSensorName().equals(measurement.getSensor()))
+                sensor = e.getValue();
+        }
+
 
         double min = sensor.getMinLim();
         double max = sensor.getMaxLim();
