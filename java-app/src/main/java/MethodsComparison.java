@@ -1,16 +1,16 @@
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import common.BrokerPublisher;
-import common.BrokerSubscriber;
-import common.IniConfig;
-import common.MigrationMethod;
+import common.*;
 import grp07.Measurement;
 import grp07.MongoHandler;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -32,6 +32,12 @@ public class MethodsComparison extends IniConfig {
 
         long start = System.currentTimeMillis();
 
+
+        MongoConnector mc = new MongoConnector(getConfig("mongo", "local_uri"), getConfig("mongo", "local_db"));
+        MongoCollection<Measurement> collection = mc.getCurrentDb().getCollection(MONGO_COLLECTION_NAME, Measurement.class);
+        BasicDBObject d = new BasicDBObject();
+        collection.deleteMany(d);
+
         switch (m) {
             case DIRECT:
                 testDirect();
@@ -43,11 +49,11 @@ public class MethodsComparison extends IniConfig {
 
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        System.out.println(m + ": " + elapsedTime + " msec. to migrate " + counter + " records.");
+        System.out.println(m + ": " + elapsedTime + " msec. to migrate " + mc.getCurrentDb().getCollection(MONGO_COLLECTION_NAME).countDocuments() + " records.");
     }
 
     public static void main(String[] args) throws MqttException {
-        MigrationMethod m = MigrationMethod.DIRECT;
+        MigrationMethod m = MigrationMethod.MQTT;
         int counter = 100;
         new MethodsComparison("config.ini", m, counter);
     }
@@ -105,9 +111,10 @@ public class MethodsComparison extends IniConfig {
     }
 
     class MeasBrokerFetcher extends BrokerSubscriber<Measurement> {
-
         public MeasBrokerFetcher(String uri, String topic, int qos) throws MqttException {
             super(uri, topic, qos);
+            System.err.println("DEPOIS DO SUPER");
+
         }
 
         @Override
@@ -125,12 +132,25 @@ public class MethodsComparison extends IniConfig {
         @Override
         protected void onObjectArrived(Measurement object, String topic) {
             measMongoPublisher.getCurrentDb().getCollection(MONGO_COLLECTION_NAME, Measurement.class).insertOne(object);
+            System.err.println("AQUI!!!");
         }
     }
 
     private class MeasBrokerPublisher extends BrokerPublisher<Measurement> {
         public MeasBrokerPublisher(String URI, String topic, int qos) throws MqttException {
             super(URI, topic, qos);
+        }
+
+        @Override
+        public void startPublishing(HashMap<String, LinkedBlockingQueue<Measurement>> sourceBuffer) {
+            try {
+                while (sourceBuffer.get(MONGO_COLLECTION_NAME).peek() != null)
+                    getClient().publish("pisid_g07_tests", sourceBuffer.get(MONGO_COLLECTION_NAME).take().toString().getBytes(StandardCharsets.UTF_8), 0, false);
+            } catch (MqttException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -147,6 +167,7 @@ public class MethodsComparison extends IniConfig {
                 while (counter-- > 0)
                     fetch(cursor.next());
             }).start();
+
         }
 
         abstract void fetch(Measurement m);
@@ -155,6 +176,9 @@ public class MethodsComparison extends IniConfig {
     private abstract class MeasMongoPublisher extends MongoHandler<Measurement> {
         public MeasMongoPublisher(String sourceUri, String db) {
             super(sourceUri, db);
+            MongoCollection<Measurement> collection = getCollection(MONGO_COLLECTION_NAME, Measurement.class);
+            BasicDBObject d = new BasicDBObject();
+            collection.deleteMany(d);
         }
 
         @Override

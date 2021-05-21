@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.sql.Timestamp;
 
@@ -13,7 +14,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * The Measurement Pojo
  */
-public final class Measurement {
+public final class Measurement extends MqttMessage {
 
     @JsonProperty(value = "_id")
     private ObjectId id;

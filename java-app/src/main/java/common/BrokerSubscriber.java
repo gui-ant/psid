@@ -10,9 +10,10 @@ public abstract class BrokerSubscriber<T> extends BrokerConnector {
     public BrokerSubscriber(String uri, String topic, int qos) throws MqttException {
         super(uri, topic, qos);
         try {
-            super.getClient().setCallback(insertInBufferCallback());
             super.tryConnect();
+            super.getClient().setCallback(insertInBufferCallback());
             super.getClient().subscribe(topic, qos);
+            System.err.println("URI " + uri + "; TOPICO: " + topic);
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -27,6 +28,7 @@ public abstract class BrokerSubscriber<T> extends BrokerConnector {
 
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
+                System.err.println("BROKER SUBSCRIBER: messageArrived");
                 T obj = getMappedObject(mqttMessage.toString());
                 onObjectArrived(obj, topic);
                 System.out.println("Fetched (Broker):\t" + obj);
