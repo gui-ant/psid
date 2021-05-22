@@ -118,7 +118,7 @@ public class ParamAnalyser extends IniConfig {
         if (constantFall) {
 
             StringBuilder sb = new StringBuilder();
-            sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone() + ".");
+            sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone().getId() + ".");
             sb.append(" O sensor " + param.getSensorType());
             sb.append(" detetou uma descida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas");
 
