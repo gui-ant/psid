@@ -145,7 +145,7 @@ if ($culture_id != "") {
                             <div class="form-check">
                                 <?php foreach ($param as $p) : ?>
                                     <label for="chk_param_<?= $param[0]->id; ?>">
-                                        <input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $param[0]->id; ?>" <?= $active_culture->manager_id == $_SESSION['user_id'] ?: "disabled" ?>>
+                                        <input id="chk_param_<?= $param[0]->id; ?>" type="checkbox" name="chk_param[]" value="<?= $p->id; ?>" <?= $active_culture->manager_id == $_SESSION['user_id'] ?: "disabled" ?>>
                                         <?php switch($p->sensor_type) :
                                             case "H": 
                                                 echo "Sensor Type: Humidity, Min. Val.: $p->valmin, Max. Val.: $p->valmax, Tolerance: $p->tolerance; "; 
