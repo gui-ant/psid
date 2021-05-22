@@ -121,10 +121,11 @@ public class PreAlertSet extends IniConfig {
 
     // apagar registos com mais de 30 segundos
     private void deleteOldAlerts() {
-        Timestamp curr = Timestamp.from(Instant.now());
-        curr.setTime(curr.getTime() + (30*1000));
-        susParams.removeIf(pair -> pair.getTime().after(curr));
+        Timestamp limit = Timestamp.from(Instant.now());
+        limit.setTime(limit.getTime() - 30000);
+        susParams.removeIf(a -> a.getTime().before(limit));
     }
+
 
     private List<MySqlData.CultureParams> susToParameterArray() {
         List<MySqlData.CultureParams> arr = new ArrayList<>();
@@ -136,6 +137,7 @@ public class PreAlertSet extends IniConfig {
 
 /*
     public static void main(String[] args) {
+        System.err.println("begin: " + Timestamp.from(Instant.now()));
         MySqlData.User u = new MySqlData.User(3);
         u.setEmail("mail");
         u.setName("name");
@@ -184,42 +186,67 @@ public class PreAlertSet extends IniConfig {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
-        for (TimeParameterPair p : pas.susParams) {
-            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
-        }
-        System.out.println("------------------------------");
-        //pas.addPreAlert(Timestamp.from(Instant.now()), p2, true);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        pas.addPreAlert(Timestamp.from(Instant.now()), p1, true);
-        for (TimeParameterPair p : pas.susParams) {
-            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
-        }
-        System.out.println("------------------------------");
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        pas.addPreAlert(Timestamp.from(Instant.now()), p3, true);
-        for (TimeParameterPair p : pas.susParams) {
-            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
-        }
-        System.out.println("------------------------------");
+        Timestamp t1 = Timestamp.from(Instant.now());
+        t1.setTime(t1.getTime() - 45000);
+//        t1.setTime(t1.getTime() + 45000);
+        pas.addPreAlert(t1, p1, true);
+//        for (TimeParameterPair p : pas.susParams) {
+//            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+//        }
+//        System.out.println("------------------------------");
+        Timestamp t2 = Timestamp.from(Instant.now());
+        t2.setTime(t2.getTime() - 45000);
+//        t2.setTime(t2.getTime() + 45000);
+        pas.addPreAlert(t2, p2, true);
+
+
+        Timestamp t3 = Timestamp.from(Instant.now());
+        t3.setTime(t3.getTime() - 45000);
+//        t3.setTime(t3.getTime() + 45000);
+        pas.addPreAlert(t3, p1, true);
+//        for (TimeParameterPair p : pas.susParams) {
+//            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+//        }
+//        System.out.println("------------------------------");
 //        try {
-//            Thread.sleep(35000);
+//            Thread.sleep(500);
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        try {
-            pas.analyse();
-        } catch (InterruptedException e) {
-            System.out.println("ERRO!!!");
+        Timestamp t4 = Timestamp.from(Instant.now());
+        t4.setTime(t4.getTime() - 45000);
+//        t4.setTime(t4.getTime() + 45000);
+        pas.addPreAlert(t4, p3, true);
+//        for (TimeParameterPair p : pas.susParams) {
+//            System.out.println(p.getParam().getSensorType() + " " + p.getTime());
+//        }
+//        System.out.println("------------------------------");
+////        try {
+////            Thread.sleep(35000);
+////        } catch (InterruptedException e) {
+////            e.printStackTrace();
+////        }
+//        try {
+//            pas.analyse();
+//        } catch (InterruptedException e) {
+//            System.out.println("ERRO!!!");
+//        }
+        for (TimeParameterPair p : pas.susParams) {
+            System.out.println("ANTES: " + p.getParam().getSensorType() + " " + p.getTime());
         }
+
+//        Timestamp a = Timestamp.from(Instant.now());
+//        System.err.println(a.getTime());
+
+        pas.deleteOldAlerts();
+
+        for (TimeParameterPair p : pas.susParams) {
+            System.out.println("DEPOIS: " + p.getParam().getSensorType() + " " + p.getTime());
+        }
+
+//        Timestamp b = Timestamp.from(Instant.now());
+//        System.err.println(b.getTime());
+
     }
 */
 
