@@ -29,6 +29,12 @@ public class ParamAnalyser extends IniConfig {
         this.measurements = new LinkedList<>();
         this.maxTolerance = 0;
         this.insertionRate = insertionRate;
+
+        double r = Math.random();
+        for (MySqlData.CultureParams p : paramList) {
+            System.err.println(r + " Parametro no analyser: " + p.getParamId());
+        }
+        System.err.println("--------------------------");
     }
 
     public void addMeasurement(Measurement measure) {
@@ -42,18 +48,14 @@ public class ParamAnalyser extends IniConfig {
     public void analyseParameters() {
 //        System.err.println("analyse");
 
-
-        for (MySqlData.CultureParams p : paramList) {
-            System.err.println("Parametro no analyser: " + p.getParamId());
-        }
-        System.err.println("--------------------------");
-
         for (MySqlData.CultureParams param : paramList) {
             boolean isSus = isSuspect(param);
             if (isSus) {
+                System.err.println("::::::::::::::::::::::::::::::::::::::::::::ADICIONOU ALERT TRUE:::::::::::::::::::::::::::::::::::::::::::::::::::::");
                 preAlertCompiler.addPreAlert(Timestamp.from(Instant.now()), param, true);
             }
             if (!isSus) {
+                System.err.println("::::::::::::::::::::::::::::::::::::::::::::ADICIONOU ALERT FALSE:::::::::::::::::::::::::::::::::::::::::::::::::::::");
                 preAlertCompiler.addPreAlert(Timestamp.from(Instant.now()), param, false);
             }
             if (param.getTolerance() > maxTolerance) {
@@ -116,7 +118,7 @@ public class ParamAnalyser extends IniConfig {
         if (constantFall) {
 
             StringBuilder sb = new StringBuilder();
-            sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone() + ".");
+            sb.append("Atencao na cultura " + param.getCulture().getName() + ", na zona " + param.getCulture().getZone().getId() + ".");
             sb.append(" O sensor " + param.getSensorType());
             sb.append(" detetou uma descida constante perto dos limites definidos, há " + numCycles + " medidas consecutivas");
 
@@ -173,7 +175,7 @@ public class ParamAnalyser extends IniConfig {
     }
 
     private Timestamp subtractSecondsThreshold(Timestamp time, int tolerance, long rate) {
-        time.setTime(time.getTime() - (tolerance + 3 * rate) * 1000);
+        time.setTime(time.getTime() - (tolerance + 6 * rate) * 1000);
         return time;
     }
 
