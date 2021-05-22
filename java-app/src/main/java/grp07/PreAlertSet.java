@@ -61,8 +61,14 @@ public class PreAlertSet extends IniConfig {
 
         ArrayList<MySqlData.CultureParams> sus = (ArrayList<MySqlData.CultureParams>) susToParameterArray();
         for (Long id : allParams.keySet()) {
+            System.err.println("------------------------------------------------VAI COMEÇAR OS COMPOSTOS: " + allParams.size() + "---------------------------------------------------");
             List<MySqlData.CultureParams> paramSet = allParams.get(id);
-            if (sus.containsAll(paramSet)) {
+            System.err.println("----------------------------------Dentro dOS COMPOSTOS: " + paramSet.size() + "---------------------------------------------------");
+            System.err.println("**********************************Dentro dOS COMPOSTOS - size do sus: " + sus.size() + "---------------------------------------------------");
+//            if (sus.containsAll(paramSet)) {
+            if (susContainsAllParams(sus, paramSet)) {
+
+                System.err.println("+++++++++++++++++++++ALERTA COMPOSTO!!!+++++++++++++++++++++++++");
 
                 String msg = buildAlertMessage(paramSet);
                 Alert alert = new Alert(0, id, 0, 0, Timestamp.from(Instant.now()), msg);
@@ -83,6 +89,18 @@ public class PreAlertSet extends IniConfig {
                 }
             }
         }
+    }
+
+    private boolean susContainsAllParams(List<MySqlData.CultureParams> sus, List<MySqlData.CultureParams> paramSet) {
+        List<Long> susIdList = new ArrayList<>();
+        List<Long> paramSetIdList = new ArrayList<>();
+        for (MySqlData.CultureParams p1 : sus) {
+            susIdList.add(p1.getParamId());
+        }
+        for (MySqlData.CultureParams p2 : paramSet) {
+            paramSetIdList.add(p2.getParamId());
+        }
+        return susIdList.containsAll(paramSetIdList);
     }
 
     private String buildAlertMessage(List<MySqlData.CultureParams> singleSet) {
