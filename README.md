@@ -53,7 +53,8 @@ GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spSetCultureManager TO 'group_admin';
 
 CREATE ROLE IF NOT EXISTS 'group_researcher';
-GRANT SELECT ON g07_local.* TO 'group_researcher';
+GRANT SELECT ON g07_local.measurements TO 'group_researcher';
+GRANT SELECT ON g07_local.alerts TO 'group_researcher';
 
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCultureById TO 'group_researcher';
 GRANT EXECUTE ON PROCEDURE g07_local.spGetCulturesByUserId TO 'group_researcher';
