@@ -93,7 +93,7 @@ public class MongoToMySql extends IniConfig {
                     Measurement measurement = buffer.take();
                     stats.incrementReadings();
                     if (sensor == null) {
-                        sensor = getSensorUsingMeasurement(measurement);
+                        sensor = data.getSensorByName(measurement.getSensor());
                     }
 
                     if (!isValid(measurement)) {
@@ -165,7 +165,7 @@ public class MongoToMySql extends IniConfig {
             }
 
             Hashtable<Long, List<MySqlData.CultureParams>> cultureParamsSet = data.getCultureParamsSet();
-            MySqlData.Zone zone = data.getZones().get(Long.parseLong(String.valueOf(mea.getZone().charAt(1))));
+            MySqlData.Zone zone = data.getZoneByName(mea.getZone());
 
             for (List<MySqlData.CultureParams> params : cultureParamsSet.values()) {
                 for (MySqlData.CultureParams param : params) {
@@ -188,7 +188,7 @@ public class MongoToMySql extends IniConfig {
 
         //thread que analisa a percentagem de leituras errada, a cada hora
         private class ErrorSupervisor extends Thread {
-            private ReadingStats stats;
+            private final ReadingStats stats;
             private final double percentage;
 
             public ErrorSupervisor(ReadingStats stats, double percentage) {
@@ -211,12 +211,12 @@ public class MongoToMySql extends IniConfig {
 
                             StringBuilder sb = new StringBuilder();
                             sb.append("Atencao, ao sensor " + sensor.getId() + " da zona " + sensor.getZone().getId() + "!");
-                            sb.append(" O sensor apresenta uma percentagem de erros superior a " + percentage*100 + "%.");
+                            sb.append(" O sensor apresenta uma percentagem de erros superior a " + percentage * 100 + "%.");
 
                             Alert alert = new Alert(0, 0, sensor.getId(), 0, Timestamp.from(Instant.now()), sb.toString());
 
                             try {
-                                Connection mysql = DriverManager.getConnection(getConfig("mysql","local_uri"), MYSQL_USER, MYSQL_PASS);
+                                Connection mysql = DriverManager.getConnection(getConfig("mysql", "local_uri"), MYSQL_USER, MYSQL_PASS);
                                 String sql = "INSERT INTO alerts (sensor_id, created_at, message) VALUES (?, ?, ?)";
 
                                 PreparedStatement statement = mysql.prepareStatement(sql);
@@ -250,23 +250,12 @@ public class MongoToMySql extends IniConfig {
                     }
                     // TODO - testar esta merda!!!
                     data = new MySqlData("config.ini");
-                    analyser = createAnalyser(data, sleepTime);
-                    preAlertSet.setAllParams(data.getCultureParamsSet());
+                    synchronized (this) {
+                        analyser = createAnalyser(data, sleepTime);
+                        preAlertSet.setAllParams(data.getCultureParamsSet());
+                    }
                 }
             }
         }
-    }
-
-    private MySqlData.Sensor getSensorUsingMeasurement(Measurement mea) {
-        if (mea != null) {
-            String meaSensor = mea.getSensor();
-            for (Long k : data.getSensors().keySet()) {
-                MySqlData.Sensor sensor = data.getSensors().get(k);
-                if (sensor.getSensorName().equals(meaSensor)) {
-                    return sensor;
-                }
-            }
-        }
-        return null;
     }
 }

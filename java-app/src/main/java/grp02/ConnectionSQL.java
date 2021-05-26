@@ -125,13 +125,8 @@ public class ConnectionSQL extends IniConfig {
             // buscar dados e extrair valores
             try {
                 String id = measurement.getId().toString();
-                Zone zone = this.data.getZones().get(measurement.getZoneId());
-
-                MySqlData.Sensor sensor = null;
-                for (Map.Entry<Long, MySqlData.Sensor> e: this.data.getSensors().entrySet()) {
-                    if (e.getValue().getSensorName().equals(measurement.getSensor()))
-                        sensor = e.getValue();
-                }
+                Zone zone = data.getZoneByName(measurement.getZone());
+                Sensor sensor = data.getSensorByName(measurement.getSensor());
                 String value = measurement.getValue();
                 //Timestamp date = measurement.getTimestamp();
                 Timestamp date = new Timestamp(System.currentTimeMillis());

@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 public final class MySqlData extends IniConfig {
     private static final String MYSQL_LOCAL_USER = "root";
@@ -41,6 +42,22 @@ public final class MySqlData extends IniConfig {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    public Sensor getSensorByName(String name) {
+        for (Map.Entry<Long, Sensor> s : getSensors().entrySet()) {
+            if (s.getValue().getSensorName().equals(name))
+                return s.getValue();
+        }
+        return null;
+    }
+
+    public Zone getZoneByName(String name) {
+        for (Map.Entry<Long, Zone> z : getZones().entrySet()) {
+            if (z.getValue().getName().equals(name))
+                return z.getValue();
+        }
+        return null;
     }
 
     public Hashtable<Long, List<CultureParams>> getCultureParamsSet() {
@@ -155,6 +172,7 @@ public final class MySqlData extends IniConfig {
 
             while (res.next()) {
                 Zone z = new Zone(res.getInt("id"));
+                z.setName(res.getString("name"));
                 z.setHumidity(res.getDouble("humidity"));
                 z.setLight(res.getDouble("light"));
                 z.setTemperature(res.getDouble("temperature"));
@@ -288,6 +306,12 @@ public final class MySqlData extends IniConfig {
         private double humidity;
         private double light;
 
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        private String name;
+
         private final ArrayList<Sensor> sensors = new ArrayList<>();
 
         public Zone(int id) {
@@ -328,6 +352,10 @@ public final class MySqlData extends IniConfig {
 
         public ArrayList<Sensor> getSensors() {
             return sensors;
+        }
+
+        public String getName() {
+            return this.name;
         }
     }
 
@@ -502,7 +530,7 @@ public final class MySqlData extends IniConfig {
             Sensor s = sensors.get(k);
             System.err.println("sensor: id " + s.getId());
             System.err.println("sensor: name " + s.getSensorName());
-            System.err.println("sensor: zone " + s.getZone().getId());
+            System.err.println("sensor: zone " + s.getZone().getName());
             System.err.println("sensor: min " + s.getMinLim());
             System.err.println("sensor: max " + s.getMaxLim());
             System.err.println("----------------------");
