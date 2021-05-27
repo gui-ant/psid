@@ -90,24 +90,30 @@ public class MongoToMySql extends IniConfig {
                     int counter = 0;
                     double meanValue, acc = 0;
 
-                    Measurement measurement = buffer.take();
-                    stats.incrementReadings();
-                    if (sensor == null) {
-                        sensor = data.getSensorByName(measurement.getSensor());
-                    }
 
-                    if (!isValid(measurement)) {
-                        publish(measurement);
-                        stats.incrementErrors();
-                    } else {
-                        acc += measurement.getRoundValue();
-                        counter++;
-                        lastValidMeas = measurement;
+                    while(!buffer.isEmpty()){
+
+                        Measurement measurement = buffer.take();
+                        stats.incrementReadings();
+                        if (sensor == null) {
+                            sensor = data.getSensorByName(measurement.getSensor());
+                        }
+
+                        if (!isValid(measurement)) {
+                            publish(measurement);
+                            stats.incrementErrors();
+                        } else {
+                            acc += measurement.getRoundValue();
+                            counter++;
+                            lastValidMeas = measurement;
+                        }
+                        // Confrontar a medição com as parametrizações que existem
+                        // para a tipologia de sensor dessa medição (H, T, L)
+                        //
+                        // tipologia de sensor: measurement.getSensorType();
+
+
                     }
-                    // Confrontar a medição com as parametrizações que existem
-                    // para a tipologia de sensor dessa medição (H, T, L)
-                    //
-                    // tipologia de sensor: measurement.getSensorType();
 
                     if (counter != 0) {
                         meanValue = acc / counter;
@@ -121,7 +127,6 @@ public class MongoToMySql extends IniConfig {
 
                         publish(lastValidMeas);
                     }
-
 
                 } catch (InterruptedException | SQLException e) {
                     e.printStackTrace();

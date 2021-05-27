@@ -2,6 +2,7 @@ package grp07;
 
 import common.IniConfig;
 
+import java.lang.reflect.Array;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -551,15 +552,19 @@ public final class MySqlData extends IniConfig {
     }
 
     private void testCultureParams() {
-        for (Long k : cultureParams.keySet()) {
-            CultureParams p = cultureParams.get(k);
-            System.err.println("Parametro: id - " + p.getParamId());
-            System.err.println("Parametro: tipo - " + p.getSensorType());
-            System.err.println("Parametro: max - " + p.getValMax());
-            System.err.println("Parametro: min - " + p.getValMin());
-            System.err.println("Parametro: cultura - " + p.getCulture());
-            System.err.println("Parametro: tolerance - " + p.getTolerance());
-            System.err.println("----------------------------------------");
+        for (Long k : getCultureParamsSet().keySet()) {
+            List<CultureParams> lst = getCultureParamsSet().get(k);
+            for(CultureParams p : lst) {
+                System.err.println("Parametro: set_id ?- " + k);
+                System.err.println("Parametro: set_id - " + p.getSetId());
+                System.err.println("Parametro: id - " + p.getParamId());
+                System.err.println("Parametro: tipo - " + p.getSensorType());
+                System.err.println("Parametro: max - " + p.getValMax());
+                System.err.println("Parametro: min - " + p.getValMin());
+                System.err.println("Parametro: cultura - " + p.getCulture());
+                System.err.println("Parametro: tolerance - " + p.getTolerance());
+                System.err.println("----------------------------------------");
+            }
         }
     }
 }

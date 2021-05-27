@@ -63,7 +63,12 @@ public class PreAlertSet extends IniConfig {
         for (Long id : allParams.keySet()) {
             System.err.println("------------------------------------------------VAI COMEÇAR OS COMPOSTOS: " + allParams.size() + "---------------------------------------------------");
             List<MySqlData.CultureParams> paramSet = allParams.get(id);
+
             System.err.println("----------------------------------Dentro dOS COMPOSTOS: " + paramSet.size() + "---------------------------------------------------");
+            System.err.println("sus: \n");
+            for(MySqlData.CultureParams a : sus){
+                System.out.println(a.getParamId() + " " + a.getSensorType());
+            }
             System.err.println("**********************************Dentro dOS COMPOSTOS - size do sus: " + sus.size() + "---------------------------------------------------");
 //            if (sus.containsAll(paramSet)) {
             if (susContainsAllParams(sus, paramSet)) {
