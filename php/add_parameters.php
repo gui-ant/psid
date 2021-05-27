@@ -67,13 +67,13 @@ if (isset($_GET['culture_id'])) {
     <div class="container-fluid py-5"></div>
     <h2 class="display-1">Add parameters to <?= $active_culture->name ?></b></h2>
     <h6 class="section-title text-light text-center">Click the checkboxes of the parameters you want to link together.</h6>
-    <?php if (isset($error)) : ?>
+    <?php if ($error) : ?>
       <div class="alert alert-danger"><?= $error ?></div>
     <?php endif ?>
-    <?php if (isset($warning)) : ?>
+    <?php if ($warning) : ?>
       <div class="alert alert-warning"><?= $warning ?></div>
     <?php endif ?>
-    <?php if (isset($success)) : ?>
+    <?php if ($success) : ?>
       <div class="alert alert-success"><?= $success ?></div>
     <?php endif ?>
     <section class="section-params my-5">
