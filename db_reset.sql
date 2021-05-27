@@ -1,5 +1,6 @@
 DROP DATABASE IF EXISTS g07_local; 
 DROP USER IF EXISTS 'admin1@foo.bar'@'%', 'res1@foo.bar'@'%', 'res2@foo.bar'@'%', 'tech1@foo.bar'@'%','aluno'@'%';
+DROP ROLE IF EXISTS 'group_admin', 'group_researcher', 'group_technician';
 CREATE USER 'aluno'@'%' IDENTIFIED BY 'aluno';
 GRANT ALL PRIVILEGES ON *.* TO 'aluno'@'%';
 CREATE ROLE IF NOT EXISTS 'group_admin', 'group_researcher', 'group_technician';
@@ -27,6 +28,7 @@ GRANT EXECUTE ON PROCEDURE g07_local.spUpdateCultureName TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spUpdateUser TO 'group_admin';
 GRANT EXECUTE ON PROCEDURE g07_local.spSetCultureManager TO 'group_admin';
 
+GRANT SELECT ON g07_local.users TO `group_researcher`;
 GRANT SELECT ON g07_local.measurements TO 'group_researcher';
 GRANT SELECT ON g07_local.alerts TO 'group_researcher';
 
