@@ -16,7 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Esta classe não faz parte do projeto. Simula apenas as leituras dos sensores.
  * Os simuladores estão construídos apenas para mandar medições para um Broker.
  * Para gerar dados no broker, correr os SimulateSensor.jar nas pastas respetivas a cada Sensor (src/main/resources/)
- * <p>
+ *
  * Esta classe, envia dados do broker para o cluster do Atlas (Cloud inicial), sendo que na apresentação esta Cloud será a incial deles.
  */
 

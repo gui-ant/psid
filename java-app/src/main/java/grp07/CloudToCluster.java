@@ -1,5 +1,7 @@
 package grp07;
 
+import com.mongodb.MongoSocketReadException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
@@ -38,7 +40,7 @@ public class CloudToCluster extends IniConfig {
         return this.buffer;
     }
 
-    private static class MongoCloudFetcher extends MongoHandler<Measurement> {
+    private class MongoCloudFetcher extends MongoHandler<Measurement> {
         private static final int SLEEP_TIME = 5000;
 
         public MongoCloudFetcher(String sourceUri, String db) {
@@ -54,12 +56,15 @@ public class CloudToCluster extends IniConfig {
 
                         // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
                         ObjectId lastId = doc.getId();
+                        int attempts = 1;
                         while (true) {
+                            MongoCursor<Measurement> cursor = null;
                             try {
-                                System.out.println("Fetching " + collectionName + "...");
-
-                                MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
-
+                                cursor = collection.find(Filters.gt("_id", lastId)).iterator();
+                            } catch (MongoSocketReadException | MongoTimeoutException e) {
+                                System.err.println("A ligação falhou " + (attempts++ > 1 ? " vezes" : " vez"));
+                            }
+                            if (cursor != null) {
                                 // Le os novos dados e adiciona-os ao buffer
                                 while (cursor.hasNext()) {
                                     doc = cursor.next();
@@ -67,6 +72,9 @@ public class CloudToCluster extends IniConfig {
                                     measurements.offer(doc);
                                     System.out.println("Fetched (Mongo):\t" + doc);
                                 }
+                                attempts = 1;
+                            }
+                            try {
                                 Thread.sleep(SLEEP_TIME);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();

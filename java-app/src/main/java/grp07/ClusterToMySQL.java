@@ -1,5 +1,7 @@
 package grp07;
 
+import com.mongodb.MongoSocketReadException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
@@ -62,7 +64,7 @@ public class ClusterToMySQL extends IniConfig {
         new ClusterToMySQL("config.ini", MigrationMethod.getByValue(args[0]));
     }
 
-    private static class MeasurementMongoFetcher extends MongoHandler<Measurement> {
+    private class MeasurementMongoFetcher extends MongoHandler<Measurement> {
 
         private final long sleepTime;
 
@@ -73,35 +75,38 @@ public class ClusterToMySQL extends IniConfig {
 
         @Override
         protected void deal(HashMap<String, LinkedBlockingQueue<Measurement>> collectionsDataBuffer) {
-            collectionsDataBuffer.forEach((collectionName, buffer) -> {
+            collectionsDataBuffer.forEach((collectionName, buffer) ->
+                    new Thread(() -> {
+                        MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
 
-                        new Thread(() -> {
-                            MongoCollection<Measurement> collection = getCollection(collectionName, Measurement.class);
-
-                            Measurement doc = getLastObject(collection); // ultimo da colletion
-                            // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
-                            ObjectId lastId = doc.getId();
-                            while (true) {
-
-                                try {
-                                    System.out.println("Fetching " + getCollectionName(collection) + "...");
-
-                                    MongoCursor<Measurement> cursor = collection.find(Filters.gt("_id", lastId)).iterator();
-
-                                    // Le os novos dados e adiciona-os ao buffer
-                                    while (cursor.hasNext()) {
-                                        doc = cursor.next();
-                                        lastId = doc.getId();
-                                        buffer.offer(doc);
-                                        System.out.println("Fetched (Mongo):\t" + doc);
-                                    }
-                                    Thread.sleep(sleepTime);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                        Measurement doc = getLastObject(collection); // ultimo da colletion
+                        // TODO: Considerar a collection estar vazia,i.e. gerar doc = null
+                        ObjectId lastId = doc.getId();
+                        int attempts = 1;
+                        while (true) {
+                            MongoCursor<Measurement> cursor = null;
+                            try {
+                                cursor = collection.find(Filters.gt("_id", lastId)).iterator();
+                            } catch (MongoSocketReadException | MongoTimeoutException e) {
+                                System.err.println("A ligação falhou " + (attempts++ > 1 ? " vezes" : " vez"));
                             }
-                        }).start();
-                    }
+                            if (cursor != null) {
+                                // Le os novos dados e adiciona-os ao buffer
+                                while (cursor.hasNext()) {
+                                    doc = cursor.next();
+                                    lastId = doc.getId();
+                                    buffer.offer(doc);
+                                    System.out.println("Fetched (Mongo):\t" + doc);
+                                }
+                                attempts = 1;
+                            }
+                            try {
+                                Thread.sleep(sleepTime);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start()
             );
         }
     }
