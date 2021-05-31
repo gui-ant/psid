@@ -1,7 +1,7 @@
 	<?php
 	$url="127.0.0.1";
 	$database="g07_local"; // Alterar nome da BD se necessario	
-    $conn = mysqli_connect($url,$_POST['username'],$_POST['password'],$database);	
+    $conn = mysqli_connect($url,'root','',$database);	
 	
 	// Alterar nome da tabela Alerta e nome do campo Hora se necessario
 	//$sql = "SELECT alerts.created_at, alerts.message FROM alerts, rel_culture_params_set  where DATE(a.created_at) = '" . $_POST['date'] . "';";	

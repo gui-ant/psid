@@ -5,9 +5,8 @@
 	$url2="194.210.86.10"; // BD cloud com dados dos sensores
 	$database2="aluno_g07_cloud";
 	
-	$conn = mysqli_connect($url,$_POST['username'],$_POST['password'],$database);
-	//$test_user = 'res1@foo.bar';
-	//$conn = mysqli_connect($url,$test_user,'pass',$database);
+	$conn = mysqli_connect($url,'root','',$database);
+
 	
 	
 	$conn_cloud = mysqli_connect($url2,'aluno','aluno',$database2);
@@ -15,7 +14,7 @@
 	
 	
 	// query que devolve zonas disponiveis para o user, i.e., Zonas onde existem culturas associadas a este user
-	$get_temp_zones = "SELECT cultures.zone_id FROM cultures WHERE cultures.id IN (SELECT culture_users.culture_id FROM culture_users WHERE culture_users.user_id = (SELECT users.id FROM users WHERE users.email = '".$_POST['username']."'))";
+	$get_temp_zones = "SELECT DISTINCT cultures.zone_id FROM cultures WHERE cultures.id IN (SELECT culture_users.culture_id FROM culture_users WHERE culture_users.user_id = (SELECT users.id FROM users WHERE users.email = '".$_POST['username']."'))";
 	$zones_ids = mysqli_query($conn, $get_temp_zones);
 	
 	$zones_array = array();	
